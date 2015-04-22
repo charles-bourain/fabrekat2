@@ -1,0 +1,41 @@
+{% extends "site_base.html" %}
+
+{% block title %}Create - {{block.super}}{% endblock %}
+
+{%block extra_head %} {% endblock %}
+
+
+{% block body %}
+
+<h1>Fabricator: {{ object.fabricator }}</h1>
+<p>Fabricator Location: {{ object.fabricator_location }}</p>
+<p>Fabricator Qualifications: {{ object.fabricator_qualifications }}</p>
+<p>Fabricator Tools: {{ object.fabricator_tools }}</p>
+
+
+{% endblock %}
+
+
+
+
+<!-- 
+<body>
+	<form enctype="multipart/form-data" method='POST' action="">
+		{% csrf_token %}
+		<ul>
+			<div>
+				{% for field in project_form %}
+					{{ field }}
+				{% endfor %}
+			</div>
+			<div>
+				{{ purchasedcomponent_form.as_ul}}
+			</div>
+			
+			
+		</ul
+>		<input type="submit" value="Create Project" >
+	</form>
+</body>
+ -->
+

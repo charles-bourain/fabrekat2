@@ -1,0 +1,41 @@
+{% extends "site_base.html" %}
+
+{% block title %}Create - {{block.super}}{% endblock %}
+
+{%block extra_head %} {% endblock %}
+
+
+{% block body %}
+
+<form action="" method="post">{% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" value="Create" />
+</form>
+
+
+{% endblock %}
+
+
+
+
+<!-- 
+<body>
+	<form enctype="multipart/form-data" method='POST' action="">
+		{% csrf_token %}
+		<ul>
+			<div>
+				{% for field in project_form %}
+					{{ field }}
+				{% endfor %}
+			</div>
+			<div>
+				{{ purchasedcomponent_form.as_ul}}
+			</div>
+			
+			
+		</ul
+>		<input type="submit" value="Create Project" >
+	</form>
+</body>
+ -->
+

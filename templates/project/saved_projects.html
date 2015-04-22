@@ -1,0 +1,23 @@
+{% extends "site_base.html" %}
+
+{% load url from future %}
+
+{% block head_title %} {% endblock %}
+
+{% block body %}
+
+<h1> My Saved Projects </h1>
+
+	{% if my_saved_projects %}
+
+		{% for project in my_saved_projects %}
+
+			<h4> <a href="/project/{{project.id}}"> {{project.project_name }} </h4>
+
+		{% endfor %}
+
+	{% else %}
+		You Have not Saved Any Projects!
+	{% endif %}
+
+{% endblock %}

@@ -1,0 +1,70 @@
+{% extends "site_base.html" %}
+{% load follow_tags %}
+{% load thumbnail %}
+
+{%block body %}
+
+<h1>{{ project.project_name }}</h1>
+
+<li> <a href="{%url 'prj_edit' id=project.id %}"> EDIT PROJECT </a> </li>
+
+<form method="POST" action="{% follow_url project user%}">
+	{% csrf_token %}
+	{% if user|is_following:project = True %}
+		<input class="Save_Project" type="submit" value="Remove Project From My Saved Projects" />
+	{% else %}
+		<input class="follow" type="submit" value="Add Project to My Saved Projects" />
+	{% endif %}
+
+
+
+<h2>Created by: {{project.project_creator}}</h2>
+<h3>Created at Time: {{project.project_time_created }}</h3>
+<h4>Projected Last Modified: {{project.project_last_modified }}</h4>
+
+{% if projectimage %}
+	{% for image in projectimage %}
+		<ul>
+			<img src="{{image.image.url}}" alt="" height = 300 />
+		</ul>
+	{% endfor %}
+{% endif %}
+
+
+{% if purchasedcomponent %}
+	{% for component in purchasedcomponent %}
+		<ul>
+			<h2>Component: 
+				<a href="{{component.purchased_component_url_link}}">{{component.purchased_component_name}} 
+				</a>
+				x {{component.purchased_component_quantity}}
+			</h2>
+		</ul>
+	{% endfor %}
+
+{% else %}
+	<ul>  There Are No Purchased Components For this Project </ul>
+
+{% endif %}
+
+{% if fabricatedcomponent %}
+	{% for component in fabricatedcomponent %}
+			<ul>
+				<h2>Fabricated Component: 
+					<a href="/project/{{component.fabricated_component_from_project.id}}">
+						<img src="{{fabricated_component_thumbnails.image.url}}" alt="" height = 50 />
+						{{component.fabricated_component_from_project.project_name}}
+					</a>
+					x {{component.fabricated_component_quantity}}
+				</h2>
+			</ul>
+	{% endfor %}
+
+{% else %}
+	<ul>  There Are No Fabricated Components </ul>
+
+{% endif %}
+
+{% if error_message %}<p><strong>{{ error_message }} </strong>/</p>{% endif %}
+
+{% endblock %}
