@@ -91,10 +91,8 @@ class FabricatedComponent(models.Model):
 #		return unicode(self.project_name)	
 
 
-class ProjectImage(BaseAlbum):
+def get_image_path(instance, filename):
 
-
-	def get_image_path(instance, filename):
 		project_id = instance.project_image_for_project_id		
 		print project_id
 		print filename
@@ -107,9 +105,16 @@ class ProjectImage(BaseAlbum):
 
 		print image_upload_path
 
-		return image_upload_path			
+		return image_upload_path	
 
-	project_image_for_project = models.ForeignKey(Project)
+
+class ProjectImage(BaseAlbum):
+	
+	class Meta(BaseAlbum.Meta): 
+		app_label = "imagestore" 
+		abstract = False		
+
+	project_image_for_project = models.ForeignKey(Project, related_name = 'imageforproject')
 	image=models.ImageField(
 	upload_to=get_image_path, 
 	blank=True, 
