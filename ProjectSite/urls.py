@@ -14,6 +14,7 @@ urlpatterns = patterns('',
 	url(r'^', include('haystack.urls')),
 	url(r'^', include('follow.urls')),
 	url(r'^', include('fabricator.urls')),
+	url(r'^autocomplete/', include('autocomplete_light.urls')),
 )
 
 #Put these in so Server/media/image/ in the HTML for project detail will work

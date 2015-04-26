@@ -10,7 +10,7 @@ from project.forms import ProjectForm, PurchasedComponentFormSet, FabricatedComp
 from project.forms import ProjectImageForm, ProjectImageFormSet
 from account.mixins import LoginRequiredMixin
 from follow import utils
-from follow.models import Follow 
+from follow.models import Follow
 
 #LoginRequiredMixin checks if user is logged in
 class ProjectCreateView(LoginRequiredMixin, CreateView):
@@ -101,6 +101,10 @@ def project_detail(request, id):
 	
 	project = get_object_or_404(Project, id=id)
 
+	saved_project_count = len(Follow.objects.get_follows(project))
+
+	print 'Saved Project Count: ' + str(saved_project_count)
+
 	#Might be showing the user who is viewing the page...
 	user = request.user
 
@@ -120,11 +124,9 @@ def project_detail(request, id):
 
 	fabricatedcomponent_from_project_list_id = fabricatedcomponent.values_list('fabricated_component_from_project_id', flat = True)
 		
-	print 'FabricatedComponent_from_project_list = %r' % fabricatedcomponent_from_project_list_id
 
 	fabricated_component_thumbnails = ProjectImage.objects.filter(project_image_for_project__in = fabricatedcomponent_from_project_list_id).first()
 
-	print 'Thumbnailed Projects = %r' % fabricated_component_thumbnails
 
 
 	#print 'Thumbnail Project Number: %r' % thumbnail_fabricatedcomponent
@@ -153,6 +155,7 @@ def project_detail(request, id):
 		'projectimage':projectimage,
 		'projectfile':projectfile,
 		'fabricated_component_thumbnails':fabricated_component_thumbnails,
+		'saved_project_count': saved_project_count,
 	}
 
 	return render_to_response(

@@ -100,8 +100,8 @@ class InspiredProject(models.Model):
 	project_inspired_link = models.ForeignKey(
 		Project, 
 		related_name = 'inspired',
-		blank=False,
-		null=False,
+		blank=True,
+		null=True,
 		)
 
 class ProjectFile(models.Model):

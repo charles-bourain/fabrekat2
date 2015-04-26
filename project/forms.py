@@ -2,7 +2,7 @@ from django import forms
 from project.models import Project, PurchasedComponent, ProjectImage, FabricatedComponent,ProjectFile
 from django.forms.models import inlineformset_factory
 from django.forms import ImageField, CharField
-
+import autocomplete_light
 
 class ProjectForm(forms.ModelForm):
 	
@@ -20,13 +20,11 @@ class PurchasedComponentForm(forms.ModelForm):
 		fields = '__all__'
 		exclude = ['purchased_component_for_project']
 
-class FabricatedComponentForm(forms.ModelForm):
-	fabricated_component_from_project = forms.ModelChoiceField(queryset = Project.objects.all(), to_field_name = 'project_name')
-	print 'THis is working'
+class FabricatedComponentForm(autocomplete_light.ModelForm):
 	class Meta:
 		model = FabricatedComponent
-		fields = '__all__'
-		exclude = ['fabricated_component_for_project']	
+		autocomplete_fields = ('fabricated_component_from_project',)
+		autocomplete_exclude = ('fabricated_component_for_project',)
 
 
 class ProjectImageForm(forms.ModelForm):
