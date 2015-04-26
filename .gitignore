@@ -39,5 +39,4 @@ Thumbs.db
 
 # Extra Files #
 ######################
-*.jpg
-media
+media*
