@@ -1,3 +1,6 @@
 from django.contrib import admin
+from fabricator.models import Fabricator,FabricatorType
 
-# Register your models here.
+
+admin.site.register(Fabricator)
+admin.site.register(FabricatorType)

@@ -4,9 +4,9 @@ from django.template import RequestContext
 from datetime import datetime
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
-from project.models import Project, PurchasedComponent, ProjectImage, FabricatedComponent
+from project.models import Project, PurchasedComponent, ProjectImage, FabricatedComponent, ProjectFile
 from django.views.generic import CreateView, UpdateView
-from project.forms import ProjectForm, PurchasedComponentForm, PurchasedComponentFormSet, FabricatedComponentFormSet
+from project.forms import ProjectForm, PurchasedComponentFormSet, FabricatedComponentFormSet, ProjectFileFormSet
 from project.forms import ProjectImageForm, ProjectImageFormSet
 from account.mixins import LoginRequiredMixin
 from follow import utils
@@ -26,12 +26,14 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
 			purchasedcomponent_formset = PurchasedComponentFormSet
 			fabricatedcomponent_formset = FabricatedComponentFormSet
 			projectimage_formset = ProjectImageFormSet
+			projectfile_formset = ProjectFileFormSet
 			return self.render_to_response(
 				self.get_context_data(
 				form = form,
 				purchasedcomponent_formset = purchasedcomponent_formset,
 				fabricatedcomponent_formset = fabricatedcomponent_formset,
 				projectimage_formset = projectimage_formset,
+				projectfile_formset = projectfile_formset,
 				)
 			)
 	def post(self, request, *args, **kwargs):
@@ -43,6 +45,7 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
 		purchasedcomponent_formset = PurchasedComponentFormSet(self.request.POST,)	
 		fabricatedcomponent_formset = FabricatedComponentFormSet(self.request.POST,)
 		projectimage_formset = ProjectImageFormSet(self.request.POST, self.request.FILES,)
+		projectfile_formset = ProjectFileFormSet(self.request.POST, self.request.FILES,)
 
 		print 'is_Valid Check on Forms....'
 		print 'Purchased Component:  %r , %r' % (purchasedcomponent_formset.is_valid(), purchasedcomponent_formset.errors)
@@ -54,13 +57,14 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
 			and  purchasedcomponent_formset.is_valid()
 			and  projectimage_formset.is_valid()
 			and  fabricatedcomponent_formset.is_valid()
+			and  projectfile_formset.is_valid()
 			):		
 
-			return self.form_valid(form, purchasedcomponent_formset, projectimage_formset, fabricatedcomponent_formset)
+			return self.form_valid(form, purchasedcomponent_formset, projectimage_formset, fabricatedcomponent_formset,projectfile_formset)
 		else:
-			return self.form_invalid(form, purchasedcomponent_formset, projectimage_formset, fabricatedcomponent_formset)
+			return self.form_invalid(form, purchasedcomponent_formset, projectimage_formset, fabricatedcomponent_formset,projectfile_formset)
 
-	def form_valid(self, form, purchasedcomponent_formset, projectimage_formset, fabricatedcomponent_formset):
+	def form_valid(self, form, purchasedcomponent_formset, projectimage_formset, fabricatedcomponent_formset, projectfile_formset):
 		print 'All Forms Are Valid'
 		self.object = form.save(commit = False)
 		self.object.project_creator = self.request.user
@@ -75,10 +79,13 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
 		projectimage_formset.instance = self.object	
 		projectimage_formset.save()
 
+		projectfile_formset.instance = self.object	
+		projectfile_formset.save()
+
 
 		return HttpResponseRedirect('/project/%d' % self.object.id)
 
-	def form_invalid(self, form, purchasedcomponent_formset, projectimage_formset, fabricatedcomponent_formset):
+	def form_invalid(self, form, purchasedcomponent_formset, projectimage_formset, fabricatedcomponent_formset, projectfile_formset):
 		print 'FORMS WERE INVALID'
 		return self.render_to_response(
 			self.get_context_data(
@@ -86,6 +93,7 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
 				purchasedcomponent_formset = purchasedcomponent_formset,
 				fabricatedcomponent_formset = fabricatedcomponent_formset,
 				projectimage_formset = projectimage_formset,
+				projectfile_formset = projectfile_formset,
 			)
 		)
 
@@ -129,12 +137,21 @@ def project_detail(request, id):
 		)
 	)
 
+	projectfile  = list(
+		ProjectFile.objects.filter(
+			project_file_for_project = id
+		)
+	)
+
+	print projectfile
+
 
 	context = {
 		'project': project,
 		'purchasedcomponent': purchasedcomponent,
 		'fabricatedcomponent' : fabricatedcomponent,
 		'projectimage':projectimage,
+		'projectfile':projectfile,
 		'fabricated_component_thumbnails':fabricated_component_thumbnails,
 	}
 
@@ -211,7 +228,7 @@ class ProjectEditView(LoginRequiredMixin, UpdateView):
 		else:
 			return self.form_invalid(form, purchasedcomponent_formset, projectimage_formset, fabricatedcomponent_formset)
 
-	def form_valid(self, form, purchasedcomponent_formset, projectimage_formset, fabricatedcomponent_formset):
+	def form_valid(self, form, purchasedcomponent_formset, projectimage_formset, fabricatedcomponent_formset, projectfile_formset):
 		print 'All Forms Are Valid'
 		self.object = form.save(commit = False)
 		self.object.project_creator = self.request.user
@@ -225,6 +242,9 @@ class ProjectEditView(LoginRequiredMixin, UpdateView):
 
 		projectimage_formset.instance = self.object	
 		projectimage_formset.save()
+
+		projectfile_formset.instance = self.object	
+		projectfile_formset.save()
 
 
 		return HttpResponseRedirect('/project/%d' % self.object.id)

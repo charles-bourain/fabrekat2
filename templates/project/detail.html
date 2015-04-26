@@ -1,6 +1,7 @@
 {% extends "site_base.html" %}
 {% load follow_tags %}
 {% load thumbnail %}
+{% load filename %}
 
 {%block body %}
 
@@ -26,6 +27,14 @@
 	{% for image in projectimage %}
 		<ul>
 			<img src="{{image.image.url}}" alt="" height = 300 />
+		</ul>
+	{% endfor %}
+{% endif %}
+
+{% if projectfile %}
+	{% for file in projectfile %}
+		<ul> 
+			<h2> <a href="{{ file.project_file.url }}" download > {{file.project_file|filename}} </h2></a>		
 		</ul>
 	{% endfor %}
 {% endif %}

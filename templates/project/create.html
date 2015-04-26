@@ -14,6 +14,9 @@
 	            $(".inLine.{{projectimage_formset.prefix}}").formset({
 	                prefix: "{{projectimage_formset.prefix}}",
 	            })
+	            $(".inLine.{{projectfile_formset.prefix}}").formset({
+	                prefix: "{{projectfile_formset.prefix}}",
+	            })	            
 	            $(".inLine.{{purchasedcomponent_formset.prefix}}").formset({
 	                prefix: "{{purchasedcomponent_formset.prefix}}",
 	            })      
@@ -56,6 +59,25 @@
 	                {% endfor %}
 
 				</fieldset>
+	           
+
+	            <fieldset>
+	                <legend>Project Files</legend>
+
+	                {{ projectfile_formset.management_form }}
+	                {{ projectfile_formset.non_form_errors }}
+
+	                {% for form in projectfile_formset %}
+	                    {{ form.id }}
+	                    <div class="inLine {{projectfile_formset.prefix}}">
+	                        {{ form.project_file.errors }}
+	                        {{ form.project_file.label_tag }}
+	                        {{ form.project_file }}    
+	                    </div>
+	                {% endfor %}
+
+				</fieldset>
+
 
 	            <fieldset>         
 	                <legend>Purchased Component</legend>

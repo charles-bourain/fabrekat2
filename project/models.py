@@ -7,6 +7,8 @@ from filebrowser.sites import site
 from imagestore.models.bases.album import BaseAlbum
 from imagestore.models.bases.image import BaseImage
 from follow import utils
+from formatChecker import ContentTypeRestrictedFileField
+from django.core.exceptions import ValidationError
 
 
 
@@ -22,15 +24,10 @@ class Project(models.Model):
 	project_spotlight = models.BooleanField(default=False)
 	project_description = models.TextField(max_length= 1000)
 	project_creator = models.ForeignKey(User, related_name = 'project_creator_set', editable=False)
-	#project_image=models.ImageField(
-	#upload_to=get_image_path, 
-	#blank=True, 
-	#null=True,
-	#) 	
-
 	project_time_created = models.DateTimeField(auto_now_add=True, editable=False)
 	project_last_modified = models.DateTimeField(auto_now=True, editable=False)
-	#project_file = models.FileField(upload_to=get_file_path , blank=True, null=True)
+	def __unicode__(self):
+		return unicode(self.project_name)
 
 class PurchasedComponent(models.Model):
 	purchased_component_for_project = models.ForeignKey(
@@ -42,15 +39,6 @@ class PurchasedComponent(models.Model):
 	purchased_component_url_link = models.URLField()
 	purchased_component_quantity = models.IntegerField(default = 0)
 	#price = Gotta get the price somehow....
-
-#class FabricatedComponent(models.Model):
-#	fabricated_component = models.ForeignKey(Project, 
-#		related_name = 'project_fabricated_component',
-#		null=True, 
-#		blank=True,
-#		on_delete=models.SET_NULL,
-#	)
-#	fabricated_component_quantity = models.IntegerField(default = 0)
 	
 	def __unicode__(self):
 		return unicode(self.project_name)	
@@ -69,27 +57,6 @@ class FabricatedComponent(models.Model):
 	)
 	fabricated_component_quantity = models.IntegerField(default = 0)
 	#price = Gotta get the price somehow....
-
-	def __unicode__(self):
-		project_id = fabricated_component_for_project.id
-
-		project_name = models.Project(project_id).project_name
-
-
-		return unicode(project_name)
-
-#class FabricatedComponent(models.Model):
-#	fabricated_component = models.ForeignKey(Project, 
-#		related_name = 'project_fabricated_component',
-#		null=True, 
-#		blank=True,
-#		on_delete=models.SET_NULL,
-#	)
-#	fabricated_component_quantity = models.IntegerField(default = 0)
-	
-#	def __unicode__(self):
-#		return unicode(self.project_name)	
-
 
 def get_image_path(instance, filename):
 
@@ -136,9 +103,14 @@ class InspiredProject(models.Model):
 		blank=False,
 		null=False,
 		)
-	project_inspired_description = models.TextField(max_length = 400)
 
 class ProjectFile(models.Model):
+
+	def validate_file_extension(value):
+		ext = os.path.splitext(value.name)[1]
+		valid_extensions = ['.jpg',]
+		if not ext in valid_extensions:
+			raise ValidationError(u'File not supported!')
 
 	def get_file_path(instance, filename):
 		project_id = instance.project_file_for_project_id	
@@ -149,13 +121,12 @@ class ProjectFile(models.Model):
 		return file_upload_path	
 
 	project_file_for_project = models.ForeignKey(Project)
-	file=models.FileField(
-	upload_to=get_file_path, 
-	blank=True, 
-	null=True,
+	project_file=models.FileField(
+	upload_to=get_file_path,
+	validators = [validate_file_extension],	
 	) 	
 
-		
+
 
 
 #Registering Project model with the follows app to allow users to follow Projects
