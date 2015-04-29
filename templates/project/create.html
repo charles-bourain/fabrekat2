@@ -12,7 +12,10 @@
 	    {% include 'autocomplete_light/static.html' %}
 	    
 	    <script type="text/javascript">
-	        $(function() {	        	
+	        $(function() {	
+	            $(".inLine.{{projectstep_formset.prefix}}").formset({
+	                prefix: "{{projectstep_formset.prefix}}",
+	            })  	                	
 	            $(".inLine.{{projectimage_formset.prefix}}").formset({
 	                prefix: "{{projectimage_formset.prefix}}",
 	            })
@@ -24,7 +27,7 @@
 	            })      
 	            $(".inLine.{{fabricatedcomponent_formset.prefix}}").formset({
 	                prefix: "{{fabricatedcomponent_formset.prefix}}",
-	            })        	      	
+	            })   	                    	      	
 	        })
         </script>
   
@@ -44,7 +47,30 @@
 	            <div>
 	                {{ form.as_p }}
 	            </div>
-	            
+
+	            <fieldset>
+	                <legend>Project Steps</legend>
+
+	                {{ projectstep_formset.management_form }}
+	                {{ projectstep_formset.non_form_errors }}
+
+	                {% for form in projectstep_formset %}
+	                    {{ form.id }}
+	                    <div class="inLine {{projectstep_formset.prefix}}">
+	                        {{ form.project_step_description.errors }}
+	                        {{ form.project_step_description.label_tag }}
+	                        {{ form.project_step_description }}  
+
+	                        {{ form.project_step_image.errors }}
+	                        {{ form.project_step_image.label_tag }}
+	                        {{ form.project_step_image }}                         
+
+	                    </div>
+	                {% endfor %}
+
+				</fieldset>
+
+            
 	            <fieldset>
 	                <legend>Project Images</legend>
 

@@ -4,10 +4,10 @@ from django.template import RequestContext
 from datetime import datetime
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
-from project.models import Project, PurchasedComponent, ProjectImage, FabricatedComponent, ProjectFile
+from project.models import Project, PurchasedComponent, ProjectImage, FabricatedComponent, ProjectFile, ProjectStep
 from django.views.generic import CreateView, UpdateView
 from project.forms import ProjectForm, PurchasedComponentFormSet, FabricatedComponentFormSet, ProjectFileFormSet
-from project.forms import ProjectImageForm, ProjectImageFormSet
+from project.forms import ProjectImageForm, ProjectImageFormSet, ProjectStepFormSet
 from account.mixins import LoginRequiredMixin
 from follow import utils
 from follow.models import Follow
@@ -27,6 +27,7 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
 			fabricatedcomponent_formset = FabricatedComponentFormSet
 			projectimage_formset = ProjectImageFormSet
 			projectfile_formset = ProjectFileFormSet
+			projectstep_formset = ProjectStepFormSet
 			return self.render_to_response(
 				self.get_context_data(
 				form = form,
@@ -34,6 +35,7 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
 				fabricatedcomponent_formset = fabricatedcomponent_formset,
 				projectimage_formset = projectimage_formset,
 				projectfile_formset = projectfile_formset,
+				projectstep_formset = projectstep_formset,
 				)
 			)
 	def post(self, request, *args, **kwargs):
@@ -46,11 +48,7 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
 		fabricatedcomponent_formset = FabricatedComponentFormSet(self.request.POST,)
 		projectimage_formset = ProjectImageFormSet(self.request.POST, self.request.FILES,)
 		projectfile_formset = ProjectFileFormSet(self.request.POST, self.request.FILES,)
-
-		print 'is_Valid Check on Forms....'
-		print 'Purchased Component:  %r , %r' % (purchasedcomponent_formset.is_valid(), purchasedcomponent_formset.errors)
-		print 'Image:  %r , %r' % (projectimage_formset.is_valid(), projectimage_formset.errors)
-		print 'Fabricated Comp: %r , %r' % (fabricatedcomponent_formset.is_valid(), fabricatedcomponent_formset.errors)	
+		projectstep_formset = ProjectStepFormSet(self.request.POST, self.request.FILES,) 
 		
 		if (
 			form.is_valid()
@@ -58,17 +56,19 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
 			and  projectimage_formset.is_valid()
 			and  fabricatedcomponent_formset.is_valid()
 			and  projectfile_formset.is_valid()
+			and projectstep_formset.is_valid()
 			):		
 
-			return self.form_valid(form, purchasedcomponent_formset, projectimage_formset, fabricatedcomponent_formset,projectfile_formset)
+			return self.form_valid(form, purchasedcomponent_formset, projectimage_formset, fabricatedcomponent_formset,projectfile_formset, projectstep_formset)
 		else:
-			return self.form_invalid(form, purchasedcomponent_formset, projectimage_formset, fabricatedcomponent_formset,projectfile_formset)
+			return self.form_invalid(form, purchasedcomponent_formset, projectimage_formset, fabricatedcomponent_formset,projectfile_formset, projectstep_formset)
 
-	def form_valid(self, form, purchasedcomponent_formset, projectimage_formset, fabricatedcomponent_formset, projectfile_formset):
+	def form_valid(self, form, purchasedcomponent_formset, projectimage_formset, fabricatedcomponent_formset, projectfile_formset, projectstep_formset):
 		print 'All Forms Are Valid'
 		self.object = form.save(commit = False)
 		self.object.project_creator = self.request.user
 		self.object = form.save()
+
 		purchasedcomponent_formset.instance = self.object
 		purchasedcomponent_formset.save()
 
@@ -82,10 +82,20 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
 		projectfile_formset.instance = self.object	
 		projectfile_formset.save()
 
+		projectstep_formset.instance = self.object
+
+
+
+		
+
+		# projectstep_formset.instance.project_step_number = projectstep_formset.ordered_forms
+
+		projectstep_formset.save()
+
 
 		return HttpResponseRedirect('/project/%d' % self.object.id)
 
-	def form_invalid(self, form, purchasedcomponent_formset, projectimage_formset, fabricatedcomponent_formset, projectfile_formset):
+	def form_invalid(self, form, purchasedcomponent_formset, projectimage_formset, fabricatedcomponent_formset, projectfile_formset, projectstep_formset):
 		print 'FORMS WERE INVALID'
 		return self.render_to_response(
 			self.get_context_data(
@@ -94,58 +104,48 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
 				fabricatedcomponent_formset = fabricatedcomponent_formset,
 				projectimage_formset = projectimage_formset,
 				projectfile_formset = projectfile_formset,
+				projectstep_formset = projectstep_formset,
 			)
 		)
 
 def project_detail(request, id):
 	
 	project = get_object_or_404(Project, id=id)
-
 	saved_project_count = len(Follow.objects.get_follows(project))
-
-	print 'Saved Project Count: ' + str(saved_project_count)
-
+	projectimage  = list(
+	ProjectImage.objects.filter(
+		project_image_for_project = id
+		)
+	)
 	#Might be showing the user who is viewing the page...
 	user = request.user
-
+	projectstep  = list(
+		ProjectStep.objects.filter(
+			step_for_project = id,
+		),
+	)	
 	#purchase component gathers the database objects for the purchased component for project id.
 	#The view may need to store the API for amazon store.
 	#May want to pass fabricated components as well(for thumbnails etc)
 
 	#Controlling what shoes on the detailed page.  The id passed the id associated to the project shown.
-	purchasedcomponent = list(
-		PurchasedComponent.objects.all().filter(
-			purchased_component_for_project = id
-			)
-	)
+	
+	for step in projectstep:
+		purchasedcomponent =PurchasedComponent.objects.filter(
+				purchased_component_for_step = step.id
+				)
 
-	fabricatedcomponent =FabricatedComponent.objects.filter(
-			fabricated_component_for_project = id)
+		fabricatedcomponent =FabricatedComponent.objects.filter(
+				fabricated_component_for_step = step.id
+				)
+		fabricatedcomponent_from_project_list_id = fabricatedcomponent.values_list('fabricated_component_from_project_id', flat = True)
+		fabricated_component_thumbnails = ProjectImage.objects.filter(project_image_for_project__in = fabricatedcomponent_from_project_list_id).first()
 
-	fabricatedcomponent_from_project_list_id = fabricatedcomponent.values_list('fabricated_component_from_project_id', flat = True)
-		
-
-	fabricated_component_thumbnails = ProjectImage.objects.filter(project_image_for_project__in = fabricatedcomponent_from_project_list_id).first()
-
-
-
-	#print 'Thumbnail Project Number: %r' % thumbnail_fabricatedcomponent
-	#Choses the first applied image to be the thumbnail.  We may want a Javascript rotation later.
-	#Gathering the Images in the Album
-
-	projectimage  = list(
-		ProjectImage.objects.filter(
-			project_image_for_project = id
-		)
-	)
-
-	projectfile  = list(
+		projectfile  = list(
 		ProjectFile.objects.filter(
-			project_file_for_project = id
+			project_file_for_step = step.id
+			)
 		)
-	)
-
-	print projectfile
 
 
 	context = {
@@ -156,12 +156,13 @@ def project_detail(request, id):
 		'projectfile':projectfile,
 		'fabricated_component_thumbnails':fabricated_component_thumbnails,
 		'saved_project_count': saved_project_count,
+		'projectstep': projectstep,
 	}
 
 	return render_to_response(
 		'project/detail.html',
 		context,
-		context_instance = RequestContext(request)
+		context_instance = RequestContext(request),
 	)
 
 @login_required

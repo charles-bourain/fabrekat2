@@ -1,5 +1,5 @@
 from django import forms
-from project.models import Project, PurchasedComponent, ProjectImage, FabricatedComponent,ProjectFile
+from project.models import Project, PurchasedComponent, ProjectImage, FabricatedComponent, ProjectFile, ProjectStep
 from django.forms.models import inlineformset_factory
 from django.forms import ImageField, CharField
 import autocomplete_light
@@ -13,19 +13,68 @@ class ProjectForm(forms.ModelForm):
 		'project_spotlight',
 		]
 
+class ProjectStepForm(forms.ModelForm):
+
+	class Meta:
+		model = ProjectStep
+		fields = '__all__'
+		exclude = [
+		'step_for_project',
+		]
+
+ProjectStepFormSet = inlineformset_factory(
+	Project,
+	 ProjectStep, 
+	 form = ProjectStepForm, 
+	 fields = (
+	 	'project_step_image',
+	 	'project_step_description',
+	 	), 
+	 extra = 1,
+	 can_order = True,
+	)
+
 class PurchasedComponentForm(forms.ModelForm):
 
 	class Meta:
 		model = PurchasedComponent
 		fields = '__all__'
-		exclude = ['purchased_component_for_project']
+		exclude = [
+		'purchased_component_for_project',
+		'purchased_component_for_step',
+		]
+
+PurchasedComponentFormSet = inlineformset_factory(
+	ProjectStep, 
+	PurchasedComponent,   
+	form = PurchasedComponentForm,
+	fk_name = 'purchased_component_for_step',
+	extra = 1, 
+	can_delete = True,
+	)
+
 
 class FabricatedComponentForm(autocomplete_light.ModelForm):
 	class Meta:
 		model = FabricatedComponent
 		autocomplete_fields = ('fabricated_component_from_project',)
-		autocomplete_exclude = ('fabricated_component_for_project',)
+		autocomplete_exclude = (
+			'fabricated_component_for_project',
+			'fabricated_component_for_step',
+			)
 
+FabricatedComponentFormSet = inlineformset_factory(
+	ProjectStep, 
+	FabricatedComponent,
+	form = FabricatedComponentForm,
+	fk_name = 'fabricated_component_for_step',
+	fields = (
+		'fabricated_component_from_project',
+		'fabricated_component_quantity',
+		),
+	extra = 1, 
+	can_delete = True,
+	 )
 
 class ProjectImageForm(forms.ModelForm):
 
@@ -35,33 +84,54 @@ class ProjectImageForm(forms.ModelForm):
 		exclude = ['project_image_for_project']
 		required = True
 
+ProjectImageFormSet = inlineformset_factory(Project, ProjectImage, form = ProjectImageForm, fields = ('image',), extra = 1, )
+
 class ProjectFileForm(forms.ModelForm):
 
 	class Meta:
 		model = ProjectFile
 		fields = '__all__'
-		exclude = ['project_file_for_project']
+		exclude = ['project_file_for_step']
 		required = False
 
+ProjectFileFormSet = inlineformset_factory(ProjectStep, ProjectFile, form = ProjectFileForm, fields = ('project_file',), extra = 1, )
 
+# class PurchasedComponentForm(forms.ModelForm):
 
-PurchasedComponentFormSet = inlineformset_factory(
-	Project, 
-	PurchasedComponent,   
-	form = PurchasedComponentForm,
-	fk_name = 'purchased_component_for_project',
-	extra = 1, 
-	can_delete = True,
-	)
-FabricatedComponentFormSet = inlineformset_factory(
-	Project, 
-	FabricatedComponent,
-	form = FabricatedComponentForm,
-	fk_name = 'fabricated_component_for_project',
-	fields = ('fabricated_component_from_project','fabricated_component_quantity'),
-	extra = 1, 
-	can_delete = True,
-	 )
+# 	class Meta:
+# 		model = PurchasedComponent
+# 		fields = '__all__'
+# 		exclude = ['purchased_component_for_project']
 
-ProjectImageFormSet = inlineformset_factory(Project, ProjectImage, form = ProjectImageForm, fields = ('image',), extra = 1, )
-ProjectFileFormSet = inlineformset_factory(Project, ProjectFile, form = ProjectFileForm, fields = ('project_file',), extra = 1, )
+# class FabricatedComponentForm(autocomplete_light.ModelForm):
+# 	class Meta:
+# 		model = FabricatedComponent
+# 		autocomplete_fields = ('fabricated_component_from_project',)
+# 		autocomplete_exclude = ('fabricated_component_for_project',)
+
+# class ProjectFileForm(forms.ModelForm):
+
+# 	class Meta:
+# 		model = ProjectFile
+# 		fields = '__all__'
+# 		exclude = ['project_file_for_project']
+# 		required = False
+# ProjectFileFormSet = inlineformset_factory(Project, ProjectFile, form = ProjectFileForm, fields = ('project_file',), extra = 1, )
+
+# PurchasedComponentFormSet = inlineformset_factory(
+# 	Project, 
+# 	PurchasedComponent,   
+# 	form = PurchasedComponentForm,
+# 	fk_name = 'purchased_component_for_project',
+# 	extra = 1, 
+# 	can_delete = True,
+# 	)
+# FabricatedComponentFormSet = inlineformset_factory(
+# 	Project, 
+# 	FabricatedComponent,
+# 	form = FabricatedComponentForm,
+# 	fk_name = 'fabricated_component_for_project',
+# 	fields = ('fabricated_component_from_project','fabricated_component_quantity'),
+# 	extra = 1, 
+# 	can_delete = True,
+# 	 )
