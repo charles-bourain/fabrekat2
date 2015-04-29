@@ -7,7 +7,6 @@ from filebrowser.sites import site
 from imagestore.models.bases.album import BaseAlbum
 from imagestore.models.bases.image import BaseImage
 from follow import utils
-from formatChecker import ContentTypeRestrictedFileField
 from django.core.exceptions import ValidationError
 
 
