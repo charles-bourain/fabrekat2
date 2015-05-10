@@ -1,6 +1,6 @@
 {% extends "site_base.html" %}
 
-{% block title %}Edit - {{block.super}}{% endblock %}
+{% block title %}Create - {{block.super}}{% endblock %}
 
 {%block extra_head %} 
 	<head>
@@ -8,21 +8,29 @@
 		<script src='http://code.jquery.com/jquery-latest.js'></script>
 	    <script src= "{% static 'project/js/jquery.formset.js' %}" > </script>
 	    <script src="{% static 'project/js/jquery.formset.min.js' %}" ></script>
-	    
+	    <!-- Autocomplete_light needs to be loaded AFTER jquery -->
+	    {% include 'autocomplete_light/static.html' %}
+<!-- 	    
 	    <script type="text/javascript">
-	        $(function() {	        	
+	        $(function() {	
+	            $(".inLine.{{projectstep_formset.prefix}}").formset({
+	                prefix: "{{projectstep_formset.prefix}}",
+	            })  	                	
 	            $(".inLine.{{projectimage_formset.prefix}}").formset({
 	                prefix: "{{projectimage_formset.prefix}}",
 	            })
+	            $(".inLine.{{projectfile_formset.prefix}}").formset({
+	                prefix: "{{projectfile_formset.prefix}}",
+	            })	            
 	            $(".inLine.{{purchasedcomponent_formset.prefix}}").formset({
 	                prefix: "{{purchasedcomponent_formset.prefix}}",
 	            })      
 	            $(".inLine.{{fabricatedcomponent_formset.prefix}}").formset({
 	                prefix: "{{fabricatedcomponent_formset.prefix}}",
-	            })        	      	
+	            })   	                    	      	
 	        })
         </script>
-  
+   -->
 	 
 	       
 <!--	    <link rel="stylesheet" type="text/css" href="{% static 'project/style.css' %}"> -->
@@ -33,20 +41,43 @@
 {% block body %}
 	<body>
 		<div>
-	        <h1>Edit Project</h1>
+	        <h1>Add Project</h1>
 	        <form enctype="multipart/form-data" method='POST' action="">
 	            {% csrf_token %}
 	            <div>
 	                {{ form.as_p }}
 	            </div>
-	            
+
+	            <fieldset>
+	                <legend>Project Steps</legend>
+
+	                {{ projectstep_formset.management_form }}
+	                {{ projectstep_formset.non_form_errors }}
+
+	                {% for form in projectstep_formset %}
+	                    {{ form.id }}
+	                    <div class="inLine {{projectstep_formset.prefix}}">
+	                        {{ form.project_step_description.errors }}
+	                        {{ form.project_step_description.label_tag }}
+	                        {{ form.project_step_description }}  
+
+	                        {{ form.project_step_image.errors }}
+	                        {{ form.project_step_image.label_tag }}
+	                        {{ form.project_step_image }}                         
+
+	                    </div>
+	                {% endfor %}
+
+				</fieldset>
+
+            
 	            <fieldset>
 	                <legend>Project Images</legend>
 
 	                {{ projectimage_formset.management_form }}
 	                {{ projectimage_formset.non_form_errors }}
 
-	                {% for form in projectimage_formset %}
+	                {% for form in form.projectimage_formset %}
 	                    {{ form.id }}
 	                    <div class="inLine {{projectimage_formset.prefix}}">
 	                        {{ form.image.errors }}
@@ -56,6 +87,25 @@
 	                {% endfor %}
 
 				</fieldset>
+	           
+
+	            <fieldset>
+	                <legend>Project Files</legend>
+
+	                {{ projectfile_formset.management_form }}
+	                {{ projectfile_formset.non_form_errors }}
+
+	                {% for form in projectfile_formset %}
+	                    {{ form.id }}
+	                    <div class="inLine {{projectfile_formset.prefix}}">
+	                        {{ form.project_file.errors }}
+	                        {{ form.project_file.label_tag }}
+	                        {{ form.project_file }}    
+	                    </div>
+	                {% endfor %}
+
+				</fieldset>
+
 
 	            <fieldset>         
 	                <legend>Purchased Component</legend>
@@ -97,7 +147,7 @@
 	                    </div>
 	                {% endfor %}
 	            </fieldset>	            
-	            <input type="submit" value="Create Project" >
+	            <input type="submit" value="Save Project" name = '_save' >
 	        </form>
 	    </div>
 	</body>
@@ -127,4 +177,3 @@
 	</form>
 </body>
  -->
-

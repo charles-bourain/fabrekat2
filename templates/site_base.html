@@ -24,7 +24,9 @@
 			<li> <a href="{% url 'account_logout' %}"> Logout </a> </li>
 			<li> <a href="{% url 'account_settings' %}"> Account Settings </a> *This will be Designer Account View/ Lurker Account View</li>
 			<li> <a href="{% url 'my_saved_projects' %}"> My Saved Projects </a> </li>
+			<li> <a href="{% url 'my_projects' %}"> My Projects </a> </li>
 			<li> <a href="{% url 'fab_create' %}"> Become A Fabricator </a> *Need to Add Boolean to appear if user is a Fabricator or not</li>
+
 			
 			<li> Current Logged in as {{ user.username }} </li>
 		</ul>

@@ -7,8 +7,6 @@
 
 <h1>{{ project.project_name }}</h1>
 
-<li> <a href="{%url 'prj_edit' id=project.id %}"> EDIT PROJECT </a> </li>
-
 <form method="POST" action="{% follow_url project user%}">
 	{% csrf_token %}
 	{% if user|is_following:project = True %}
@@ -16,33 +14,51 @@
 	{% else %}
 		<input class="follow" type="submit" value="Add Project to My Saved Projects" />
 	{% endif %}
-
+</form>
 
 
 <h2>Created by: {{project.project_creator}}</h2>
 <h3>Created at Time: {{project.project_time_created }}</h3>
 <h4>Projected Last Modified: {{project.project_last_modified }}</h4>
-<h4>Amount of Users that have saved this project: {{saved_project_count }}</h4>
 
-{% if projectimage %}
-	{% for image in projectimage %}
-		<ul>
-			<img src="{{image.image.url}}" alt="" height = 300 />
-		</ul>
-	{% endfor %}
-{% endif %}
+<form action ='' method = 'POST'>
+	{% csrf_token %}
+<input type = 'submit' value = 'Publish Project' name = '_publish'>
+</form>
 
-Project Steps
+<form action ='' method = 'POST'>
+	{% csrf_token %}
+<input type = 'submit' value = 'Edit Project' name = '_edit'>
+</form>
+
+
+
+<fieldset>
+	{% if projectimage %}
+		{% for image in projectimage %}
+			<ul>
+				<img src="{{image.image.url}}" alt="" height = 300 />
+			</ul>
+		{% endfor %}
+	{% endif %}
+</fieldset>
+<fieldset>
+	Project Description: {{project.project_description}}
+
+</fieldset>
+
+<h1> Project Steps </h1>
 {% if projectstep %}
 	{% for step in projectstep %}
 		<fieldset>
+			<h2> Step {{ forloop.counter }} </h2>
+			<ul>
 			{{ step.project_step_description }}
 			<img src="{{step.project_step_image.url}}" alt="" height = 300 />
-			The Step ID is: {{step.id}}
+			
 			{% for component in purchasedcomponent %}
-				{{component.id}}
 				{% if component.id == step.id %}
-
+			</ul>
 				<ul>
 					<h2>Component: 
 						<a href="{{component.purchased_component_url_link}}">{{component.purchased_component_name}} 

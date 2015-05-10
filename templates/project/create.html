@@ -29,7 +29,7 @@
 	                prefix: "{{fabricatedcomponent_formset.prefix}}",
 	            })   	                    	      	
 	        })
-        </script>
+    	</script>
   
 	 
 	       
@@ -55,17 +55,19 @@
 	                {{ projectstep_formset.non_form_errors }}
 
 	                {% for form in projectstep_formset %}
-	                    {{ form.id }}
-	                    <div class="inLine {{projectstep_formset.prefix}}">
-	                        {{ form.project_step_description.errors }}
-	                        {{ form.project_step_description.label_tag }}
-	                        {{ form.project_step_description }}  
+	                	<fieldset>
+		                    {{ form.id }}
+		                    <div class="inLine {{projectstep_formset.prefix}}">
+		                        {{ form.project_step_description.errors }}
+		                        {{ form.project_step_description.label_tag }}
+		                        {{ form.project_step_description }}  
 
-	                        {{ form.project_step_image.errors }}
-	                        {{ form.project_step_image.label_tag }}
-	                        {{ form.project_step_image }}                         
+		                        {{ form.project_step_image.errors }}
+		                        {{ form.project_step_image.label_tag }}
+		                        {{ form.project_step_image }}                         
 
-	                    </div>
+	                    </div>   
+	                   	</fieldset>	                
 	                {% endfor %}
 
 				</fieldset>
@@ -83,7 +85,7 @@
 	                        {{ form.image.errors }}
 	                        {{ form.image.label_tag }}
 	                        {{ form.image }}    
-	                    </div>
+	                    </div>                  
 	                {% endfor %}
 
 				</fieldset>
@@ -101,7 +103,7 @@
 	                        {{ form.project_file.errors }}
 	                        {{ form.project_file.label_tag }}
 	                        {{ form.project_file }}    
-	                    </div>
+	                    </div>                    
 	                {% endfor %}
 
 				</fieldset>
@@ -126,7 +128,7 @@
 	                        {{ form.purchased_component_quantity.errors }}
 	                        {{ form.purchased_component_quantity.label_tag }}
 	                        {{ form.purchased_component_quantity }}
-	                    </div>
+	                    </div>                    
 	                {% endfor %}
 	            </fieldset>	
 
@@ -144,10 +146,10 @@
 	                        {{ form.fabricated_component_quantity.errors }}
 	                        {{ form.fabricated_component_quantity.label_tag }}
 	                        {{ form.fabricated_component_quantity }}
-	                    </div>
+	                    </div>	                    
 	                {% endfor %}
 	            </fieldset>	            
-	            <input type="submit" value="Create Project" >
+	            <input type="submit" value="Save Project" name = '_save' >
 	        </form>
 	    </div>
 	</body>
@@ -177,4 +179,3 @@
 	</form>
 </body>
  -->
-

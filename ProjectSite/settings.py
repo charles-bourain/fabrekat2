@@ -48,7 +48,8 @@ INSTALLED_APPS = (
     'follow',
     'easy_thumbnails',
     'fabricator',
-    'autocomplete_light'
+    'autocomplete_light',
+    'publishedprojects',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (

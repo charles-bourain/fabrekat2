@@ -6,8 +6,8 @@ from filebrowser.base import FileObject
 from filebrowser.sites import site
 from imagestore.models.bases.album import BaseAlbum
 from imagestore.models.bases.image import BaseImage
-from follow import utils
 from django.core.exceptions import ValidationError
+from follow import utils
 
 
 
@@ -19,6 +19,7 @@ from django.core.exceptions import ValidationError
 
 class Project(models.Model):
 
+	project_id = models.SlugField(editable = False)
 	project_name = models.CharField(max_length=20)
 	project_spotlight = models.BooleanField(default=False)
 	project_description = models.TextField(max_length= 1000)
@@ -27,7 +28,6 @@ class Project(models.Model):
 	project_last_modified = models.DateTimeField(auto_now=True, editable=False)
 	def __unicode__(self):
 		return unicode(self.project_name)
-
 
 
 class ProjectStep(models.Model):
@@ -81,6 +81,7 @@ class FabricatedComponent(models.Model):
 	fabricated_component_from_project = models.ForeignKey(
 	Project, 
 	blank=True,
+	null = True,
 	related_name = 'component_project'
 	)
 	fabricated_component_quantity = models.IntegerField(default = 0)
@@ -158,8 +159,7 @@ class ProjectFile(models.Model):
 	validators = [validate_file_extension],	
 	) 	
 
-
+utils.register(Project)
 
 
 #Registering Project model with the follows app to allow users to follow Projects
-utils.register(Project)

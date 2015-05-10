@@ -43,7 +43,7 @@ class FabricatorCreateView(LoginRequiredMixin, CreateView):
 		self.object.fabricator = self.request.user
 		self.object = form.save()
 
-		return HttpResponseRedirect('fab_detail', pk = self.object.id)
+		return HttpResponseRedirect('fab_detail', name = self.object.user)
 
 	def form_invalid(self, form):
 		print 'FORMS WERE INVALID'
@@ -57,6 +57,9 @@ class FabricatorCreateView(LoginRequiredMixin, CreateView):
 class FabricatorProfileView(DetailView):
 	template_name = 'fabricator/detail.html'
 	model = Fabricator
+
+	def get_object(self):
+		return self.request.user
 
 
 
