@@ -4,6 +4,10 @@ from django.forms.models import inlineformset_factory
 from django.forms import ImageField, CharField
 import autocomplete_light
 
+
+#Use fields instead of exclude.
+
+
 class ProjectForm(forms.ModelForm):
 	
 	class Meta:
@@ -17,22 +21,21 @@ class ProjectStepForm(forms.ModelForm):
 
 	class Meta:
 		model = ProjectStep
-		fields = '__all__'
-		exclude = [
-		'step_for_project',
-		]
+		fields = [
+		 	'project_step_description',
+		 	'project_step_image',
+	 		]	
 
-ProjectStepFormSet = inlineformset_factory(
-	Project,
-	 ProjectStep, 
-	 form = ProjectStepForm, 
-	 fields = (
-	 	'project_step_image',
-	 	'project_step_description',
-	 	), 
-	 extra = 1,
-	 can_order = True,
-	)
+# ProjectStepFormSet = inlineformset_factory(
+# 	Project,
+# 	ProjectStep, 
+# 	 form = ProjectStepForm, 
+# 	 fields = (
+# 	 	'project_step_description',
+# 	 	'project_step_image',
+# 	 	), 
+# 	 extra = 1,
+# 	)
 
 class PurchasedComponentForm(forms.ModelForm):
 

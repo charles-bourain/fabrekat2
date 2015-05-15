@@ -43,8 +43,8 @@
 
 </fieldset>
 
-<h1> Project Steps </h1>
 {% if projectstep %}
+	<h1> Project Steps </h1>
 	{% for step in projectstep %}
 		<fieldset>
 			<h2> Step {{ forloop.counter }} </h2>
@@ -53,7 +53,7 @@
 			<img src="{{step.project_step_image.url}}" alt="" height = 300 />
 			
 			{% for component in purchasedcomponent %}
-				{% if component.id == step.id %}
+				{% if component.purchased_component_for_step_id == step.id %}
 			</ul>
 				<ul>
 					<h2>Component: 
@@ -64,6 +64,33 @@
 				</ul>	
 				{% endif %}			
 			{% endfor %}
+			
+			{% for component in fabricatedcomponent %}
+				{% if component.fabricated_component_for_step_id == step.id %}
+			</ul>
+				<ul>
+					<h2>Fabricated Component: 
+						<a href="/project/{{component.fabricated_component_from_project.project_id}}">
+							<img src="{{fabricated_component_thumbnails.image.url}}" alt="" height = 50 />
+							{{component.fabricated_component_from_project.project_name}}
+					</a>
+					x {{component.fabricated_component_quantity}}
+				</h2>
+				</ul>	
+				{% endif %}			
+			{% endfor %}
+
+			{% for file in projectfile %}
+				{% if file.project_file_for_step_id == step.id %}
+			</ul>
+				<ul>
+					<h2>File: 
+							<a href="{{ file.project_file.url }}" download > {{file.project_file|filename}} </h2></a>
+					</a>
+				</h2>
+				</ul>	
+				{% endif %}			
+			{% endfor %}						
 
 		</fieldset>
 
@@ -72,15 +99,6 @@
 	{% endfor %}
 
 {% endif %}
-
-<!-- {% if projectfile %}
-	{% for file in projectfile %}
-		<ul> 
-			<h2> <a href="{{ file.project_file.url }}" download > {{file.project_file|filename}} </h2></a>		
-		</ul>
-	{% endfor %}
-{% endif %}
- -->
 
 {% if purchasedcomponent %}
 	{% for component in purchasedcomponent %}

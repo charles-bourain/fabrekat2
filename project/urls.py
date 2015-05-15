@@ -12,6 +12,7 @@ urlpatterns=patterns('',
  	url(r'^unpublished/(?P<project_id>[\w-]+)/$', views.unpublished_project_detail, name='unpub_detail'),
  	url(r'^(?P<project_id>[\w-]+)/$', views.published_project_detail, name='pub_detail'), 	
  	url(r'^edit/(?P<project_id>[\w-]+)$', views.edit_project, name='prj_edit'),
+ 	url(r'^edit/(?P<project_id>[\w-]+)/addstep/$', views.StepCreateView.as_view(), name='add_step'),
 	)
 
 

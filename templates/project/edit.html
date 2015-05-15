@@ -1,4 +1,6 @@
 {% extends "site_base.html" %}
+{% load thumbnail %}
+{% load filename %}
 
 {% block title %}Create - {{block.super}}{% endblock %}
 
@@ -41,113 +43,76 @@
 {% block body %}
 	<body>
 		<div>
-	        <h1>Add Project</h1>
+	        <h1>Edit Project</h1>
 	        <form enctype="multipart/form-data" method='POST' action="">
 	            {% csrf_token %}
 	            <div>
 	                {{ form.as_p }}
 	            </div>
 
-	            <fieldset>
-	                <legend>Project Steps</legend>
+    <input type="submit" value="Add Step" name = '_addstep' >
+    <input type="submit" value="Save Project" name = '_save' >
+    <input type="submit" value="Publish Project" name = '_publish' > 
+    <input type="submit" value="Delete Project" name = '_delete' >       
 
-	                {{ projectstep_formset.management_form }}
-	                {{ projectstep_formset.non_form_errors }}
+{% if projectstep %}
+	<h1> Project Steps </h1>
+	{% for step in projectstep %}
+		<fieldset>
+			<h2> Step {{ forloop.counter }} </h2>
+			<ul>
+			{{ step.project_step_description }}
+			<img src="{{step.project_step_image.url}}" alt="" height = 300 />
+			
+			{% for component in purchasedcomponent %}
+				{% if component.purchased_component_for_step_id == step.id %}
+			</ul>
+				<ul>
+					<h2>Component: 
+						<a href="{{component.purchased_component_url_link}}">{{component.purchased_component_name}} 
+						</a>
+						x {{component.purchased_component_quantity}}
+					</h2>
+				</ul>	
+				{% endif %}			
+			{% endfor %}
+			
+			{% for component in fabricatedcomponent %}
+				{% if component.fabricated_component_for_step_id == step.id %}
+			</ul>
+				<ul>
+					<h2>Fabricated Component: 
+						<a href="/project/{{component.fabricated_component_from_project.project_id}}">
+							<img src="{{fabricated_component_thumbnails.image.url}}" alt="" height = 50 />
+							{{component.fabricated_component_from_project.project_name}}
+					</a>
+					x {{component.fabricated_component_quantity}}
+				</h2>
+				</ul>	
+				{% endif %}			
+			{% endfor %}
 
-	                {% for form in projectstep_formset %}
-	                    {{ form.id }}
-	                    <div class="inLine {{projectstep_formset.prefix}}">
-	                        {{ form.project_step_description.errors }}
-	                        {{ form.project_step_description.label_tag }}
-	                        {{ form.project_step_description }}  
+			{% for file in projectfile %}
+				{% if file.project_file_for_step_id == step.id %}
+			</ul>
+				<ul>
+					<h2>File: 
+							<a href="{{ file.project_file.url }}" download > {{file.project_file|filename}} </h2></a>
+					</a>
+				</h2>
+				</ul>	
+				{% endif %}			
+			{% endfor %}						
 
-	                        {{ form.project_step_image.errors }}
-	                        {{ form.project_step_image.label_tag }}
-	                        {{ form.project_step_image }}                         
-
-	                    </div>
-	                {% endfor %}
-
-				</fieldset>
-
-            
-	            <fieldset>
-	                <legend>Project Images</legend>
-
-	                {{ projectimage_formset.management_form }}
-	                {{ projectimage_formset.non_form_errors }}
-
-	                {% for form in form.projectimage_formset %}
-	                    {{ form.id }}
-	                    <div class="inLine {{projectimage_formset.prefix}}">
-	                        {{ form.image.errors }}
-	                        {{ form.image.label_tag }}
-	                        {{ form.image }}    
-	                    </div>
-	                {% endfor %}
-
-				</fieldset>
-	           
-
-	            <fieldset>
-	                <legend>Project Files</legend>
-
-	                {{ projectfile_formset.management_form }}
-	                {{ projectfile_formset.non_form_errors }}
-
-	                {% for form in projectfile_formset %}
-	                    {{ form.id }}
-	                    <div class="inLine {{projectfile_formset.prefix}}">
-	                        {{ form.project_file.errors }}
-	                        {{ form.project_file.label_tag }}
-	                        {{ form.project_file }}    
-	                    </div>
-	                {% endfor %}
-
-				</fieldset>
+		</fieldset>
 
 
-	            <fieldset>         
-	                <legend>Purchased Component</legend>
-	                {{ purchasedcomponent_formset.management_form }}
-	                {{ purchasedcomponent_formset.non_form_errors }}
-	                
-	                {% for form in purchasedcomponent_formset %}
-	                    {{ form.id }}
-	                    <div class="inLine {{purchasedcomponent_formset.prefix}}">
-	                        {{ form.purchased_component_name.errors }}
-	                        {{ form.purchased_component_name.label_tag }}
-	                        {{ form.purchased_component_name }}
-	                        
-	                        {{ form.purchased_component_url_link.errors }}
-	                        {{ form.purchased_component_url_link.label_tag }}
-	                        {{ form.purchased_component_url_link }}
 
-	                        {{ form.purchased_component_quantity.errors }}
-	                        {{ form.purchased_component_quantity.label_tag }}
-	                        {{ form.purchased_component_quantity }}
-	                    </div>
-	                {% endfor %}
-	            </fieldset>	
+	{% endfor %}
 
-	            <fieldset>         
-	                <legend>Fabricated Component</legend>
-	                {{ fabricatedcomponent_formset.management_form }}
-	                
-	                {% for form in fabricatedcomponent_formset %}
-	                    {{ form.id }}
-	                    <div class="inLine {{fabricatedcomponent_formset.prefix}}">
-	                        {{ form.fabricated_component_from_project.errors }}
-	                        {{ form.fabricated_component_from_project.label_tag }}
-	                        {{ form.fabricated_component_from_project}}
+{% endif %}
 
-	                        {{ form.fabricated_component_quantity.errors }}
-	                        {{ form.fabricated_component_quantity.label_tag }}
-	                        {{ form.fabricated_component_quantity }}
-	                    </div>
-	                {% endfor %}
 	            </fieldset>	            
-	            <input type="submit" value="Save Project" name = '_save' >
 	        </form>
 	    </div>
 	</body>

@@ -9,7 +9,7 @@ class PurchasedComponentInline (admin.TabularInline):
 
 class ProjectAdmin (admin.ModelAdmin):
 	inlines = [
-	PurchasedComponentInline,
+	# PurchasedComponentInline,
 #	FabricatedComponentInline,
 	]
 # Register your models here. 

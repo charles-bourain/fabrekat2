@@ -19,7 +19,7 @@
 <h1> My UnPublished Projects </h1>
 	{% if my_unpublished_projects %}
 		{% for project in my_unpublished_projects %}
-			<li> <a href="/project/unpublished/{{project.project_id}}"> {{project.project_name }} </li>
+			<li> <a href="/project/edit/{{project.project_id}}"> {{project.project_name }} </li>
 		{% endfor %}
 	{% else %}
 		You Have No Published Projects

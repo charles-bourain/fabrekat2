@@ -39,15 +39,11 @@ class ProjectStep(models.Model):
 			filename
 			)
 		return image_upload_path
-
-
-
 	step_for_project = models.ForeignKey(Project,
 		related_name = 'project_step',
 		blank = False,
 		null = False,
 		)
-
 	project_step_description = models.TextField(max_length = 200)
 	project_step_image = models.ImageField(upload_to = image_upload_path,)
 
@@ -60,9 +56,7 @@ class PurchasedComponent(models.Model):
 	blank=True,
 	null=True,
 	)
-
 	purchased_component_for_step = models.ForeignKey(ProjectStep)
-
 	purchased_component_name = models.CharField(max_length = 20)
 	purchased_component_url_link = models.URLField()
 	purchased_component_quantity = models.IntegerField(default = 0)
@@ -137,6 +131,12 @@ class InspiredProject(models.Model):
 		)
 
 class ProjectFile(models.Model):
+	project_file_for_project = models.ForeignKey(
+		Project,
+		blank=True,
+		null=True,)
+	project_file_for_step = models.ForeignKey(ProjectStep)
+	
 
 	def validate_file_extension(value):
 		ext = os.path.splitext(value.name)[1]
@@ -145,15 +145,13 @@ class ProjectFile(models.Model):
 			raise ValidationError(u'File not supported!')
 
 	def get_file_path(instance, filename):
-		project_id = instance.project_file_for_project_id
+		project_step_id = instance.project_file_for_step_id
 		file_upload_path = os.path.join('project_files',
-			'project_%s' % project_id,
+			'step_%s' % project_step_id,
 			filename
 			)
 		return file_upload_path	
 
-	project_file_for_project = models.ForeignKey(Project)
-	project_file_for_step = models.ForeignKey(ProjectStep)
 	project_file=models.FileField(
 	upload_to=get_file_path,
 	validators = [validate_file_extension],	
