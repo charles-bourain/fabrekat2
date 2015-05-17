@@ -13,6 +13,9 @@ urlpatterns=patterns('',
  	url(r'^(?P<project_id>[\w-]+)/$', views.published_project_detail, name='pub_detail'), 	
  	url(r'^edit/(?P<project_id>[\w-]+)$', views.edit_project, name='prj_edit'),
  	url(r'^edit/(?P<project_id>[\w-]+)/addstep/$', views.StepCreateView.as_view(), name='add_step'),
+  	url(r'^edit/(?P<project_id>[\w-]+)/addimage/$', views.ImageCreateView.as_view(), name='add_image'),	
+  	url(r'^edit/editstep/(?P<id>[\w-]+)/$', views.edit_step, name='add_image'),
+  	url(r'^edit/(?P<project_id>[\w-]+)/ordersteps/$', views.reorder_steps, name='add_image'),	  	
 	)
 
 

@@ -44,6 +44,7 @@
 	<body>
 		<div>
 	        <h1>Edit Project</h1>
+
 	        <form enctype="multipart/form-data" method='POST' action="">
 	            {% csrf_token %}
 	            <div>
@@ -51,19 +52,34 @@
 	            </div>
 
     <input type="submit" value="Add Step" name = '_addstep' >
+ 	<input type="submit" value="Add Image" name = '_addimage' >
     <input type="submit" value="Save Project" name = '_save' >
     <input type="submit" value="Publish Project" name = '_publish' > 
-    <input type="submit" value="Delete Project" name = '_delete' >       
+    <input type="submit" value="Delete Project" name = '_delete' >  
+    <input type="submit" value="Re-Order Steps" name = '_reorder_steps' >      
+
+<fieldset>
+	{% if projectimage %}
+		{% for image in projectimage %}
+			<ul>
+				<img src="{{image.image.url}}" alt="" height = 300 />
+			</ul>
+		{% endfor %}
+	{% endif %}
+</fieldset>
+         
 
 {% if projectstep %}
 	<h1> Project Steps </h1>
 	{% for step in projectstep %}
 		<fieldset>
 			<h2> Step {{ forloop.counter }} </h2>
+			<h5><a href="editstep/{{step.id}}/" > (edit) </a></h5>
 			<ul>
 			{{ step.project_step_description }}
-			<img src="{{step.project_step_image.url}}" alt="" height = 300 />
-			
+			{% if step.project_step_image %}
+				<img src="{{step.project_step_image.url}}" alt="" height = 300 />
+			{% endif %}
 			{% for component in purchasedcomponent %}
 				{% if component.purchased_component_for_step_id == step.id %}
 			</ul>
@@ -105,8 +121,6 @@
 			{% endfor %}						
 
 		</fieldset>
-
-
 
 	{% endfor %}
 

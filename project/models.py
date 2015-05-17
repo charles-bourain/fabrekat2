@@ -45,8 +45,12 @@ class ProjectStep(models.Model):
 		null = False,
 		)
 	project_step_description = models.TextField(max_length = 200)
-	project_step_image = models.ImageField(upload_to = image_upload_path,)
-
+	project_step_image = models.ImageField(
+		upload_to = image_upload_path,
+		blank = True,
+		null = True,
+		)
+	step_order = models.IntegerField()
 
 
 

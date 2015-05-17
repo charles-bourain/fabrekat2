@@ -100,21 +100,8 @@
 
 {% endif %}
 
-{% if purchasedcomponent %}
-	{% for component in purchasedcomponent %}
-		<ul>
-			<h2>Component: 
-				<a href="{{component.purchased_component_url_link}}">{{component.purchased_component_name}} 
-				</a>
-				x {{component.purchased_component_quantity}}
-			</h2>
-		</ul>
-	{% endfor %}
 
-{% else %}
-	<ul>  There Are No Purchased Components For this Project </ul>
 
-{% endif %}
 
 <!-- {% if fabricatedcomponent %}
 	{% for component in fabricatedcomponent %}

@@ -26,6 +26,14 @@ class ProjectStepForm(forms.ModelForm):
 		 	'project_step_image',
 	 		]	
 
+class ReOrderStepForm(forms.ModelForm):
+
+	class Meta:
+		model = ProjectStep
+		fields = [
+		 	'step_order',
+	 		]		 		
+
 # ProjectStepFormSet = inlineformset_factory(
 # 	Project,
 # 	ProjectStep, 
@@ -83,11 +91,10 @@ class ProjectImageForm(forms.ModelForm):
 
 	class Meta:
 		model = ProjectImage
-		fields = '__all__'
-		exclude = ['project_image_for_project']
+		fields = ('image',)
 		required = True
 
-ProjectImageFormSet = inlineformset_factory(Project, ProjectImage, form = ProjectImageForm, fields = ('image',), extra = 1, )
+# ProjectImageFormSet = inlineformset_factory(Project, ProjectImage, form = ProjectImageForm, fields = ('image',), extra = 1, )
 
 class ProjectFileForm(forms.ModelForm):
 

@@ -1,0 +1,27 @@
+{% extends "site_base.html" %}
+
+{% block title %}Add Images - {{block.super}}{% endblock %}
+
+{%block extra_head %} 
+	<head>
+		{% load staticfiles %}
+		<script src='http://code.jquery.com/jquery-latest.js'></script>
+	    <script src= "{% static 'project/js/jquery.formset.js' %}" > </script>
+	    <script src="{% static 'project/js/jquery.formset.min.js' %}" ></script>
+	</head>
+{% endblock %}
+
+
+{% block body %}
+	<body>
+		<div>
+	        <h1>Add Images</h1>
+	        <form enctype="multipart/form-data" method='POST' action="">
+	            {% csrf_token %}
+	            <div>
+	                {{ form.as_p }}
+	            </div>
+	<input type="submit" value="Add Image" name = '_save' >	    
+	</body>        
+
+{% endblock %}
