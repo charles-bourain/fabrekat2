@@ -36,7 +36,32 @@ def is_project_published(project_id):
 	except:
 		return False
 
+def get_order(project):
+	order = 1
+	while ProjectStep.objects.filter(step_for_project = project.id).filter(step_order = order):		
+		order += 1
+		print order
+	return order
 
+def move_step_up(project, step):
+	step_before_this_step = ProjectStep.objects.filter(step_for_project = project.id).get(step_order =(step.step_order-1))
+	old_step = step.step_order
+	new_step = step_before_this_step.step_order
+	step.step_order = new_step
+	step.save()
+	step_before_this_step.step_order = old_step
+	step_before_this_step.save()	
+
+def move_step_down(project, step):
+	print 'MOVE STEP DOWN...............'
+	step_after_this_step = ProjectStep.objects.filter(step_for_project = project.id).get(step_order =(step.step_order+1))
+	print step_after_this_step
+	old_step = step.step_order
+	new_step = step_after_this_step.step_order
+	step.step_order = new_step
+	step.save()
+	step_after_this_step.step_order = old_step
+	step_after_this_step.save()
 
 
 def is_user_project_creator(user, request):
@@ -148,11 +173,11 @@ class StepCreateView(LoginRequiredMixin, CreateView):
 		project_id = self.kwargs['project_id']
 		project = Project.objects.get(project_id = project_id)
 		self.object.step_for_project = project	
-		if len(ProjectStep.objects.filter(step_for_project = project.id)) > 0:
-			step_count_for_order = len(ProjectStep.objects.filter(step_for_project = project.id))
-		else:
-			step_count_for_order = 0
-		self.object.step_order = step_count_for_order
+		# if len(ProjectStep.objects.filter(step_for_project = project.id)) > 0:
+		# 	step_count_for_order = len(ProjectStep.objects.filter(step_for_project = project.id))
+		# else:
+		# 	step_count_for_order = 0
+		self.object.step_order = get_order(project)
 		self.object = form.save()
 
 		purchasedcomponent_formset.instance = self.object
@@ -467,7 +492,6 @@ def edit_project(request, project_id):
 		step_list = []
 		for step in projectstep:
 			step_list.append(step.id)
-		print step_list
 
 		purchasedcomponent =PurchasedComponent.objects.filter(
 				purchased_component_for_step__in = step_list,
@@ -498,15 +522,22 @@ def edit_project(request, project_id):
 				return HttpResponseRedirect('/project/unpublished/%s' % project.project_id)	
 			elif '_addimage' in request.POST:
 				return HttpResponseRedirect('/project/edit/%s/addimage/' % project.project_id)	
-			elif '_reorder_steps' in request.POST:
-				return HttpResponseRedirect('/project/edit/%s/ordersteps/' % project.project_id)				
-			# for step in projectstep:
-			# 	edit_step_tag = '_editstep_%s' % step.id
-			# 	edit_step_redirect = HttpResposeRedirect('/project/edit/%s/editstep/%s ' % project, step.id)
-			# elif edit_step_tag in request.POST:
-			# 	return edit_step_redirect
+			# elif '_reorder_steps' in request.POST:
+			# 	return HttpResponseRedirect('/project/edit/%s/ordersteps/' % project.project_id)
 
-
+		for step in projectstep:
+			if ('_move_%s_step_up'% step.id) in request.POST:
+				if step.step_order == 1:
+					return HttpResponseRedirect('/project/edit/%s' % project.project_id)
+				else:
+					move_step_up(project, step)
+					return HttpResponseRedirect('/project/edit/%s' % project.project_id)
+			if ('_move_%s_step_down'% step.id) in request.POST:
+				if step.step_order == (len(projectstep)):
+					return HttpResponseRedirect('/project/edit/%s' % project.project_id)
+				else:
+					move_step_down(project, step)
+					return HttpResponseRedirect('/project/edit/%s' % project.project_id)			
 
 
 
@@ -576,42 +607,39 @@ def edit_step(request, id):
 		)
 
 
-@login_required
-def reorder_steps(request, project_id):
-	user_id = request.user.id
-	edited_project = get_object_or_404(Project, project_id=project_id)
-	project_index = edited_project.id 
-	steps_for_reorder = ProjectStep.objects.filter(
-			step_for_project = project_index,
-			).order_by('step_order')	
+# @login_required
+# def reorder_steps(request, project_id):
+# 	user_id = request.user.id
+# 	edited_project = get_object_or_404(Project, project_id=project_id)
+# 	project_index = edited_project.id 
 
 
 
-	form = ReOrderStepForm(instance = edited_project)
+# 	# form = ReOrderStepForm(instance = edited_project)
 
-	projectstep  =ProjectStep.objects.filter(
-		step_for_project = project_index,
-		).order_by('step_order')	
+# 	projectstep = ProjectStep.objects.filter(
+# 		step_for_project = project_index,
+# 		).order_by('step_order')	
 
-	if request.POST:
-		if '_save' in request.POST:
-			form = ReOrderForm(request.POST,request.FILES,instance = edited_step)
-			if form.is_valid():			
-				print'FORM IS VALID'
-				form.save()
-				return HttpResponseRedirect('/project/edit/%s' % edited_step.step_for_project.project_id)					
-			else:
-				print'FORM IS NOT VALID'
-
-
-	context = {
-		'form' : form,
-		'projectstep': projectstep,
-	}	
+# 	if request.POST:
+# 		if '_save' in request.POST:
+# 			form = ReOrderForm(request.POST,request.FILES,instance = edited_step)
+# 			if form.is_valid():			
+# 				print'FORM IS VALID'
+# 				form.save()
+# 				return HttpResponseRedirect('/project/edit/%s' % edited_step.step_for_project.project_id)					
+# 			else:
+# 				print'FORM IS NOT VALID'
 
 
-	return render_to_response(
-		'project/ordersteps.html',
-		context,
-		context_instance = RequestContext(request),
-		)	
+# 	context = {
+# 		# 'form' : form,
+# 		'projectstep': projectstep,
+# 	}	
+
+
+# 	return render_to_response(
+# 		'project/ordersteps.html',
+# 		context,
+# 		context_instance = RequestContext(request),
+# 		)	

@@ -55,8 +55,7 @@
  	<input type="submit" value="Add Image" name = '_addimage' >
     <input type="submit" value="Save Project" name = '_save' >
     <input type="submit" value="Publish Project" name = '_publish' > 
-    <input type="submit" value="Delete Project" name = '_delete' >  
-    <input type="submit" value="Re-Order Steps" name = '_reorder_steps' >      
+    <input type="submit" value="Delete Project" name = '_delete' >       
 
 <fieldset>
 	{% if projectimage %}
@@ -73,8 +72,10 @@
 	<h1> Project Steps </h1>
 	{% for step in projectstep %}
 		<fieldset>
-			<h2> Step {{ forloop.counter }} </h2>
+			<h2> Step {{ step.step_order }} </h2>
 			<h5><a href="editstep/{{step.id}}/" > (edit) </a></h5>
+			    <input type="submit" value="Move Step Up" name = '_move_{{step.id}}_step_up' > 
+			    <input type="submit" value="Move Step Down" name = '_move_{{step.id}}_step_down' > 
 			<ul>
 			{{ step.project_step_description }}
 			{% if step.project_step_image %}
