@@ -11,14 +11,21 @@ from django.template import RequestContext
 import pygeoip
 from django.conf import settings
 
-def get_city(request):
+def get_city_from_ip(request):
 	gi = pygeoip.GeoIP(os.path.join('GeoIP','GeoLiteCity.dat'))
 	ip = '67.183.143.114'
-	# ip = request.META.get('REMOTE_ADDR', None)
-	print ip
-	print gi.record_by_addr(str(ip))
+	#ip = request.META.get('REMOTE_ADDR', None)
+	metro_code = gi.record_by_addr(str(ip)).get('metro-code')
+	return metro_code
 
+def get_geoposition_from_ip(request):
+	gi = pygeoip.GeoIP(os.path.join('GeoIP','GeoLiteCity.dat'))
+	ip = '67.183.143.114'
+	#ip = request.META.get('REMOTE_ADDR', None)
+	latitude = gi.record_by_addr(str(ip)).get('latitude')
+	logitude = gi.record_by_addr(str(ip)).get('longitude')
 
+	return str(latitude)+','+str(logitude)
 
 
 class FabricatorCreateView(LoginRequiredMixin, CreateView):
@@ -30,8 +37,7 @@ class FabricatorCreateView(LoginRequiredMixin, CreateView):
 	def get(self, request, *args, **kwargs):
 		self.object = None
 		form_class = self.get_form_class()
-		form = self.get_form(form_class)
-		get_city(request)
+		form = FabricatorForm(initial = {'fabricator_location':get_geoposition_from_ip(request)})
 		return self.render_to_response(
 			self.get_context_data(
 			form = form,
