@@ -28,6 +28,13 @@
 	</form>
 {% endif %}
 
+{% if user_is_creator == False %}
+	<form action ='' method = 'POST'>
+		{% csrf_token %}
+		<input type = 'submit' value = 'Create an Inspired Project' name = '_inspired'>
+	</form>
+{% endif %}
+
 
 <fieldset>
 	{% if projectimage %}
@@ -50,7 +57,9 @@
 			<h2> Step {{ forloop.counter }} </h2>
 			<ul>
 			{{ step.project_step_description }}
-			<img src="{{step.project_step_image.url}}" alt="" height = 300 />
+			{% if step.project_step_image %}
+				<img src="{{step.project_step_image.url}}" alt="" height = 300 />
+			{% endif %}
 			
 			{% for component in purchasedcomponent %}
 				{% if component.purchased_component_for_step_id == step.id %}

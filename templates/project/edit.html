@@ -55,7 +55,7 @@
  	<input type="submit" value="Add Image" name = '_addimage' >
     <input type="submit" value="Save Project" name = '_save' >
     <input type="submit" value="Publish Project" name = '_publish' > 
-    <input type="submit" value="Delete Project" name = '_delete' >       
+    <input type="submit" value="Delete Project" name = '_delete_project' >       
 
 <fieldset>
 	{% if projectimage %}
@@ -76,6 +76,7 @@
 			<h5><a href="editstep/{{step.id}}/" > (edit) </a></h5>
 			    <input type="submit" value="Move Step Up" name = '_move_{{step.id}}_step_up' > 
 			    <input type="submit" value="Move Step Down" name = '_move_{{step.id}}_step_down' > 
+			    <input type="submit" value="Delete This Step" name = '_deletestep_{{step.id}}' >
 			<ul>
 			{{ step.project_step_description }}
 			{% if step.project_step_image %}

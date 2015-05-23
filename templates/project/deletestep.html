@@ -1,0 +1,122 @@
+{% extends "site_base.html" %}
+{% load thumbnail %}
+{% load filename %}
+
+{% block title %}Create - {{block.super}}{% endblock %}
+
+{%block extra_head %} 
+	<head>
+		{% load staticfiles %}
+		<script src='http://code.jquery.com/jquery-latest.js'></script>
+	    <script src= "{% static 'project/js/jquery.formset.js' %}" > </script>
+	    <script src="{% static 'project/js/jquery.formset.min.js' %}" ></script>
+	    <!-- Autocomplete_light needs to be loaded AFTER jquery -->
+	    {% include 'autocomplete_light/static.html' %}
+<!-- 	    
+	    <script type="text/javascript">
+	        $(function() {	
+	            $(".inLine.{{projectstep_formset.prefix}}").formset({
+	                prefix: "{{projectstep_formset.prefix}}",
+	            })  	                	
+	            $(".inLine.{{projectimage_formset.prefix}}").formset({
+	                prefix: "{{projectimage_formset.prefix}}",
+	            })
+	            $(".inLine.{{projectfile_formset.prefix}}").formset({
+	                prefix: "{{projectfile_formset.prefix}}",
+	            })	            
+	            $(".inLine.{{purchasedcomponent_formset.prefix}}").formset({
+	                prefix: "{{purchasedcomponent_formset.prefix}}",
+	            })      
+	            $(".inLine.{{fabricatedcomponent_formset.prefix}}").formset({
+	                prefix: "{{fabricatedcomponent_formset.prefix}}",
+	            })   	                    	      	
+	        })
+        </script>
+   -->
+{% endblock %}	 
+	       
+<!--	    <link rel="stylesheet" type="text/css" href="{% static 'project/style.css' %}"> -->
+	</head>
+{% block body %}
+	<body>
+		<div>
+	        <h1>DELETE STEP</h1>
+
+	        <form enctype="multipart/form-data" method='POST' action="">
+	            {% csrf_token %}
+    <input type="submit" value="DO NOT DELETE" name = '_backto_project' > 
+    <input type="submit" value="I AM SURE I WANT TO DELETE -- NO GETTING THIS BACK" name = '_delete_step_confirm' >       
+         
+
+
+		<fieldset>
+	            <div>
+	                {{ projectstep.project_step_description }}
+	            </div>
+
+        		<div>
+					{% for component in fabricatedcomponent %}
+						<ul>
+							<h2>Fabricated Component: 
+								<a href="/project/{{component.fabricated_component_from_project.project_id}}">
+									<img src="{{fabricated_component_thumbnails.image.url}}" alt="" height = 50 />
+									{{component.fabricated_component_from_project.project_name}}
+							</a>
+							x {{component.fabricated_component_quantity}}
+						</h2>
+						</ul>			
+					{% endfor %}
+    			</div>
+
+        		<div>
+					{% for component in purchasedcomponent %}
+						<ul>
+							<h2>Component: 
+								<a href="{{component.purchased_component_url_link}}">{{component.purchased_component_name}} 
+								</a>
+								x {{component.purchased_component_quantity}}
+							</h2>
+						</ul>		
+					{% endfor %}
+    			</div>
+
+        		<div>
+					{% for file in projectfile %}
+						<ul>
+							<h2>File: 
+									<a href="{{ file.project_file.url }}" download > {{file.project_file|filename}} </h2></a>
+							</h2>
+						</ul>			
+					{% endfor %}						
+    			</div>
+
+		</fieldset>
+
+
+</form></body>
+
+{% endblock %}
+
+
+
+
+<!-- 
+<body>
+	<form enctype="multipart/form-data" method='POST' action="">
+		{% csrf_token %}
+		<ul>
+			<div>
+				{% for field in project_form %}
+					{{ field }}
+				{% endfor %}
+			</div>
+			<div>
+				{{ purchasedcomponent_form.as_ul}}
+			</div>
+			
+			
+		</ul
+>		<input type="submit" value="Create Project" >
+	</form>
+</body>
+ -->

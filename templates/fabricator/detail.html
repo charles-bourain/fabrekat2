@@ -2,15 +2,60 @@
 
 {% block title %}Create - {{block.super}}{% endblock %}
 
-{%block extra_head %} {% endblock %}
+{%block extra_head %} 
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8/jquery.min.js"></script>
+
+{% endblock %}
 
 
 {% block body %}
+{{fabricator.media}}
+<h1>Fabricator: {{ fabricator.fabricator }}</h1>
+<p>Fabricator Qualifications: {{ fabricator.fabricator_qualifications }}</p>
+<p>Fabricator Type: {{fabricator.fabricator_type}}</p>
 
-<h1>Fabricator: {{ object.fabricator }}</h1>
-<p>Fabricator Location: {{ object.fabricator_location }}</p>
-<p>Fabricator Qualifications: {{ object.fabricator_qualifications }}</p>
-<p>Fabricator Tools: {{ object.fabricator_tools }}</p>
+
+<html>
+  <head>
+    <title>Localizing the Map</title>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <style>
+      html, body, #map-canvas {
+        height: 100%;
+        margin: 0px;
+        padding: 0px
+      }
+    </style>
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&signed_in=true&language=en"></script>
+    <script>
+function initialize() {
+  var fabricator_location = new google.maps.LatLng({{ fabricator.fabricator_location }});
+
+  var mapOptions = {
+    zoom: 12,
+    center: fabricator_location
+  };
+
+  var map = new google.maps.Map(document.getElementById('map-canvas'),
+      mapOptions);
+
+  var marker = new google.maps.Marker({
+  	position: fabricator_location,
+  	map:map,
+  	title: '{{fabricator.fabricator}}',
+  });
+
+}
+
+google.maps.event.addDomListener(window, 'load', initialize);
+
+    </script>
+  </head>
+  <body>
+    <div id="map-canvas"></div>
+  </body>
+</html>
 
 
 {% endblock %}

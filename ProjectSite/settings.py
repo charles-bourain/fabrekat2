@@ -50,6 +50,7 @@ INSTALLED_APPS = (
     'fabricator',
     'autocomplete_light',
     'publishedprojects',
+    'geoposition',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (

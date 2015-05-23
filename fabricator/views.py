@@ -1,26 +1,42 @@
 from django.shortcuts import render
-
+import os
 from fabricator.models import Fabricator
 from django.views.generic.edit import CreateView
 from django.views.generic.detail import DetailView
 from account.mixins import LoginRequiredMixin
 from django.http import HttpResponse, HttpResponseRedirect
+from .forms import FabricatorForm
+from django.shortcuts import get_object_or_404, render_to_response
+from django.template import RequestContext
+import pygeoip
+from django.conf import settings
+
+def get_city(request):
+	gi = pygeoip.GeoIP(os.path.join('GeoIP','GeoLiteCity.dat'))
+	ip = '67.183.143.114'
+	# ip = request.META.get('REMOTE_ADDR', None)
+	print ip
+	print gi.record_by_addr(str(ip))
+
+
 
 
 class FabricatorCreateView(LoginRequiredMixin, CreateView):
 	template_name = 'fabricator/create.html'
 	model = Fabricator
 	success_url = 'fab_detail'
+	form_class = FabricatorForm
 
 	def get(self, request, *args, **kwargs):
-				self.object = None
-				form_class = self.get_form_class()
-				form = self.get_form(form_class)
-				return self.render_to_response(
-					self.get_context_data(
-					form = form,
-						)
-					)
+		self.object = None
+		form_class = self.get_form_class()
+		form = self.get_form(form_class)
+		get_city(request)
+		return self.render_to_response(
+			self.get_context_data(
+			form = form,
+				)
+			)
 	def post(self, request, *args, **kwargs):
 		print 'Post Initiated....'
 		self.object = None
@@ -41,9 +57,10 @@ class FabricatorCreateView(LoginRequiredMixin, CreateView):
 		
 		self.object = form.save(commit = False)
 		self.object.fabricator = self.request.user
+		self.object.fabricator_slug = self.object.fabricator
 		self.object = form.save()
 
-		return HttpResponseRedirect('fab_detail', name = self.object.user)
+		return HttpResponseRedirect('fab_detail', name = self.object.fabricator)
 
 	def form_invalid(self, form):
 		print 'FORMS WERE INVALID'
@@ -54,12 +71,19 @@ class FabricatorCreateView(LoginRequiredMixin, CreateView):
 		)
 
 
-class FabricatorProfileView(DetailView):
-	template_name = 'fabricator/detail.html'
-	model = Fabricator
+def fabricator_detail(request, name):
+	
+	fabricator = get_object_or_404(Fabricator, fabricator_slug=name)
 
-	def get_object(self):
-		return self.request.user
+	context = {
+		'fabricator': fabricator,
+	}
+
+	return render_to_response(
+		'fabricator/detail.html',
+		context,
+		context_instance = RequestContext(request),
+	)
 
 
 

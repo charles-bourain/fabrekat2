@@ -3,7 +3,6 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.template import RequestContext
 from datetime import datetime
 from django.contrib.auth.decorators import login_required, user_passes_test
-from .decorators import user_is_project_creator_permission
 from django.core.urlresolvers import reverse
 from project.models import Project, PurchasedComponent, ProjectImage, FabricatedComponent, ProjectFile, ProjectStep
 from django.views.generic import CreateView, UpdateView
@@ -17,7 +16,7 @@ from follow.models import Follow
 import uuid
 
 
-
+#Assigns Project id to a project.  This will be uniquie and show in URL.
 def get_project_id():
 	project_id = str(uuid.uuid4())[:20].replace('-','').lower()
 	
@@ -28,6 +27,7 @@ def get_project_id():
 	except:
 		return project_id
 
+#Checks if URL is published
 def is_project_published(project_id):
 	try:
 		project = PublishedProject.objects.get(project_slug_id = project_id)
@@ -36,6 +36,8 @@ def is_project_published(project_id):
 	except:
 		return False
 
+
+#This is for Step ordering.  This function assigns the newly created step to the next avialable step order
 def get_order(project):
 	order = 1
 	while ProjectStep.objects.filter(step_for_project = project.id).filter(step_order = order):		
@@ -43,6 +45,7 @@ def get_order(project):
 		print order
 	return order
 
+#function for moving the step order of the selected step with the previous step
 def move_step_up(project, step):
 	step_before_this_step = ProjectStep.objects.filter(step_for_project = project.id).get(step_order =(step.step_order-1))
 	old_step = step.step_order
@@ -52,8 +55,8 @@ def move_step_up(project, step):
 	step_before_this_step.step_order = old_step
 	step_before_this_step.save()	
 
+#function for moving the step order of the selected stpe with the next step
 def move_step_down(project, step):
-	print 'MOVE STEP DOWN...............'
 	step_after_this_step = ProjectStep.objects.filter(step_for_project = project.id).get(step_order =(step.step_order+1))
 	print step_after_this_step
 	old_step = step.step_order
@@ -75,11 +78,13 @@ def is_user_project_creator(user, request):
 #Assigns components and files to a step
 
 #LoginRequiredMixin checks if user is logged in
+#This creates the first of the Project.  This is a fresh create
 class ProjectCreateView(LoginRequiredMixin, CreateView):
 	template_name = 'project/create.html'
 	model = Project
 	form_class = ProjectForm
 
+	#Gets the forms.
 	def get(self, request, *args, **kwargs):
 			self.object = None
 			form_class = self.get_form_class()
@@ -89,6 +94,7 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
 				form = form,
 				)
 			)
+	#Begins the posting proccess.  Returns the valid/invalid forms.		
 	def post(self, request, *args, **kwargs):
 		self.object = None
 		form_class = self.get_form_class()
@@ -98,6 +104,7 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
 		else:
 			return self.form_invalid(form)
 
+	#after valid check, saves the Project create form to the database
 	def form_valid(self, form):
 		self.object = form.save(commit = False)
 		self.object.project_creator = self.request.user
@@ -114,6 +121,7 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
 			)
 		)
 
+#View for Creating a Step for a project.
 class StepCreateView(LoginRequiredMixin, CreateView):
 	template_name = 'project/addstep.html'
 	model = ProjectStep
@@ -121,8 +129,10 @@ class StepCreateView(LoginRequiredMixin, CreateView):
 
 	def get(self, request, *args, **kwargs):
 		user_id = request.user.id
+		#project_id is what will show in the URL.  Unique to each project.
 		project_id = self.kwargs['project_id']
 		project = get_object_or_404(Project, project_id = project_id)
+		#project index is what will track associated objects (Steps, Components, IMages etc..)
 		project_index = project.id 
 		creator_id = project.project_creator.id
 
@@ -167,7 +177,6 @@ class StepCreateView(LoginRequiredMixin, CreateView):
 			return self.form_invalid(form, purchasedcomponent_formset, fabricatedcomponent_formset, projectfile_formset)
 
 
-			#Item Assigning Project to the FK does not seem to be working.
 	def form_valid(self, form, purchasedcomponent_formset, fabricatedcomponent_formset, projectfile_formset):
 		self.object = form.save(commit = False)
 		project_id = self.kwargs['project_id']
@@ -207,7 +216,7 @@ class StepCreateView(LoginRequiredMixin, CreateView):
 			)
 		)
 
-
+#Allows upload and assigns an image to a Project via the project_index
 class ImageCreateView(LoginRequiredMixin, CreateView):
 	template_name = 'project/addimage.html'
 	model = ProjectImage
@@ -262,160 +271,82 @@ class ImageCreateView(LoginRequiredMixin, CreateView):
 		)		
 
 
-@login_required
-def unpublished_project_detail(request, project_id):
-	user_id = request.user.id
-	project = get_object_or_404(Project, project_id = project_id)
-	project_index = project.id 
-	creator_id = project.project_creator.id
+# @login_required
+# def unpublished_project_detail(request, project_id):
+# 	user_id = request.user.id
+# 	project = get_object_or_404(Project, project_id = project_id)
+# 	project_index = project.id 
+# 	creator_id = project.project_creator.id
 
-	#Can Redo this as a decorator......
-	if user_id != creator_id:
-		return HttpResponseRedirect('/')
-	elif is_project_published(project_id) == True:
-		return HttpResponseRedirect('/')	
-	else:
-		# saved_project_count = len(Follow.objects.get_follows(project))
-		projectimage  = list(
-		ProjectImage.objects.filter(
-			project_image_for_project = project_index
-			)
-		)
-		#Might be showing the user who is viewing the page...
+# 	#Can Redo this as a decorator......
+# 	if user_id != creator_id:
+# 		return HttpResponseRedirect('/')
+# 	elif is_project_published(project_id) == True:
+# 		return HttpResponseRedirect('/')	
+# 	else:
+# 		# saved_project_count = len(Follow.objects.get_follows(project))
+# 		projectimage  = list(
+# 		ProjectImage.objects.filter(
+# 			project_image_for_project = project_index
+# 			)
+# 		)
+# 		#Might be showing the user who is viewing the page...
 
-		projectstep  = list(
-			ProjectStep.objects.filter(
-				step_for_project = project_index,
-			),
-		)	
-		#purchase component gathers the database objects for the purchased component for project id.
-		#The view may need to store the API for amazon store.
-		#May want to pass fabricated components as well(for thumbnails etc)
+# 		projectstep  = list(
+# 			ProjectStep.objects.filter(
+# 				step_for_project = project_index,
+# 			),
+# 		)	
+# 		#purchase component gathers the database objects for the purchased component for project id.
+# 		#The view may need to store the API for amazon store.
+# 		#May want to pass fabricated components as well(for thumbnails etc)
 
-		#Controlling what shoes on the detailed page.  The id passed the id associated to the project shown.
+# 		#Controlling what shoes on the detailed page.  The id passed the id associated to the project shown.
 		
-		purchasedcomponent =PurchasedComponent.objects.filter(
-				purchased_component_for_step__in = projectstep
-				)
+# 		purchasedcomponent =PurchasedComponent.objects.filter(
+# 				purchased_component_for_step__in = projectstep
+# 				)
 
-		fabricatedcomponent =FabricatedComponent.objects.filter(
-				fabricated_component_for_step__in = projectstep
-				)
-		fabricatedcomponent_from_project_list_id = fabricatedcomponent.values_list('fabricated_component_from_project_id', flat = True)
-		fabricated_component_thumbnails = ProjectImage.objects.filter(project_image_for_project__in = fabricatedcomponent_from_project_list_id).first()
+# 		fabricatedcomponent =FabricatedComponent.objects.filter(
+# 				fabricated_component_for_step__in = projectstep
+# 				)
+# 		fabricatedcomponent_from_project_list_id = fabricatedcomponent.values_list('fabricated_component_from_project_id', flat = True)
+# 		fabricated_component_thumbnails = ProjectImage.objects.filter(project_image_for_project__in = fabricatedcomponent_from_project_list_id).first()
 
-		projectfile  = list(
-		ProjectFile.objects.filter(
-			project_file_for_step__in = projectstep
-			)
-		)
+# 		projectfile  = list(
+# 		ProjectFile.objects.filter(
+# 			project_file_for_step__in = projectstep
+# 			)
+# 		)
 
-		#User Checking - If Creating User, Allow Publish and Create.  Passes a True Value to Template of user_is_creator if user is creator
-		if request.user == project.project_creator:
-			if request.POST:
-				if '_edit' in request.POST:
-					return HttpResponseRedirect('/project/edit/%s' % project.project_id)
-				elif '_publish' in request.POST:
-					publish_project(project, request)
-					return HttpResponseRedirect('/project/%s' % project.project_id)
-		else:
-			HttpResponseRedirect('/')			
-		context = {
-			'project': project,
-			'purchasedcomponent': purchasedcomponent,
-			'fabricatedcomponent' : fabricatedcomponent,
-			'projectimage':projectimage,
-			'projectfile':projectfile,
-			'fabricated_component_thumbnails':fabricated_component_thumbnails,
-			'projectstep': projectstep,
-		}
+# 		#User Checking - If Creating User, Allow Publish and Create.  Passes a True Value to Template of user_is_creator if user is creator
+# 		if request.user == project.project_creator:
+# 			if request.POST:
+# 				if '_edit' in request.POST:
+# 					return HttpResponseRedirect('/project/edit/%s' % project.project_id)
+# 				elif '_publish' in request.POST:
+# 					publish_project(project, request)
+# 					return HttpResponseRedirect('/project/%s' % project.project_id)
+# 		else:
+# 			HttpResponseRedirect('/')			
+# 		context = {
+# 			'project': project,
+# 			'purchasedcomponent': purchasedcomponent,
+# 			'fabricatedcomponent' : fabricatedcomponent,
+# 			'projectimage':projectimage,
+# 			'projectfile':projectfile,
+# 			'fabricated_component_thumbnails':fabricated_component_thumbnails,
+# 			'projectstep': projectstep,
+# 		}
 
-		return render_to_response(
-			'project/unpub_detail.html',
-			context,
-			context_instance = RequestContext(request),
-		)
+# 		return render_to_response(
+# 			'project/unpub_detail.html',
+# 			context,
+# 			context_instance = RequestContext(request),
+# 		)
 
-def published_project_detail(request, project_id):
-	
-	project = get_object_or_404(Project, project_id=project_id)
-	project_index = project.id
-	purchasedcomponent = []
-	fabricatedcomponent = []
-	projectfile = []
-	fabricated_component_thumbnails = []
 
-	saved_project_count = len(Follow.objects.get_follows(project))
-	projectimage  = list(
-	ProjectImage.objects.filter(
-		project_image_for_project = project_index
-		)
-	)
-	#Might be showing the user who is viewing the page...
-	user = request.user
-	projectstep  = list(
-		ProjectStep.objects.filter(
-			step_for_project = project_index,
-		),
-	)	
-	#purchase component gathers the database objects for the purchased component for project id.
-	#The view may need to store the API for amazon store.
-	#May want to pass fabricated components as well(for thumbnails etc)
-
-	#Controlling what shoes on the detailed page.  The id passed the id associated to the project shown.
-	
-	step_list = []
-	for step in projectstep:
-		step_list.append(step.id)
-	print step_list
-
-	purchasedcomponent =PurchasedComponent.objects.filter(
-			purchased_component_for_step__in = step_list,
-			)
-
-	fabricatedcomponent =FabricatedComponent.objects.filter(
-			fabricated_component_for_step__in = step_list,
-			)
-	fabricatedcomponent_from_project_list_id = fabricatedcomponent.values_list('fabricated_component_from_project_id', flat = True)
-	fabricated_component_thumbnails = ProjectImage.objects.filter(project_image_for_project__in = fabricatedcomponent_from_project_list_id).first()
-
-	projectfile  = list(
-	ProjectFile.objects.filter(
-		project_file_for_step__in = step_list,
-		)
-	)
-
-	#User Checking - If Creating User, Allow Publish and Create.  Passes a True Value to Template of user_is_creator if user is creator
-	user_is_creator = False
-	if request.user == project.project_creator:
-		user_is_creator = True
-		if request.POST:
-			if '_revise' in request.POST:
-				#CREATE VIEW WITH INTIAL VALUES AS VALUES ALREADY IN THIS PROJECT
-				return HttpResponseRedirect('/project/create')
-	else:
-		if request.POST:
-			if '_inspire' in request.POST:
-				#INPUT SELECTOR FOR TASK/COMPONENTS - INITIAL VALUES WILL BE SELECTED TASKS
-				return HttpResponseRedirect('/project/create')
-	context = {
-		'project': project,
-		'purchasedcomponent': purchasedcomponent,
-		'fabricatedcomponent' : fabricatedcomponent,
-		'projectimage':projectimage,
-		'projectfile':projectfile,
-		'fabricated_component_thumbnails':fabricated_component_thumbnails,
-		'saved_project_count': saved_project_count,
-		'projectstep': projectstep,
-		'user_is_creator': user_is_creator,
-	}
-
-	return render_to_response(
-		'project/pub_detail.html',
-		context,
-		context_instance = RequestContext(request),
-	)
-
+#any projects saved by user using the follows app will appear in this view.
 @login_required
 def my_saved_projects(request):
 
@@ -436,14 +367,14 @@ def my_saved_projects(request):
 
 
 
-
+#List Projects created by user.  Splits between working projects and published projects
 @login_required
 def my_projects(request):
 
 	user = request.user
 	user_projects =  Project.objects.filter(project_creator = user)
-	my_published_projects = PublishedProject.objects.filter(id__in = user_projects)
-	my_published_projects_id = my_published_projects.values_list('project_id', flat = True)
+	my_published_projects = PublishedProject.objects.filter(project_link__in = user_projects)
+	my_published_projects_id = my_published_projects.values_list('project_link_id', flat = True)
 	my_unpublished_projects =  user_projects.exclude(id__in = my_published_projects_id)
 	# my_unpublished_projects = Project.objects.filter(project_id__in = user_projects).exclude(project_id__in = my_published_projects)
 
@@ -459,7 +390,7 @@ def my_projects(request):
         context_instance = RequestContext(request),        
         )
 
-
+#Edit project view is the main view for any unpublished projects.  Shows everything assigned to the project and POST buttons for edits.
 @login_required
 def edit_project(request, project_id):
 	user_id = request.user.id
@@ -487,8 +418,6 @@ def edit_project(request, project_id):
 		projectstep  =ProjectStep.objects.filter(
 			step_for_project = project_index,
 			).order_by('step_order')
-		
-
 		step_list = []
 		for step in projectstep:
 			step_list.append(step.id)
@@ -513,19 +442,20 @@ def edit_project(request, project_id):
 			if '_addstep' in request.POST:
 				return HttpResponseRedirect('/project/edit/%s/addstep/' % project.project_id)
 			elif '_publish' in request.POST:
-				publish_project(project, request)
-				return HttpResponseRedirect('/project/unpublished/%s' % project.project_id)
+				publish_project(project, request)	
 			elif '_save' in request.POST:
 				form = ProjectForm(request.POST, instance = project)
 				form.save()
-			elif '_delete' in request.POST:
-				return HttpResponseRedirect('/project/unpublished/%s' % project.project_id)	
+			elif '_delete_project' in request.POST:
+				return HttpResponseRedirect('/project/edit/%s/delete/' % project.project_id)	
 			elif '_addimage' in request.POST:
 				return HttpResponseRedirect('/project/edit/%s/addimage/' % project.project_id)	
 			# elif '_reorder_steps' in request.POST:
 			# 	return HttpResponseRedirect('/project/edit/%s/ordersteps/' % project.project_id)
 
 		for step in projectstep:
+			if ('_deletestep_%s'% step.id) in request.POST:
+				return HttpResponseRedirect('deletestep/%s' % step.id)
 			if ('_move_%s_step_up'% step.id) in request.POST:
 				if step.step_order == 1:
 					return HttpResponseRedirect('/project/edit/%s' % project.project_id)
@@ -597,7 +527,7 @@ def edit_step(request, id):
 		'fabricatedcomponent_form':fabricatedcomponent_form,
 		'purchasedcomponent_form':purchasedcomponent_form,
 		'projectfile_form':projectfile_form,
-	}	
+	}		
 
 
 	return render_to_response(
@@ -606,40 +536,127 @@ def edit_step(request, id):
 		context_instance = RequestContext(request),
 		)
 
+#Need to check what is deleted using this.  Need to make sure its EVERYTHING.  This Delete is only for unpublished projects.
+@login_required
+def delete_project(request, project_id):
+	user_id = request.user.id
+	project = get_object_or_404(Project, project_id = project_id)
+	project_index = project.id 
+	creator_id = project.project_creator.id
+	purchasedcomponent = []
+	fabricatedcomponent = []
+	projectfile = []
 
-# @login_required
-# def reorder_steps(request, project_id):
-# 	user_id = request.user.id
-# 	edited_project = get_object_or_404(Project, project_id=project_id)
-# 	project_index = edited_project.id 
+	#Can Redo this as a decorator......
+	if user_id != creator_id:
+		return HttpResponseRedirect('/')
+	elif is_project_published(project_id) == True:
+		return HttpResponseRedirect('/')	
+	else:
+
+		projectimage  =	ProjectImage.objects.filter(
+			project_image_for_project = project_index
+			)
+
+		projectstep  =ProjectStep.objects.filter(
+			step_for_project = project_index,
+			).order_by('step_order')
+		step_list = []
+		for step in projectstep:
+			step_list.append(step.id)
+
+		purchasedcomponent =PurchasedComponent.objects.filter(
+				purchased_component_for_step__in = step_list,
+				)
+
+
+		fabricatedcomponent =FabricatedComponent.objects.filter(
+				fabricated_component_for_step__in = step_list,
+				)
+
+
+		fabricatedcomponent_from_project_list_id = fabricatedcomponent.values_list('fabricated_component_from_project_id', flat = True)
+		fabricated_component_thumbnails = ProjectImage.objects.filter(project_image_for_project__in = fabricatedcomponent_from_project_list_id).first()
+
+		projectfile  =ProjectFile.objects.filter(
+			project_file_for_step__in = step_list,
+			)
+
+		if request.POST:
+			if '_delete_project_confirm' in request.POST:
+				purchasedcomponent.delete()
+				fabricatedcomponent.delete()
+				projectfile.delete()
+				projectimage.delete()
+				projectstep.delete()
+				project.delete()
+				return HttpResponseRedirect('/')	
+			elif '_backto_project' in request.POST:
+				return HttpResponseRedirect('/project/edit/%s' % project.project_id)			
 
 
 
-# 	# form = ReOrderStepForm(instance = edited_project)
-
-# 	projectstep = ProjectStep.objects.filter(
-# 		step_for_project = project_index,
-# 		).order_by('step_order')	
-
-# 	if request.POST:
-# 		if '_save' in request.POST:
-# 			form = ReOrderForm(request.POST,request.FILES,instance = edited_step)
-# 			if form.is_valid():			
-# 				print'FORM IS VALID'
-# 				form.save()
-# 				return HttpResponseRedirect('/project/edit/%s' % edited_step.step_for_project.project_id)					
-# 			else:
-# 				print'FORM IS NOT VALID'
+		context = {
+			'project':project,
+			'purchasedcomponent':purchasedcomponent,
+			'fabricatedcomponent':fabricatedcomponent,				
+			'projectfile': projectfile,
+			'projectstep':projectstep,
+			'projectimage':projectimage,
+		}	
 
 
-# 	context = {
-# 		# 'form' : form,
-# 		'projectstep': projectstep,
-# 	}	
+		return render_to_response(
+			'project/delete.html',
+			context,
+			context_instance = RequestContext(request),
+			)
+
+#Deletes a step, and should delete all associated objects (other then the associated project)
+@login_required
+def delete_step(request, id):
+	user_id = request.user.id
+	delete_step = get_object_or_404(ProjectStep, id=id)
+	associated_project = Project.objects.get(id = delete_step.step_for_project.id)
+	if user_id != associated_project.project_creator_id:
+		return HttpResponseRedirect('/')	
+	else:
+	
+		purchasedcomponent =PurchasedComponent.objects.filter(
+				purchased_component_for_step = delete_step,
+				)
 
 
-# 	return render_to_response(
-# 		'project/ordersteps.html',
-# 		context,
-# 		context_instance = RequestContext(request),
-# 		)	
+		fabricatedcomponent =FabricatedComponent.objects.filter(
+				fabricated_component_for_step = delete_step,
+				)
+		
+		projectfile  =ProjectFile.objects.filter(
+			project_file_for_step = delete_step,
+			)
+
+		if request.POST:
+			if '_delete_step_confirm' in request.POST:
+				purchasedcomponent.delete()
+				fabricatedcomponent.delete()
+				projectfile.delete()
+				delete_step.delete()
+				return HttpResponseRedirect('/project/edit/%s' % associated_project.project_id)		
+			elif '_backto_project' in request.POST:
+				return HttpResponseRedirect('/project/edit/%s' % associated_project.project_id)	
+
+
+
+		context = {
+			'projectstep' : delete_step,
+			'fabricatedcomponent':fabricatedcomponent,
+			'purchasedcomponent':purchasedcomponent,
+			'projectfile':projectfile,
+		}	
+
+
+		return render_to_response(
+			'project/deletestep.html',
+			context,
+			context_instance = RequestContext(request),
+			)

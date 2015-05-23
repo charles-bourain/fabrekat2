@@ -8,6 +8,7 @@ from imagestore.models.bases.album import BaseAlbum
 from imagestore.models.bases.image import BaseImage
 from django.core.exceptions import ValidationError
 from follow import utils
+from publishedprojects.models import PublishedProject
 
 
 
@@ -26,9 +27,12 @@ class Project(models.Model):
 	project_creator = models.ForeignKey(User, related_name = 'project_creator_set', editable=False)
 	project_time_created = models.DateTimeField(auto_now_add=True, editable=False)
 	project_last_modified = models.DateTimeField(auto_now=True, editable=False)
-	def __unicode__(self):
-		return unicode(self.project_name)
+	inspired_from_project = models.OneToOneField(PublishedProject, null = True, blank = True)
+	revised_project = models.OneToOneField('self', null = True, blank = True, editable = False)
+	project_id_from_revised_project = models.SlugField(editable = False)
 
+	def __unicode__(self):
+		return unicode("%s Created By %s" % (self.project_name, self.project_creator))
 
 class ProjectStep(models.Model):
 

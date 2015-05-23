@@ -1,5 +1,5 @@
 from django import forms
-from project.models import Project, PurchasedComponent, ProjectImage, FabricatedComponent
+from .models import Fabricator
 from django.forms.models import inlineformset_factory
 from django.forms import ImageField, CharField
 
@@ -7,9 +7,10 @@ from django.forms import ImageField, CharField
 class FabricatorForm(forms.ModelForm):
 	
 	class Meta:
-		model = Project
+		model = Fabricator
 		fields = [
-			'fabricator_location',
 			'fabricator_qualifications',
-			'fabricator_tools',
+			'fabricator_type',
+			'fabricator_location',
 			]
+

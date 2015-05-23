@@ -9,13 +9,22 @@ import autocomplete_light
 
 
 class ProjectForm(forms.ModelForm):
-	
 	class Meta:
 		model = Project
-		fields = '__all__'
-		exclude = [ 
-		'project_spotlight',
+		fields = [
+			'project_name',
+			'project_description',
 		]
+
+
+class ProjectDeleteForm(forms.ModelForm):
+	class Meta:
+		model = Project
+		fields = [
+			'project_name',
+			'project_description',
+		]
+
 
 class ProjectStepForm(forms.ModelForm):
 
