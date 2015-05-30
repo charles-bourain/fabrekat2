@@ -47,10 +47,12 @@ INSTALLED_APPS = (
     'tagging',
     'follow',
     'easy_thumbnails',
-    'fabricator',
+    # 'fabricator',
     'autocomplete_light',
     'publishedprojects',
-    'geoposition',
+    # 'geoposition',
+    'projectpricer',
+    'projectcatagories',
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (

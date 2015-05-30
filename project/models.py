@@ -9,6 +9,7 @@ from imagestore.models.bases.image import BaseImage
 from django.core.exceptions import ValidationError
 from follow import utils
 from publishedprojects.models import PublishedProject
+from projectcatagories.models import ProjectCatagory
 
 
 
@@ -30,6 +31,7 @@ class Project(models.Model):
 	inspired_from_project = models.OneToOneField(PublishedProject, null = True, blank = True)
 	revised_project = models.OneToOneField('self', null = True, blank = True, editable = False)
 	project_id_from_revised_project = models.SlugField(editable = False)
+	project_catagory = models.OneToOneField(ProjectCatagory, default = 0)
 
 	def __unicode__(self):
 		return unicode("%s Created By %s" % (self.project_name, self.project_creator))

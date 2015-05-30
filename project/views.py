@@ -14,6 +14,9 @@ from publishedprojects.views import publish_project
 from follow import utils
 from follow.models import Follow
 import uuid
+from projectpricer.views import get_amazon_price
+from projectcatagories.models import ProjectCatagory
+from projectcatagories.forms import ProjectCatagoryForm
 
 
 #Assigns Project id to a project.  This will be uniquie and show in URL.

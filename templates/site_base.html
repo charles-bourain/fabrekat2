@@ -5,38 +5,69 @@
 <html>
 	<head>
 		<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+		<title>{% block title %}FABREKAT{% endblock %} </title>
+		<meta charset="utf-8" />
+
 		{% load staticfiles %}
-		<title>{% block title %}Fabrəkāt{% endblock %} </title>
-		 <meta charset="utf-8" />
-		<script src='http://code.jquery.com/jquery-latest.js'></script> 
-		<link href='http://fonts.googleapis.com/css?family=Cambo' rel='stylesheet' type='text/css'>
+
+		<script src= "{% static 'project/js/script.js' %}" > </script>
+		<script src= "{% static 'project/js/bootstrap.js' %}"></script>
+		<script src= "{% static 'project/js/jquery.formset.js' %}" > </script>
+		<link href='http://fonts.googleapis.com/css?family=Cambo' rel='stylesheet' type='text/css'></link>
+		<link rel="stylesheet" type="text/css" href= "{% static 'project/css/bootstrap.css' %}"></link>
+
 		{% block extra_head %} {% endblock %}
 	</head>
 	
-<header>
-	<!-- Temporary Point to project list -->
-	<h1><a href="{% url 'home' %}">Fabrəkāt</a><span id="version"></span></h1>
-	<nav>
-		<ul>
-			<li> <a href="{% url 'prj_create' %}"> Create Project </a> </li>
-			<li> <a href="{% url 'account_signup' %}"> Signup </a> *Broken Until we get functioning Email</li>
-			<li> <a href="{% url 'account_login' %}"> Login </a> </li>
-			<li> <a href="{% url 'account_logout' %}"> Logout </a> </li>
-			<li> <a href="{% url 'account_settings' %}"> Account Settings </a> *This will be Designer Account View/ Lurker Account View</li>
-			<li> <a href="{% url 'my_saved_projects' %}"> My Saved Projects </a> </li>
-			<li> <a href="{% url 'my_projects' %}"> My Projects </a> </li>
-			<li> <a href="{% url 'fab_create' %}"> Become A Fabricator </a> *Need to Add Boolean to appear if user is a Fabricator or not</li>
-
-			
-			<li> Current Logged in as {{ user.username }} </li>
-		</ul>
-	</nav></p>			
-</header>
-	
 	<body>
-		{% block body %}{% endblock %}
-		{% block extra_body %}{% endblock %}
-		
+		<nav class="navbar navbar-default navbar-fixed-top">
+			<div class="container">
+				<div class="navbar-header">
+					<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".nav-collapse" aria-expanded="false" aria-controls="navbar">
+			            <span class="sr-only">Toggle navigation</span>
+			            <span class="icon-bar"></span>
+			            <span class="icon-bar"></span>
+			            <span class="icon-bar"></span>
+			        </button>
+					<a class="navbar-brand" href="{% url 'home' %}">FABREKAT</a>
+				</div>
+				<div id="navbar" class="collapse navbar-collapse pull-right" aria-expanded="false" style="height: 1px;">
+					<ul class="nav navbar-nav">
+						<li><a id='navid1'> </a></li>
+						<li><a id='navid2'> </a></li>
+						<li><a id='navid3'> </a></li> 
+						<li><a id='navid4'> </a></li>
+						<li><a id='navid5'> </a></li>
+						<li><a id='navid6'> </a></li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+
+			<header id="overview" class="jumbotron subhead">
+
+					<ul>
+
+						<a class="btn btn-success btn-large" id='navidSignUp'> </a> <!-- *Broken Until we get functioning Email-->
+
+
+					</ul>
+
+			</header>	
+			
+			{% block body %}{% endblock %}
+			{% block extra_body %}{% endblock %}
+			<div class="footer">
+				<a href="{% url 'home' %}">The Freedom to FABREKAT ©  2015</a>
+			</div>
+
+
+
+		<script type="text/javascript">
+			urlCreateProject = "{% url 'prj_create' %}"; urlSignUp = "{% url 'account_signup' %}"; urlLogin = "{% url 'account_login' %}"; urlLogout = "{% url 'account_logout' %}"; urlAccountSettings = "{% url 'account_settings' %}"; urlSavedProjects = "{% url 'my_saved_projects' %}"; urlMyProjects = "{% url 'my_projects' %}"; urlFabCreate = "{% url 'fab_create' %}"
+			username = "{{ user.username }}";
+			populateNavBar(username, urlCreateProject, urlSignUp, urlLogin, urlLogout, urlAccountSettings, urlSavedProjects, urlMyProjects, urlFabCreate);
+		</script>
 	</body>
 </html
 
