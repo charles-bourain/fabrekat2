@@ -1,5 +1,5 @@
-from django.conf import settings
 import os
+from django.conf import settings
 
 DATABASES = settings.DATABASES
 

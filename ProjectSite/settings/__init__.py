@@ -8,4 +8,5 @@ except:
 	live = True
 
 if live:
+	print live
 	from .production import *
