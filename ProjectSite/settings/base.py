@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/1.7/ref/settings/
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 import dj_database_url
+from urlparse import urlparse
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 
@@ -77,12 +78,21 @@ MIDDLEWARE_CLASSES = (
 )
 
 #Using the SIMPLE backend.  Very basic database searching.  Will want to switch to elasticsearch or solr
+es = urlparse(os.environ.get('SEARCHBOX_URL') or 'http://127.0.0.1:9200/')
+port = es.port or 80
+
+
 
 HAYSTACK_CONNECTIONS = {
     'default': {
-        'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
+        'ENGINE': 'haystack.backends.elasticsearch_backend.ElasticsearchSearchEngine',
+        'URL': es.scheme + '://' + es.hostname + ':' + str(port),
+        'INDEX_NAME': 'documents',
     },
 }
+
+if es.username:
+    HAYSTACK_CONNECTIONS['default']['KWARGS'] = {"http_auth": es.username + ':' + es.password}
 
 ROOT_URLCONF = 'ProjectSite.urls'
 
