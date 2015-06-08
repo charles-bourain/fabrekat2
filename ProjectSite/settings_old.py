@@ -17,15 +17,15 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 # SECURITY WARNING: keep the secret key used in production secret!
 
-with open('C:\Users\Chaz\secret_key.txt') as f:
-    SECRET_KEY = f.read().strip()
+
+SECRET_KEY = 'ax#kf7xmh^=d!$r01)$wk0$$9_5(!cb)=_+uiv5ym!g_r_ybml'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 TEMPLATE_DEBUG = True
 
-ALLOWED_HOSTS = ['fabrekat-production.herokuapp.com']
+ALLOWED_HOSTS = []
 
 SITE_ID = 1
 
