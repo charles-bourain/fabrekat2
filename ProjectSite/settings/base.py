@@ -113,16 +113,16 @@ WSGI_APPLICATION = 'ProjectSite.wsgi.application'
 
 # DATABASES['default'] = dj_database_url.config()
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-# DATABASES = {
-#     'default': {
-#     'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#     'NAME': 'postgres',                     
-#     'USER': 'postgres',
-#     'PASSWORD': 'chaz',
-#     'HOST': 'localhost',                      # Empty for localhost through domain sockets or           '127.0.0.1' for localhost through TCP.
-#     'PORT': '',                      # Set to empty string for default.
-#     }
-# }   
+DATABASES = {
+    'default': {
+    'ENGINE': 'django.db.backends.postgresql_psycopg2',
+    'NAME': 'postgres',                     
+    'USER': 'postgres',
+    'PASSWORD': 'chaz',
+    'HOST': 'localhost',                      # Empty for localhost through domain sockets or           '127.0.0.1' for localhost through TCP.
+    'PORT': '',                      # Set to empty string for default.
+    }
+}   
 
 
 
