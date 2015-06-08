@@ -41,4 +41,4 @@ Thumbs.db
 # Extra Files #
 ######################
 media/
-local.py
+ProjectSite/settings/local.py
