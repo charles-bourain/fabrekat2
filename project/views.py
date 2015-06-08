@@ -16,7 +16,8 @@ from follow.models import Follow
 import uuid
 from projectpricer.views import get_amazon_price
 from projectcatagories.models import ProjectCatagory
-from projectcatagories.forms import ProjectCatagoryForm
+from projectcatagories.forms import CatagoryForm
+from projectcatagories.views import catagory_assign, catagory_remove
 
 
 #Assigns Project id to a project.  This will be uniquie and show in URL.
@@ -274,79 +275,6 @@ class ImageCreateView(LoginRequiredMixin, CreateView):
 		)		
 
 
-# @login_required
-# def unpublished_project_detail(request, project_id):
-# 	user_id = request.user.id
-# 	project = get_object_or_404(Project, project_id = project_id)
-# 	project_index = project.id 
-# 	creator_id = project.project_creator.id
-
-# 	#Can Redo this as a decorator......
-# 	if user_id != creator_id:
-# 		return HttpResponseRedirect('/')
-# 	elif is_project_published(project_id) == True:
-# 		return HttpResponseRedirect('/')	
-# 	else:
-# 		# saved_project_count = len(Follow.objects.get_follows(project))
-# 		projectimage  = list(
-# 		ProjectImage.objects.filter(
-# 			project_image_for_project = project_index
-# 			)
-# 		)
-# 		#Might be showing the user who is viewing the page...
-
-# 		projectstep  = list(
-# 			ProjectStep.objects.filter(
-# 				step_for_project = project_index,
-# 			),
-# 		)	
-# 		#purchase component gathers the database objects for the purchased component for project id.
-# 		#The view may need to store the API for amazon store.
-# 		#May want to pass fabricated components as well(for thumbnails etc)
-
-# 		#Controlling what shoes on the detailed page.  The id passed the id associated to the project shown.
-		
-# 		purchasedcomponent =PurchasedComponent.objects.filter(
-# 				purchased_component_for_step__in = projectstep
-# 				)
-
-# 		fabricatedcomponent =FabricatedComponent.objects.filter(
-# 				fabricated_component_for_step__in = projectstep
-# 				)
-# 		fabricatedcomponent_from_project_list_id = fabricatedcomponent.values_list('fabricated_component_from_project_id', flat = True)
-# 		fabricated_component_thumbnails = ProjectImage.objects.filter(project_image_for_project__in = fabricatedcomponent_from_project_list_id).first()
-
-# 		projectfile  = list(
-# 		ProjectFile.objects.filter(
-# 			project_file_for_step__in = projectstep
-# 			)
-# 		)
-
-# 		#User Checking - If Creating User, Allow Publish and Create.  Passes a True Value to Template of user_is_creator if user is creator
-# 		if request.user == project.project_creator:
-# 			if request.POST:
-# 				if '_edit' in request.POST:
-# 					return HttpResponseRedirect('/project/edit/%s' % project.project_id)
-# 				elif '_publish' in request.POST:
-# 					publish_project(project, request)
-# 					return HttpResponseRedirect('/project/%s' % project.project_id)
-# 		else:
-# 			HttpResponseRedirect('/')			
-# 		context = {
-# 			'project': project,
-# 			'purchasedcomponent': purchasedcomponent,
-# 			'fabricatedcomponent' : fabricatedcomponent,
-# 			'projectimage':projectimage,
-# 			'projectfile':projectfile,
-# 			'fabricated_component_thumbnails':fabricated_component_thumbnails,
-# 			'projectstep': projectstep,
-# 		}
-
-# 		return render_to_response(
-# 			'project/unpub_detail.html',
-# 			context,
-# 			context_instance = RequestContext(request),
-# 		)
 
 
 #any projects saved by user using the follows app will appear in this view.
@@ -412,6 +340,8 @@ def edit_project(request, project_id):
 	else:
 		form = ProjectForm(instance = project)
 
+		catagory_form = CatagoryForm
+
 		projectimage  = list(
 			ProjectImage.objects.filter(
 			project_image_for_project = project_index
@@ -441,14 +371,20 @@ def edit_project(request, project_id):
 			)
 		)
 
+		catagories = ProjectCatagory.objects.filter(catagory_for_project = project_index)
+
+		for cat in catagories:
+			if ('_remove_catagory_%s'% cat.id) in request.POST:
+				catagory_remove(project, cat)			
 		if request.POST:
 			if '_addstep' in request.POST:
 				return HttpResponseRedirect('/project/edit/%s/addstep/' % project.project_id)
+			if '_addcatagory' in request.POST:
+				catagory_assign(project, CatagoryForm(request.POST))			
 			elif '_publish' in request.POST:
 				publish_project(project, request)	
 			elif '_save' in request.POST:
 				form = ProjectForm(request.POST, instance = project)
-				form.save()
 			elif '_delete_project' in request.POST:
 				return HttpResponseRedirect('/project/edit/%s/delete/' % project.project_id)	
 			elif '_addimage' in request.POST:
@@ -481,6 +417,8 @@ def edit_project(request, project_id):
 			'projectfile': projectfile,
 			'projectstep':projectstep,
 			'projectimage':projectimage,
+			'catagory_form': catagory_form,
+			'catagories':catagories,
 		}	
 
 

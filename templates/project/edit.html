@@ -49,7 +49,9 @@
 	            {% csrf_token %}
 	            <div>
 	                {{ form.as_p }}
-	                {{catagoryform.as_p}}
+	                {{catagory_form.management_form}}
+	                {{catagory_form.as_p}}
+
 	            </div>
 
     <input type="submit" value="Add Step" name = '_addstep' >
@@ -57,7 +59,7 @@
     <input type="submit" value="Save Project" name = '_save' >
     <input type="submit" value="Publish Project" name = '_publish' > 
     <input type="submit" value="Delete Project" name = '_delete_project' >       
-
+    <input type="submit" value="ADD CATAGORY" name = '_addcatagory' > 
 <fieldset>
 	{% if projectimage %}
 		{% for image in projectimage %}
@@ -67,6 +69,17 @@
 		{% endfor %}
 	{% endif %}
 </fieldset>
+
+<fieldset>
+{% if catagories %}
+	{% for cat in catagories %}
+		<ul>
+			{{ cat.catagory }} <input type="submit" value="REMOVE CATAGORY: {{ cat.catagory }}" name = '_remove_catagory_{{ cat.id }}' >
+		</ul>	
+	{% endfor %}
+{% endif %}
+</fieldset>
+
          
 
 {% if projectstep %}
