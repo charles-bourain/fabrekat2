@@ -14,9 +14,7 @@ class ProjectForm(forms.ModelForm):
 		fields = [
 			'project_name',
 			'project_description',
-			'project_catagory',
 		]
-
 
 class ProjectDeleteForm(forms.ModelForm):
 	class Meta:
@@ -73,6 +71,7 @@ PurchasedComponentFormSet = inlineformset_factory(
 	extra = 1, 
 	can_delete = True,
 	)
+
 
 
 class FabricatedComponentForm(autocomplete_light.ModelForm):
