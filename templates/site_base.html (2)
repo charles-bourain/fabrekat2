@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+{% load url from future %}
+{% load account_tags %}
+
+<html>
+	<head>
+		<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+		<title>{% block title %}FABREKAT{% endblock %} </title>
+		<meta charset="utf-8" />
+
+		{% load staticfiles %}
+
+		<script src= "{% static 'project/js/script.js' %}" > </script>
+		<script src= "{% static 'project/js/bootstrap.js' %}"></script>
+		<script src= "{% static 'project/js/jquery.formset.js' %}" > </script>
+		<link rel="stylesheet" type="text/css" href= "{% static 'project/css/bootstrap.min.css' %}"></link>
+		<link rel="stylesheet" type="text/css" href= "{% static 'project/css/custom.css' %}"></link>
+		<link href='http://fonts.googleapis.com/css?family=Cambo' rel='stylesheet' type='text/css'></link>
+		
+
+		{% block extra_head %} {% endblock %}
+	</head>
+	
+	<body>	
+			<nav class="navbar navbar-default navbar-fixed-top">
+
+				<div class="container">
+					<div class="navbar-header">
+						<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+				            <span class="sr-only">Toggle navigation</span>
+				            <span class="icon-bar"></span>
+				            <span class="icon-bar"></span>
+				            <span class="icon-bar"></span>
+				        </button>
+						<a class="navbar-brand" href="{% url 'home' %}">FABREKAT</a>
+					</div>
+					<div id="navbar" class="collapse navbar-collapse" aria-expanded="false" style="height: 1px;">
+						<ul class="nav navbar-nav navbar-right">
+							<li><a id='navid1'> </a></li>
+							<li><a id='navid2'> </a></li>
+							<li><a id='navid3'> </a></li> 
+							<li><a id='navid4'> </a></li>
+							<li><a id='navid5'> </a></li>
+							<li><a id='navid6'> </a></li>
+						</ul>
+					</div>
+				</div>
+			</nav>
+
+			<div class="centered">
+				<div id="overview" class="jumbotron" style="height: 300px;">
+					<div class="centered">
+						<ul>
+							<a class="btn btn-success" type="button" id='navidSignUp'> </a> 
+							<!-- *Broken Until we get functioning Email-->
+						</ul>
+					</div>
+				</div>
+			</div>	
+			
+
+		<div class="container">
+			{% block body %}{% endblock %}
+			{% block extra_body %}{% endblock %}
+		</div>
+
+		
+
+
+		<script type="text/javascript">
+			urlCreateProject = "{% url 'prj_create' %}"; urlSignUp = "{% url 'account_signup' %}"; urlLogin = "{% url 'account_login' %}"; urlLogout = "{% url 'account_logout' %}"; urlAccountSettings = "{% url 'account_settings' %}"; urlSavedProjects = "{% url 'my_saved_projects' %}"; urlMyProjects = "{% url 'my_projects' %}"; urlFabCreate = "{% url 'fab_create' %}"
+			username = "{{ user.username }}";
+			populateNavBar(username, urlCreateProject, urlSignUp, urlLogin, urlLogout, urlAccountSettings, urlSavedProjects, urlMyProjects, urlFabCreate);
+		</script>
+	</body>
+
+	<div class="container">
+		<div class="footer">
+			<a href="{% url 'home' %}">The Freedom to FABREKAT ©  2015</a>
+		</div>
+	</div>
+</html
+
