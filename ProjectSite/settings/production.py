@@ -4,7 +4,7 @@ from django.conf import settings
 DATABASES = settings.DATABASES
 
 DEBUG = False
-TEMPLATE_DEBUG = True
+TEMPLATE_DEBUG = False
 
 # Parse database configuration from $DATABASE_URL
 import dj_database_url

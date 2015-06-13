@@ -6,7 +6,7 @@ from project.models import Project
 import autocomplete_light
 
 
-class CatagoryForm(forms.ModelForm):
+class CatagoryForm(autocomplete_light.ModelForm):
 	class Meta:
 		model = ProjectCatagory
 		fields = ('catagory',)

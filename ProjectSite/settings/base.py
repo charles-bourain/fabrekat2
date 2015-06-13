@@ -32,6 +32,10 @@ SITE_ID = 1
 # Application definition
 
 INSTALLED_APPS = (
+    # 'django_admin_bootstrapped',
+    'admin_tools.theming',
+    'admin_tools.menu',
+    # 'admin_tools.dashboard',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -61,6 +65,7 @@ INSTALLED_APPS = (
 TEMPLATE_CONTEXT_PROCESSORS = (
     'django.contrib.auth.context_processors.auth',
     'account.context_processors.account',
+    'django.core.context_processors.request',
 )
 
 

@@ -1,70 +1,102 @@
 from django.shortcuts import render
 from .models import ProjectCatagory
 from project.models import Project
+import re
 
 # Create your views here.
 
-def catagory_formatter(catagory_string):
-	cat_str_list = list(catagory_string)
+# def catagory_formatter(catagory_string):
+# 	catagory_string = catagory_string.strip()
+# 	catagory_filter = re.compile(r'^catagory_string$')
+# 	alpha_filter = re.compile(r'[a-z0-9]*')
+# 	if catagory_filter.search(catagory_string):
+
 	
-	while ''.join(cat_str_list).isalpha() == False:
-		for item in cat_str_list:
-			if item.isalpha() == False:
-				cat_str_list.remove(item)
+	# while ''.join(cat_str_list).isalpha() == False:
+	# 	for item in cat_str_list:
+	# 		if item.isalpha() == False:
+	# 			cat_str_list.remove(item)
 
-	return ''.join(cat_str_list).upper()
-
+	
 
 # def  catagory_assign(project, form):
+# 	project_index = project.id
+# 	print 'Project Index: '+ str(project_index)
 # 	if form.is_valid():	
 # 		formatted_cat_str = catagory_formatter(form.cleaned_data['catagory'])
 # 		try:
 # 			previous_cat_obj = ProjectCatagory.objects.get(catagory_word_index = formatted_cat_str)
-# 			project.project_catagory = previous_cat_obj
-# 			project.save()
+# 			catagory = previous_cat_obj
+			
 # 		except:		
-# 			form.save(commit = False)
-# 			# print "Printing Catagory Pre-Save Index Value: " + str(form.cleaned_data['catagory_word_index'])
-# 			form.instance.catagory_word_index = formatted_cat_str
-# 			form.save()
+# 			catagory = ProjectCatagory()
+# 			catagory.save()			
+# 			catagory.catagory_word_index = "formatted_cat_str"
+# 			catagory.catagory = form.cleaned_data['catagory']
+		
+# 		catagory.catagory_for_project.add(project_index)
+# 		catagory.save()
 
-# 		# print 'PRINT FORM CATAGORY WORD INDEX: ' + str(form.catagory_word_index)	
-# 		project.project_catagory = ProjectCatagory.objects.get(catagory_word_index = formatted_cat_str)
-# 		project.save()
+# def catagory_remove(project, catagory):	
+# 	project_index = project.id
+# 	print 'Project Index: '+ str(project_index)				
+# 	catagory.catagory_for_project.remove(project_index)
+# 	catagory.save()
 
+
+# def catagory_formatter(catagory_string):
+# 	catagory_string = catagory_string.strip()
+# 	catagory_filter = re.compile(r'^catagory_string$')
+# 	if not catagory_filter.search(catagory_string):
+
+def format_regex_for_robust_search(catagory_string):
+	letter_list = list(catagory_string)
+	print r"." + re.escape('.'.join(letter_list))
+	return re.escape('.'+'.'.join(letter_list))
+
+
+
+
+def find_previous_similiar_catagory(catagory_string):
+	regex_for_robust_search = format_regex_for_robust_search(catagory_string)
+	print 'Custom Regular Expression Search:', str(regex_for_robust_search)
+	robust_catagory_filter = re.compile(regex_for_robust_search, re.IGNORECASE)
+	catagory_list = ProjectCatagory.objects.all()
+	for cat in catagory_list:
+		filtered_cat = robust_catagory_filter.search(cat.catagory)
+		print filtered_cat
+		if filtered_cat:
+			return filtered_cat
+		else:
+			continue
+
+	# beginning_catagory_filter.findall(catagory_list)
+
+
+
+
+			
 def  catagory_assign(project, form):
 	project_index = project.id
-	print 'Project Index: '+ str(project_index)
 	if form.is_valid():	
-		formatted_cat_str = catagory_formatter(form.cleaned_data['catagory'])
+		catagory_string = form.cleaned_data['catagory'].lstrip().rstrip().title()		
 		try:
-			previous_cat_obj = ProjectCatagory.objects.get(catagory_word_index = formatted_cat_str)
-			catagory = previous_cat_obj
-			
-		except:		
-			catagory = ProjectCatagory()
-			catagory.save()
-			catagory.catagory_word_index = formatted_cat_str
-			catagory.catagory = form.cleaned_data['catagory']
-		
-		catagory.catagory_for_project.add(project_index)
-		catagory.save()
+			catagory = ProjectCatagory.objects.get(catagory = catagory_string)		
+		except:	
+			similiar_catagory = find_previous_similiar_catagory(catagory_string)
+			if not similiar_catagory:
+				catagory = ProjectCatagory()
+				catagory.save()				
+				catagory.catagory = catagory_string
+			else:
+				catagory = similiar_catagory
 
-def catagory_remove(project, catagory):
+		catagory.catagory_for_project.add(project_index)
+		catagory.save()		
+
+
+def catagory_remove(project, catagory):	
 	project_index = project.id
 	print 'Project Index: '+ str(project_index)				
 	catagory.catagory_for_project.remove(project_index)
 	catagory.save()
-			
-
-
-#Catagory Database Builder:
-	# Reduce catagories to a non-space, ALL CAP, this will be an indentifier column
-	# There is a unicode column for what it is actually called
-	# example - unicode column = 'Costume Making', reduced column = 'COSTUMEMAKING'
-	# all inputed catagories are broken down into the reduced column and compared
-	# May want to do a scrub of names, in this case 'Costume Making' could also be named 'Costume Tailoring'.
-	# The scrub could happen daily on the serverside only.  The scrub could be automated.
-	# For catagories that have a certain amount of projects in them, they can be then compared to catagories with a large amount of projects and the wording compared.
-	# autocomplete light can be used to prevent mutliple types
-

@@ -12,10 +12,10 @@
 
 		<script src= "{% static 'project/js/script.js' %}" > </script>
 		
-		
 		<link rel="stylesheet" type="text/css" href= "{% static 'project/css/bootstrap.min.css' %}"></link>
 		<link rel="stylesheet" type="text/css" href= "{% static 'project/css/custom.css' %}"></link>
 		<link href='http://fonts.googleapis.com/css?family=Cambo' rel='stylesheet' type='text/css'></link>
+		
 		
 
 		{% block extra_head %} {% endblock %}
@@ -46,7 +46,6 @@
 								<li><a href="{% url 'prj_create' %}"> Create Project</a></li>
 								<li><a href="{% url 'my_saved_projects' %}"> Saved Projects</a></li>
 								<li><a href="{% url 'my_projects' %}"> My Projects</a></li> 
-								<li><a href="{% url 'fab_create' %}"> Fabricator</a></li>
 								<li><a href="{% url 'account_settings' %}"> Account Settings</a></li>
 								<li><a href="{% url 'account_logout' %}"> Logout</a></li>
 							</ul>
