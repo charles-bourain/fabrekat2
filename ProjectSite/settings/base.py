@@ -94,46 +94,14 @@ HAYSTACK_CONNECTIONS = {
 }
 
 
-# HAYSTACK_CONNECTIONS = {
-#     'default': {
-#         'ENGINE': 'haystack.backends.elasticsearch_backend.ElasticsearchSearchEngine',
-#         'URL': es.scheme + '://' + es.hostname + ':' + str(port),
-#         'INDEX_NAME': 'documents',
-#     },
-# }
-
-# if es.username:
-#     HAYSTACK_CONNECTIONS['default']['KWARGS'] = {"http_auth": es.username + ':' + es.password}
-
 ROOT_URLCONF = 'ProjectSite.urls'
 
 WSGI_APPLICATION = 'ProjectSite.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/1.7/ref/settings/#databases
-
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': 'djangodblite',
-#     }
-# }
-# 
 
 # DATABASES['default'] = dj_database_url.config()
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-DATABASES = {
-    'default': {
-    'ENGINE': 'django.db.backends.postgresql_psycopg2',
-    'NAME': 'postgres',                     
-    'USER': 'postgres',
-    'PASSWORD': 'chaz',
-    'HOST': 'localhost',                      # Empty for localhost through domain sockets or           '127.0.0.1' for localhost through TCP.
-    'PORT': '',                      # Set to empty string for default.
-    }
-}   
 
 
 
@@ -149,10 +117,6 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
-
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/1.7/howto/static-files/
 
 STATIC_URL = '/static_files/'
 STATIC_ROOT = 'static'
