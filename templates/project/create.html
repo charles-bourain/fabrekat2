@@ -10,28 +10,28 @@
 	    <script src="{% static 'project/js/jquery.formset.min.js' %}" ></script>
 	    <!-- Autocomplete_light needs to be loaded AFTER jquery -->
 	    {% include 'autocomplete_light/static.html' %}
-<!-- 	    
+<!--    
 	      <script type="text/javascript">
-	    //     $(function() {	
-	    //         $(".inLine.{{projectstep_formset.prefix}}").formset({
-	    //             prefix: "{{projectstep_formset.prefix}}",
-	    //         })  	                	
-	    //         $(".inLine.{{projectimage_formset.prefix}}").formset({
-	    //             prefix: "{{projectimage_formset.prefix}}",
-	    //         })
-	    //         $(".inLine.{{projectfile_formset.prefix}}").formset({
-	    //             prefix: "{{projectfile_formset.prefix}}",
-	    //         })	            
-	    //         $(".inLine.{{purchasedcomponent_formset.prefix}}").formset({
-	    //             prefix: "{{purchasedcomponent_formset.prefix}}",
-	    //         })      
-	    //         $(".inLine.{{fabricatedcomponent_formset.prefix}}").formset({
-	    //             prefix: "{{fabricatedcomponent_formset.prefix}}",
-	    //         })   	                    	      	
-	    //     })
-    	// </script>
+	        $(function() {	
+	            $(".inLine.{{projectstep_formset.prefix}}").formset({
+	                prefix: "{{projectstep_formset.prefix}}",
+	            })  	                	
+	            $(".inLine.{{projectimage_formset.prefix}}").formset({
+	                prefix: "{{projectimage_formset.prefix}}",
+	            })
+	            $(".inLine.{{projectfile_formset.prefix}}").formset({
+	                prefix: "{{projectfile_formset.prefix}}",
+	            })	            
+	            $(".inLine.{{purchasedcomponent_formset.prefix}}").formset({
+	                prefix: "{{purchasedcomponent_formset.prefix}}",
+	            })      
+	            $(".inLine.{{fabricatedcomponent_formset.prefix}}").formset({
+	                prefix: "{{fabricatedcomponent_formset.prefix}}",
+	            })   	                    	      	
+	        })
+    	</script>
   
-	  -->
+-->
 	       
 <!--	    <link rel="stylesheet" type="text/css" href="{% static 'project/style.css' %}"> -->
 	</head>
@@ -47,14 +47,15 @@
 	            <div>
 	                {{ form.as_p }}
 	            </div>
-
-<!-- 	            <fieldset>
+<!--
+ 	            <fieldset>
 	                <legend>Project Steps</legend>
 
 	                {{ projectstep_formset.management_form }}
-	                {{ projectstep_formset.non_form_errors }} -->
+	                {{ projectstep_formset.non_form_errors }}
 
-<!-- 	                {% for form in projectstep_formset %}
+
+ 	                {% for form in projectstep_formset %}
 	                	<fieldset>
 		                    {{ form.id }}
 		                    <div class="inLine {{projectstep_formset.prefix}}">
@@ -70,10 +71,10 @@
 	                   	</fieldset>	                
 	                {% endfor %}
 
-				</fieldset> -->
+				</fieldset> 
 
             
-<!-- 	            <fieldset>
+	            <fieldset>
 	                <legend>Project Images</legend>
 
 	                {{ projectimage_formset.management_form }}
@@ -89,9 +90,8 @@
 	                {% endfor %}
 
 				</fieldset>
-	            -->
 
-<!-- 	            <fieldset>
+ 	            <fieldset>
 	                <legend>Project Files</legend>
 
 	                {{ projectfile_formset.management_form }}
@@ -106,10 +106,9 @@
 	                    </div>                    
 	                {% endfor %}
 
-				</fieldset> -->
+				</fieldset> 
 
-
-<!-- 	            <fieldset>         
+				 <fieldset>         
 	                <legend>Purchased Component</legend>
 	                {{ purchasedcomponent_formset.management_form }}
 	                {{ purchasedcomponent_formset.non_form_errors }}
@@ -130,9 +129,9 @@
 	                        {{ form.purchased_component_quantity }}
 	                    </div>                    
 	                {% endfor %}
-	            </fieldset>	 -->
+	            </fieldset>	 
 
-<!-- 	            <fieldset>         
+ 	            <fieldset>         
 	                <legend>Fabricated Component</legend>
 	                {{ fabricatedcomponent_formset.management_form }}
 	                
@@ -148,10 +147,14 @@
 	                        {{ form.fabricated_component_quantity }}
 	                    </div>	                    
 	                {% endfor %}
-	            </fieldset>	  -->           
+	            </fieldset>	
+	             -->           
 	            <input type="submit" value="Save Project" name = '_save' >
+
 	        </form>
+
 	    </div>
+
 	</body>
 
 {% endblock %}
@@ -159,7 +162,7 @@
 
 
 
-<!-- 
+
 <body>
 	<form enctype="multipart/form-data" method='POST' action="">
 		{% csrf_token %}
@@ -174,8 +177,7 @@
 			</div>
 			
 			
-		</ul
->		<input type="submit" value="Create Project" >
+		</ul>		
+		<input type="submit" value="Create Project" >
 	</form>
 </body>
- -->
