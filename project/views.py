@@ -14,7 +14,7 @@ from publishedprojects.views import publish_project
 from follow import utils
 from follow.models import Follow
 import uuid
-from projectpricer.views import get_amazon_price
+from projectpricer.utils import get_product_info
 from projectcatagories.models import ProjectCatagory
 from projectcatagories.views import catagory_assign, catagory_remove
 from .utils import get_project_id, is_project_published, get_order, move_step_up, move_step_down, is_user_project_creator
@@ -305,7 +305,7 @@ def edit_project(request, project_id):
 				)
 
 		for component in purchasedcomponent:
-			component.purchased_component_price = get_amazon_price(component)
+			component.purchased_component_price = get_product_info(component)[0] #Returns [Price integer, Currency string,]
 
 		fabricatedcomponent =FabricatedComponent.objects.filter(
 				fabricated_component_for_step__in = step_list,

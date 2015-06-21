@@ -1,6 +1,8 @@
 {% extends "site_base.html" %}
 {% load thumbnail %}
 {% load filename %}
+<!-- Need to load mathfilters(django-mathfilters) to do do division/multiplication/addition/subtraction in templates -->
+{% load mathfilters %}
 
 {% block title %}Create - {{block.super}}{% endblock %}
 
@@ -107,7 +109,7 @@
 					<h2>Component: 
 						<a href="{{component.purchased_component_url_link}}">{{component.purchased_component_name}} 
 						</a>
-						x {{component.purchased_component_quantity}}, {{component.purchased_component_price}}
+						x {{component.purchased_component_quantity}}, ${{component.purchased_component_price|div:100}}
 					</h2>
 				</ul>	
 				{% endif %}			

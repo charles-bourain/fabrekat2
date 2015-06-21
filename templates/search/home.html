@@ -11,39 +11,16 @@
             <h2>Search</h2>
 
             <!--*** Search Offers geo stuff, need to check it out.  Proximity search is possible here (for Fab) ****-->
-                <form method="get" action="." type="search" >
-<<<<<<< HEAD
-                    <table>
-                        {{form.management_form}}
-                        {{ form.q }}
-                        <tr>
-                            <td>&nbsp;</td>
-                            <td>
-                                <input type="submit" value="Search">
-                            </td>
-                        </tr>
-                    </table>
-
-                    {% if query or page.object_list %}
-                        <h3>Search Results</h3>
-=======
-                    <div class="form-group">
+                <div class="form-group">
                         
-                        <form method="get" action="." type="search">
-                            <input class="class_name" id="id_q" name="q" type="search"></input>
-                            <input 
-                            <input type="submit" class="btn btn-success" value="Search"></input>
-
-                        </form>
-                    </div>   
-                                
-                            
->>>>>>> 2f14c94c10060ea2721448388c260db36ba819d8
-                </form>
+                <form method="get" action="." type="search">
+                    <input class="class_name" id="id_q" name="q" type="search"></input>
+                    <input 
+                    <input type="submit" class="btn btn-success" value="Search"></input>
 
                 
 
-                {% if query or page.object_list %}
+        {% if query or page.object_list %}
                         <h3>Search Results</h3>
         </div>
         <div class="containe">
@@ -94,4 +71,5 @@
         </div>
     </div>
     -->
+    
 {% endblock %}
