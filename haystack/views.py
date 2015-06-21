@@ -204,6 +204,7 @@ def basic_search(request, template='search/home.html', load_all=True, form_class
 
         if form.is_valid():
             query = form.cleaned_data['q']
+
             results = form.search()
     else:
         form = form_class(searchqueryset=searchqueryset, load_all=load_all)

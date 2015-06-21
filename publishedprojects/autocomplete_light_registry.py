@@ -1,0 +1,4 @@
+import autocomplete_light
+from publishedprojects.models import PublishedProject
+
+autocomplete_light.register(PublishedProject)

@@ -3,9 +3,17 @@ from project.models import Project, PurchasedComponent, ProjectImage, Fabricated
 from django.forms.models import inlineformset_factory
 from django.forms import ImageField, CharField
 import autocomplete_light
+from projectcatagories.models import ProjectCatagory
 
 
 #Use fields instead of exclude.
+
+
+class CatagoryForm(forms.ModelForm):
+	class Meta:
+		model = ProjectCatagory
+		fields = ['catagory']
+		widgets = {'catagory' : autocomplete_light.TextWidget('ProjectCatagoryAutocompleteCatagory')}
 
 
 class ProjectForm(forms.ModelForm):
@@ -74,14 +82,11 @@ PurchasedComponentFormSet = inlineformset_factory(
 
 
 
-class FabricatedComponentForm(autocomplete_light.ModelForm):
+class FabricatedComponentForm(forms.ModelForm):
+
 	class Meta:
 		model = FabricatedComponent
-		autocomplete_fields = ('fabricated_component_from_project',)
-		autocomplete_exclude = (
-			'fabricated_component_for_project',
-			'fabricated_component_for_step',
-			)
+
 
 FabricatedComponentFormSet = inlineformset_factory(
 	ProjectStep, 

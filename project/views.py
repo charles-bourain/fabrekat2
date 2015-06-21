@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.urlresolvers import reverse
 from project.models import Project, PurchasedComponent, ProjectImage, FabricatedComponent, ProjectFile, ProjectStep
 from django.views.generic import CreateView, UpdateView
-from project.forms import ProjectForm, ProjectImageForm, ProjectStepForm, ReOrderStepForm
+from project.forms import ProjectForm, ProjectImageForm, ProjectStepForm, ReOrderStepForm, CatagoryForm
 from project.forms import   PurchasedComponentFormSet, FabricatedComponentFormSet, ProjectFileFormSet
 from account.mixins import LoginRequiredMixin
 from publishedprojects.models import PublishedProject
@@ -16,67 +16,13 @@ from follow.models import Follow
 import uuid
 from projectpricer.views import get_amazon_price
 from projectcatagories.models import ProjectCatagory
-from projectcatagories.forms import CatagoryForm
 from projectcatagories.views import catagory_assign, catagory_remove
+from .utils import get_project_id, is_project_published, get_order, move_step_up, move_step_down, is_user_project_creator
+from django import forms
+import autocomplete_light
 
 
 #Assigns Project id to a project.  This will be uniquie and show in URL.
-def get_project_id():
-	project_id = str(uuid.uuid4())[:20].replace('-','').lower()
-	
-	try:
-		id_exists = Project.objects.get(project_id = project_id)
-		get_project_id()
-	
-	except:
-		return project_id
-
-#Checks if URL is published
-def is_project_published(project_id):
-	try:
-		project = PublishedProject.objects.get(project_slug_id = project_id)
-		return True
-
-	except:
-		return False
-
-
-#This is for Step ordering.  This function assigns the newly created step to the next avialable step order
-def get_order(project):
-	order = 1
-	while ProjectStep.objects.filter(step_for_project = project.id).filter(step_order = order):		
-		order += 1
-		print order
-	return order
-
-#function for moving the step order of the selected step with the previous step
-def move_step_up(project, step):
-	step_before_this_step = ProjectStep.objects.filter(step_for_project = project.id).get(step_order =(step.step_order-1))
-	old_step = step.step_order
-	new_step = step_before_this_step.step_order
-	step.step_order = new_step
-	step.save()
-	step_before_this_step.step_order = old_step
-	step_before_this_step.save()	
-
-#function for moving the step order of the selected stpe with the next step
-def move_step_down(project, step):
-	step_after_this_step = ProjectStep.objects.filter(step_for_project = project.id).get(step_order =(step.step_order+1))
-	print step_after_this_step
-	old_step = step.step_order
-	new_step = step_after_this_step.step_order
-	step.step_order = new_step
-	step.save()
-	step_after_this_step.step_order = old_step
-	step_after_this_step.save()
-
-
-def is_user_project_creator(user, request):
-	project_id = self.kwargs['project_id']
-	project_creator = Project.objects.get(project_id = project_id).project_creator
-	if user != project_creator:
-		return False
-
 
 
 #Assigns components and files to a step
@@ -98,6 +44,7 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
 				form = form,
 				)
 			)
+
 	#Begins the posting proccess.  Returns the valid/invalid forms.		
 	def post(self, request, *args, **kwargs):
 		self.object = None
@@ -160,6 +107,7 @@ class StepCreateView(LoginRequiredMixin, CreateView):
 				projectfile_formset = projectfile_formset,
 				)
 			)
+
 	def post(self, request, *args, **kwargs):
 		self.object = None
 		form_class = self.get_form_class()
@@ -244,6 +192,7 @@ class ImageCreateView(LoginRequiredMixin, CreateView):
 				form = form,
 				)
 			)
+
 	def post(self, request, *args, **kwargs):
 		self.object = None
 		form_class = self.get_form_class()
@@ -273,9 +222,6 @@ class ImageCreateView(LoginRequiredMixin, CreateView):
 				form = form,
 			)
 		)		
-
-
-
 
 #any projects saved by user using the follows app will appear in this view.
 @login_required
@@ -339,7 +285,6 @@ def edit_project(request, project_id):
 		return HttpResponseRedirect('/')	
 	else:
 		form = ProjectForm(instance = project)
-
 		catagory_form = CatagoryForm
 
 		projectimage  = list(
@@ -359,6 +304,9 @@ def edit_project(request, project_id):
 				purchased_component_for_step__in = step_list,
 				)
 
+		for component in purchasedcomponent:
+			component.purchased_component_price = get_amazon_price(component)
+
 		fabricatedcomponent =FabricatedComponent.objects.filter(
 				fabricated_component_for_step__in = step_list,
 				)
@@ -375,18 +323,26 @@ def edit_project(request, project_id):
 
 		for cat in catagories:
 			if ('_remove_catagory_%s'% cat.id) in request.POST:
-				catagory_remove(project, cat)			
+				catagory_remove(project, cat)	
+				return HttpResponseRedirect('/project/edit/%s' % project.project_id)		
 		if request.POST:
 			if '_addstep' in request.POST:
 				return HttpResponseRedirect('/project/edit/%s/addstep/' % project.project_id)
+			
 			if '_addcatagory' in request.POST:
-				catagory_assign(project, CatagoryForm(request.POST))			
+				print 'Checking Catagory:::::',CatagoryForm(request.POST)
+				catagory_assign(project, CatagoryForm(request.POST))	
+				return HttpResponseRedirect('/project/edit/%s' % project.project_id)					
+			
 			elif '_publish' in request.POST:
 				publish_project(project, request)	
+			
 			elif '_save' in request.POST:
 				form = ProjectForm(request.POST, instance = project)
+			
 			elif '_delete_project' in request.POST:
 				return HttpResponseRedirect('/project/edit/%s/delete/' % project.project_id)	
+			
 			elif '_addimage' in request.POST:
 				return HttpResponseRedirect('/project/edit/%s/addimage/' % project.project_id)	
 			# elif '_reorder_steps' in request.POST:

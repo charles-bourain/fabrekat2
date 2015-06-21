@@ -31,36 +31,6 @@ SITE_ID = 1
 
 # Application definition
 
-INSTALLED_APPS = (
-    # 'django_admin_bootstrapped',
-    'admin_tools.theming',
-    'admin_tools.menu',
-    # 'admin_tools.dashboard',
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'django.contrib.sites',
-    'jquery',
-    'project',
-    'account',
-    'pinax_theme_bootstrap',
-    'bootstrapform',
-    'haystack',
-    'imagestore',
-    'sorl.thumbnail',
-    'tagging',
-    'follow',
-    'easy_thumbnails',
-    # 'fabricator',
-    'autocomplete_light',
-    'publishedprojects',
-    # 'geoposition',
-    'projectpricer',
-    'projectcatagories',
-)
 
 TEMPLATE_CONTEXT_PROCESSORS = (
     'django.contrib.auth.context_processors.auth',

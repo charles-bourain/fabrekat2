@@ -1,7 +1,10 @@
 import autocomplete_light
 
-from project.models import Project
+from projectcatagories.models import ProjectCatagory
 
-autocomplete_light.register(Project,
-	search_fields = ['^project_name'],
-	)
+
+class AutocompleteCatagory(autocomplete_light.AutocompleteModelBase):
+	search_fields = ['catagory']
+	
+
+autocomplete_light.register(ProjectCatagory, AutocompleteCatagory)

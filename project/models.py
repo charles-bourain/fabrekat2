@@ -17,6 +17,46 @@ from publishedprojects.models import PublishedProject
 #ISSUE - when this is called, the primary key for project is not created yet, so calling project.id
 #	results in none.
 
+def get_file_path(instance, filename):
+	project_step_id = instance.project_file_for_step_id
+	file_upload_path = os.path.join('project_files',
+		'step_%s' % project_step_id,
+		filename
+		)
+	return file_upload_path	
+
+
+def validate_file_extension(value):
+	ext = os.path.splitext(value.name)[1]
+	valid_extensions = ['.jpg',]
+	if not ext in valid_extensions:
+		raise ValidationError(u'File not supported!')
+
+
+def image_upload_path(instance, filename):
+	project_id = instance.step_for_project_id
+	image_upload_path = os.path.join('project_image_albums',
+		'project_%s' % project_id,
+		filename
+		)
+	return image_upload_path
+
+def get_image_path(instance, filename):
+
+		project_id = instance.project_image_for_project_id		
+		print project_id
+		print filename
+		print instance.project_image_for_project
+
+		image_upload_path = os.path.join('project_image_albums',
+			'project_%s' % project_id,
+			filename
+			)
+
+		print image_upload_path
+
+		return image_upload_p	
+
 
 class Project(models.Model):
 
@@ -36,13 +76,6 @@ class Project(models.Model):
 
 class ProjectStep(models.Model):
 
-	def image_upload_path(instance, filename):
-		project_id = instance.step_for_project_id
-		image_upload_path = os.path.join('project_image_albums',
-			'project_%s' % project_id,
-			filename
-			)
-		return image_upload_path
 	step_for_project = models.ForeignKey(Project,
 		related_name = 'project_step',
 		blank = False,
@@ -68,7 +101,7 @@ class PurchasedComponent(models.Model):
 	purchased_component_name = models.CharField(max_length = 20)
 	purchased_component_url_link = models.URLField()
 	purchased_component_quantity = models.IntegerField(default = 0)
-	#price = Gotta get the price somehow....
+	purchased_component_price = models.IntegerField(default = None, null = True)
 	
 	def __unicode__(self):
 		return unicode(self.project_name)	
@@ -81,7 +114,7 @@ class FabricatedComponent(models.Model):
 	related_name = 'base_project'
 	)
 	fabricated_component_from_project = models.ForeignKey(
-	Project, 
+	PublishedProject, 
 	blank=True,
 	null = True,
 	related_name = 'component_project'
@@ -90,23 +123,7 @@ class FabricatedComponent(models.Model):
 	#price = Gotta get the price somehow....
 
 	fabricated_component_for_step = models.ForeignKey(ProjectStep)
-
-
-def get_image_path(instance, filename):
-
-		project_id = instance.project_image_for_project_id		
-		print project_id
-		print filename
-		print instance.project_image_for_project
-
-		image_upload_path = os.path.join('project_image_albums',
-			'project_%s' % project_id,
-			filename
-			)
-
-		print image_upload_path
-
-		return image_upload_path	
+	
 
 
 class ProjectImage(BaseAlbum):
@@ -144,21 +161,7 @@ class ProjectFile(models.Model):
 		blank=True,
 		null=True,)
 	project_file_for_step = models.ForeignKey(ProjectStep)
-	
 
-	def validate_file_extension(value):
-		ext = os.path.splitext(value.name)[1]
-		valid_extensions = ['.jpg',]
-		if not ext in valid_extensions:
-			raise ValidationError(u'File not supported!')
-
-	def get_file_path(instance, filename):
-		project_step_id = instance.project_file_for_step_id
-		file_upload_path = os.path.join('project_files',
-			'step_%s' % project_step_id,
-			filename
-			)
-		return file_upload_path	
 
 	project_file=models.FileField(
 	upload_to=get_file_path,
