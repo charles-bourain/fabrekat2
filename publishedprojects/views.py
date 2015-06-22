@@ -15,14 +15,13 @@ from follow import utils
 from follow.models import Follow
 import uuid
 from project.models import Project, PurchasedComponent, FabricatedComponent, ProjectImage, ProjectStep, ProjectFile
-
+from publishedprojects.utils import verify_step_order
 
 # Create your views here.
 def publish_project(self, request):
 	form = PublishForm(request.POST)
 	project = self
 	project_index = project.id
-	print 'project = ' + str(project)
 
 	projectimage  = list(
 		ProjectImage.objects.filter(
@@ -30,21 +29,26 @@ def publish_project(self, request):
 		)
 	)
 
-	print 'projectimage =' + str(projectimage)
-
 	projectstep  =ProjectStep.objects.filter(
 		step_for_project = project_index,
 		).order_by('step_order')
 	step_list = []
 	for step in projectstep:
 		step_list.append(step.id)
+	
+	purchasedcomponent =PurchasedComponent.objects.filter(
+			purchased_component_for_step__in = step_list,
+			)
 
-
-	if projectimage and projectstep:
+#Need to add functionality to verify_step_order to ensure steps go from 1-len(ProjectSteps)
+	if projectimage and projectstep and verify_step_order():
+		print 'PROJECT IMAGE, PROJECT STEP, AND VERIFY STEP ORDER TRUE'
 		if form.is_valid():
 			published_project = form.save(commit = False)
 			published_project.project_link = self
 			published_project.project_slug_id = self.project_id
+
+
 			published_project.save()
 			return HttpResponseRedirect('/project/%s' % published_project.project_slug_id)
 	else:

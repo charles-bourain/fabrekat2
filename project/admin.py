@@ -17,10 +17,11 @@ class ProjectStepInline(admin.TabularInline):
 
 class ProjectAdmin (admin.ModelAdmin):
 	inlines = [
-	PurchasedComponentInline,
 	FabricatedComponentInline,
 	ProjectStepInline,
 	]
 
 # Register your models here. 
 admin.site.register(Project, ProjectAdmin)
+admin.site.register(PurchasedComponent)
+admin.site.register(FabricatedComponent)

@@ -26,11 +26,13 @@ ALLOWED_HOSTS = ['*']
 #     os.path.join(BASE_DIR, 'static'),
 # )
 
+MANDRILL_API_KEY = "3rxHtBbmRLBbLi4EgazU-A"
+EMAIL_BACKEND = "djrill.mail.backends.djrill.DjrillBackend"
+DEFAULT_FROM_EMAIL = "webmaster@fabrekat.com"
+
 INSTALLED_APPS = (
-    # 'django_admin_bootstrapped',
     'admin_tools.theming',
     'admin_tools.menu',
-    # 'admin_tools.dashboard',
     'autocomplete_light',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -50,10 +52,10 @@ INSTALLED_APPS = (
     'tagging',
     'follow',
     'easy_thumbnails',
-    # 'fabricator',
     'publishedprojects',
-    # 'geoposition',
     'projectpricer',
     'projectcatagories',
-    #'debug_toolbar',
+    'mathfilters',
+    'bottlenose',    
+    'djrill',
 )

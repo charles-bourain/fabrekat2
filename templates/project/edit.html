@@ -107,9 +107,9 @@
 			</ul>
 				<ul>
 					<h2>Component: 
-						<a href="{{component.purchased_component_url_link}}">{{component.purchased_component_name}} 
+						<a href="{{component.product.url}}">{{component.product.name}} 
 						</a>
-						x {{component.purchased_component_quantity}}, ${{component.purchased_component_price|div:100}}
+						x {{component.purchased_component_quantity}} -- ${{component.product.price|div:100}}
 					</h2>
 				</ul>	
 				{% endif %}			

@@ -28,12 +28,8 @@
             {% for result in page.object_list %}
                 
                 {% if result.content_type == "publishedprojects.publishedproject" %}
-                    <p><a href='/project/{{result.object.project.project_id}}'> {{result.object.project.project_name}}</a>
-                        Designed By <a href = ""> {{result.object.project.project_creator}} </a></p>
-                {% endif %}
-                
-                {% if result.content_type == "fabricator.fabricator" %}
-                    <p><a href="{% url 'fab_detail' result.object.fabricator %}"> {{ result.object.fabricator }} </a></p>
+                    <p><a href='/project/{{result.object.project_link.project_id}}'> {{result.object.project_link.project_name}}</a>
+                        Designed By <a href = ""> {{result.object.project_link.project_creator}} </a></p>
                 {% endif %}
 
             {% empty %}

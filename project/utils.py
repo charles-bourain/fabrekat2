@@ -58,3 +58,19 @@ def is_user_project_creator(user, request):
 	project_creator = Project.objects.get(project_id = project_id).project_creator
 	if user != project_creator:
 		return False
+
+
+def adjust_order_for_deleted_step(project, step):
+	project_steps = ProjectStep.objects.filter(step_for_project = project.id)
+	deleted_step = project_steps.get(step_order =(step.step_order))
+
+	for step in project_steps:
+		if step == deleted_step:
+			pass
+		elif step.step_order < deleted_step.step_order:
+			pass
+		else:
+			step.step_order = step.step_order-1
+			step.save()
+
+

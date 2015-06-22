@@ -65,11 +65,7 @@ class PurchasedComponentForm(forms.ModelForm):
 
 	class Meta:
 		model = PurchasedComponent
-		fields = '__all__'
-		exclude = [
-		'purchased_component_for_project',
-		'purchased_component_for_step',
-		]
+		fields = ['purchased_component_name', 'purchased_component_url_link', 'purchased_component_quantity']
 
 PurchasedComponentFormSet = inlineformset_factory(
 	ProjectStep, 
