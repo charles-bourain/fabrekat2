@@ -1,14 +1,15 @@
-from django.shortcuts import render, render_to_response, get_object_or_404, get_list_or_404
+from django.shortcuts import render, render_to_response, get_object_or_404, get_list_or_404, redirect
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import RequestContext
 from datetime import datetime
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.urlresolvers import reverse
-from project.models import Project, PurchasedComponent, ProjectImage, FabricatedComponent, ProjectFile, ProjectStep
+from project.models import Project, ProjectImage
+from projectsteps.models import PurchasedComponent, FabricatedComponent, ProjectFile, ProjectStep, StepOrder
 from django.views.generic import CreateView, UpdateView
 from project.forms import ProjectForm, ProjectImageForm, ProjectStepForm, ReOrderStepForm, CatagoryForm
 from project.forms import   PurchasedComponentFormSet, FabricatedComponentFormSet, ProjectFileFormSet
-from account.mixins import LoginRequiredMixin
+from .mixins import LoginRequiredMixin
 from publishedprojects.models import PublishedProject
 from publishedprojects.views import publish_project
 from follow import utils
@@ -17,7 +18,7 @@ import uuid
 from projectpricer.utils import get_product
 from projectcatagories.models import ProjectCatagory
 from projectcatagories.views import catagory_assign, catagory_remove
-from .utils import get_project_id, is_project_published, get_order, move_step_up, move_step_down, is_user_project_creator, adjust_order_for_deleted_step
+from .utils import get_project_id, is_project_published, move_step_up, move_step_down, is_user_project_creator, adjust_order_for_deleted_step
 from django import forms
 import autocomplete_light
 
@@ -29,6 +30,8 @@ import autocomplete_light
 
 #LoginRequiredMixin checks if user is logged in
 #This creates the first of the Project.  This is a fresh create
+
+
 class ProjectCreateView(LoginRequiredMixin, CreateView):
     template_name = 'project/create.html'
     model = Project
@@ -116,16 +119,17 @@ class StepCreateView(LoginRequiredMixin, CreateView):
         purchasedcomponent_formset = PurchasedComponentFormSet(self.request.POST,)  
         fabricatedcomponent_formset = FabricatedComponentFormSet(self.request.POST,)
         projectfile_formset = ProjectFileFormSet(self.request.POST, self.request.FILES,)
-        
+        print 'CHECKING VALID......'
         if (
             form.is_valid()
             and  purchasedcomponent_formset.is_valid()
             and  fabricatedcomponent_formset.is_valid()
             and  projectfile_formset.is_valid()
             ):      
-
+            print 'VALID'
             return self.form_valid(form, purchasedcomponent_formset, fabricatedcomponent_formset, projectfile_formset)
         else:
+            print 'NOT VALID'
             return self.form_invalid(form, purchasedcomponent_formset, fabricatedcomponent_formset, projectfile_formset)
 
 
@@ -133,21 +137,17 @@ class StepCreateView(LoginRequiredMixin, CreateView):
         self.object = form.save(commit = False)
         project_id = self.kwargs['project_id']
         project = Project.objects.get(project_id = project_id)
-        self.object.step_for_project = project  
-        # if len(ProjectStep.objects.filter(step_for_project = project.id)) > 0:
-        #   step_count_for_order = len(ProjectStep.objects.filter(step_for_project = project.id))
-        # else:
-        #   step_count_for_order = 0
-        self.object.step_order = get_order(project)
+        self.object.step_for_project = project
         self.object = form.save()
 
-        purchasedcomponent_formset.instance = self.object         #FIRST ASSIGN THE INSTANCE
-        form = purchasedcomponent_formset.save(commit = False)[0] #SAVE THE FORM WITH INSTANCE ATTACHED
-        form.product = get_product(   #ASSIGN ALL NEEDED VALUES
-            self.request, 
-            str(purchasedcomponent_formset.cleaned_data[0]['purchased_component_url_link']), 
-            str(purchasedcomponent_formset.cleaned_data[0]['purchased_component_name']),
-            )
+        purchasedcomponent_formset.instance = self.object         #FIRST ASSIGN THE PROJECT STEP TO THE PURCHASED COMPONENT
+        form = purchasedcomponent_formset.save(commit = False) #SAVE THE FORM WITH INSTANCE ATTACHED
+        if form:
+            form[0].product = get_product(   #ASSIGN ALL NEEDED VALUES
+                self.request, 
+                str(form[0].purchased_component_url_link), 
+                str(form[0].purchased_component_name),
+                )
         purchasedcomponent_formset.save()
 
         fabricatedcomponent_formset.instance = self.object
@@ -158,6 +158,13 @@ class StepCreateView(LoginRequiredMixin, CreateView):
         projectfile_formset.instance = self.object
         projectfile_formset.project_file_for_project_id = project.id
         projectfile_formset.save()
+
+        #STEP ORDER ASSIGNMENT - Get Or Create Outputs Tuple - {object, Boolean - If Created True}:
+        existing_steps_for_project = StepOrder.objects.filter(step_order_for_project = project)
+        count_of_existing_steps = len(existing_steps_for_project) + 1
+        new_step = StepOrder.objects.create(step_order_for_project = project, step = self.object) 
+        new_step.order = count_of_existing_steps
+        new_step.save()
 
 
         return HttpResponseRedirect('/project/edit/%s' % project_id)
@@ -298,28 +305,27 @@ def edit_project(request, project_id):
             )
         )
 
-        projectstep  =ProjectStep.objects.filter(
-            step_for_project = project_index,
-            ).order_by('step_order')
-        step_list = []
-        for step in projectstep:
-            step_list.append(step.id)
+        step_list = StepOrder.objects.filter(step_order_for_project = project).order_by('order')
+        step_value_list = step_list.values_list('step', flat = True)
 
-        purchasedcomponent =PurchasedComponent.objects.filter(
-                purchased_component_for_step__in = step_list,
+
+        if step_list: 
+
+            purchasedcomponent =PurchasedComponent.objects.filter(
+                    purchased_component_for_step__in = step_value_list,
+                    )
+
+            fabricatedcomponent =FabricatedComponent.objects.filter(
+                    fabricated_component_for_step__in = step_value_list,
+                    )
+            fabricatedcomponent_from_project_list_id = fabricatedcomponent.values_list('fabricated_component_from_project_id', flat = True)
+            fabricated_component_thumbnails = ProjectImage.objects.filter(project_image_for_project__in = fabricatedcomponent_from_project_list_id).first()
+
+            projectfile  = list(
+            ProjectFile.objects.filter(
+                project_file_for_step__in = step_value_list,
                 )
-
-        fabricatedcomponent =FabricatedComponent.objects.filter(
-                fabricated_component_for_step__in = step_list,
-                )
-        fabricatedcomponent_from_project_list_id = fabricatedcomponent.values_list('fabricated_component_from_project_id', flat = True)
-        fabricated_component_thumbnails = ProjectImage.objects.filter(project_image_for_project__in = fabricatedcomponent_from_project_list_id).first()
-
-        projectfile  = list(
-        ProjectFile.objects.filter(
-            project_file_for_step__in = step_list,
             )
-        )
 
         catagories = ProjectCatagory.objects.filter(catagory_for_project = project_index)
 
@@ -349,23 +355,23 @@ def edit_project(request, project_id):
             elif '_addimage' in request.POST:
                 return HttpResponseRedirect('/project/edit/%s/addimage/' % project.project_id)  
             # elif '_reorder_steps' in request.POST:
-            #   return HttpResponseRedirect('/project/edit/%s/ordersteps/' % project.project_id)
-
-        for step in projectstep:
+            #   return HttpResponseRedirect('/project/edit/%s/ordersteps/' % project.project_id)       
+        for step in step_list:
             if ('_deletestep_%s'% step.id) in request.POST:
-                return HttpResponseRedirect('deletestep/%s' % step.id)
+                adjust_order_for_deleted_step(project, step, step_list)
+                return HttpResponseRedirect('/project/edit/%s' % project.project_id)
 
             if ('_move_%s_step_up'% step.id) in request.POST:
-                if step.step_order == 1:
+                if step.order == 1:
                     return HttpResponseRedirect('/project/edit/%s' % project.project_id)
                 else:
-                    move_step_up(project, step)
+                    move_step_up(step_list, step)
                     return HttpResponseRedirect('/project/edit/%s' % project.project_id)
             if ('_move_%s_step_down'% step.id) in request.POST:
-                if step.step_order == (len(projectstep)):
+                if step.order == (len(step_list)):
                     return HttpResponseRedirect('/project/edit/%s' % project.project_id)
                 else:
-                    move_step_down(project, step)
+                    move_step_down(step_list, step)
                     return HttpResponseRedirect('/project/edit/%s' % project.project_id)            
 
 
@@ -375,7 +381,7 @@ def edit_project(request, project_id):
             'purchasedcomponent':purchasedcomponent,
             'fabricatedcomponent':fabricatedcomponent,              
             'projectfile': projectfile,
-            'projectstep':projectstep,
+            'projectstep':step_list,
             'projectimage':projectimage,
             'catagory_form': catagory_form,
             'catagories':catagories,
@@ -510,52 +516,163 @@ def delete_project(request, project_id):
             context_instance = RequestContext(request),
             )
 
-#Deletes a step, and should delete all associated objects (other then the associated project)
-@login_required
-def delete_step(request, id):
-    user_id = request.user.id
-    delete_step = get_object_or_404(ProjectStep, id=id)
-    associated_project = Project.objects.get(id = delete_step.step_for_project.id)
-    if user_id != associated_project.project_creator_id:
-        return HttpResponseRedirect('/')    
-    else:
-    
-        purchasedcomponent =PurchasedComponent.objects.filter(
-                purchased_component_for_step = delete_step,
-                )
+#Removes The step association with the project object.  Does not remove from database.
+# @login_required
+# def delete_step(request, *args, **kwargs):
+#     user_id = request.user.id
+#     deleted_step_order_object = get_object_or_404(StepOrder, step=step)
+#     associated_project = project
+#     if user_id != associated_project.project_creator_id:
+#         return HttpResponseRedirect('/')    
+#     else:
 
+#         if request.POST:
+#             if '_delete_step_confirm' in request.POST:
+#                 adjust_order_for_deleted_step(associated_project, delete_step_order_object, step)
+#                 return HttpResponseRedirect('/project/edit/%s' % associated_project.project_id)     
+#             elif '_backto_project' in request.POST:
+#                 return HttpResponseRedirect('/project/edit/%s' % associated_project.project_id) 
+
+
+
+#         context = {
+#             'projectstep' : delete_step,
+#             'fabricatedcomponent':fabricatedcomponent,
+#             'purchasedcomponent':purchasedcomponent,
+#             'projectfile':projectfile,
+#         }   
+
+
+#         return render_to_response(
+#             'project/deletestep.html',
+#             context,
+#             context_instance = RequestContext(request),
+#             )
+
+#Revision Maker:
+#Pull current version data into new project, including links pictures, steps (no new assignm,ents unless asgined in revison)
+#URL should be /project/NEW_RANDOM_PROJECT_SLUG
+#New OneToOne Relationsip to the project that this one revised.
+#a FK dict is built to represent the revison tree.
+#Drawing tree level is tracked (0 for new, revison 1, 2, 3, etc.. for new revisons) on creation.
+#Revisons are tracked on publishedprojects model, so trevions rolls only on published.
+#Qerysets for project serach will only return the newest revions on any direect search.
+#Detail page will display links to previous versions.
+
+#NOTES TO SELF:
+#One to ONe assignemtn will assign to the most recent version.  We will not support tree braches.
+    #Structure could support branches, might get too complicated for user.
+#Publsiehd Projects will display all revisions.
+#Fabricated Components will need to save revison number that (fabricated component from project revison number)
+#If someone is linked to the old revision, a banner will need to be displayed stating that this is an old version.
+#Deleting/editing PROJECT STEPS will delete/edit for all revisons in the same way.
+
+class ReviseProjectView(LoginRequiredMixin, UpdateView):
+    template_name = 'project/edit.html'
+    model = Project
+    form_class = ProjectForm
+
+
+    def get_object(self, queryset = None):
+        obj = Project.objects.get(project_id = self.kwargs['project_id'])
+        return obj
+
+    def get(self, request, *args, **kwargs):
+        project = self.get_object()
+        form = ProjectForm(instance = project)
+        
+        projectstep = ProjectStep.objects.filter(
+            step_for_project = project,
+            ).order_by('step_order')
+        step_list = []
+        for step in projectstep:
+            step_list.append(step.id)
+
+        projectimage  = list(
+            ProjectImage.objects.filter(
+            project_image_for_project = project
+            )
+        )
+
+        purchasedcomponent =PurchasedComponent.objects.filter(
+                purchased_component_for_step__in = step_list,
+                )
 
         fabricatedcomponent =FabricatedComponent.objects.filter(
-                fabricated_component_for_step = delete_step,
+                fabricated_component_for_step__in = step_list,
                 )
-        
-        projectfile  =ProjectFile.objects.filter(
-            project_file_for_step = delete_step,
+        fabricatedcomponent_from_project_list_id = fabricatedcomponent.values_list('fabricated_component_from_project_id', flat = True)
+        fabricated_component_thumbnails = ProjectImage.objects.filter(project_image_for_project__in = fabricatedcomponent_from_project_list_id).first()
+
+        projectfile  = list(
+        ProjectFile.objects.filter(
+            project_file_for_step__in = step_list,
             )
+        )
 
-        if request.POST:
-            if '_delete_step_confirm' in request.POST:
-                adjust_order_for_deleted_step(associated_project, delete_step)
-                purchasedcomponent.delete()
-                fabricatedcomponent.delete()
-                projectfile.delete()
-                delete_step.delete()
-                return HttpResponseRedirect('/project/edit/%s' % associated_project.project_id)     
-            elif '_backto_project' in request.POST:
-                return HttpResponseRedirect('/project/edit/%s' % associated_project.project_id) 
-
-
+        catagories = ProjectCatagory.objects.filter(catagory_for_project = project)
 
         context = {
-            'projectstep' : delete_step,
-            'fabricatedcomponent':fabricatedcomponent,
+            'form':form,
             'purchasedcomponent':purchasedcomponent,
-            'projectfile':projectfile,
-        }   
-
-
+            'fabricatedcomponent':fabricatedcomponent,              
+            'projectfile': projectfile,
+            'projectstep':projectstep,
+            'projectimage':projectimage,
+            # 'catagory_form': catagory_form,
+            'catagories':catagories,
+        } 
         return render_to_response(
-            'project/deletestep.html',
+            'project/edit.html',
             context,
             context_instance = RequestContext(request),
             )
+
+    def dispatch(self, request, *args, **kwargs):         
+        project = self.get_object()
+        projectstep = ProjectStep.objects.filter(
+            step_for_project = project,
+            ).order_by('step_order')
+     
+        if '_addstep' in request.POST:
+            return HttpResponseRedirect('/project/edit/%s/addstep/' % project.project_id)
+            
+        if '_addcatagory' in request.POST:
+            print 'Checking Catagory:::::',CatagoryForm(request.POST)
+            catagory_assign(project, CatagoryForm(request.POST))    
+            return HttpResponseRedirect('/project/edit/%s' % project.project_id)                    
+            
+        elif '_publish' in request.POST:
+            publish_project(project, request)
+            return HttpResponseRedirect('/project/%s' % project.project_id)   
+            
+        elif '_save' in request.POST:
+            form = ProjectForm(request.POST, instance = project)
+            
+        elif '_delete_project' in request.POST:
+            return HttpResponseRedirect('/project/edit/%s/delete/' % project.project_id)    
+            
+        elif '_addimage' in request.POST:
+            return HttpResponseRedirect('/project/edit/%s/addimage/' % project.project_id)  
+            # elif '_reorder_steps' in request.POST:
+            #   return HttpResponseRedirect('/project/edit/%s/ordersteps/' % project.project_id)       
+        for step in step_list:
+            if ('_deletestep_%s'% step.id) in request.POST:
+                adjust_order_for_deleted_step(step, step_list)
+                return HttpResponseRedirect('/project/edit/%s' % project.project_id)
+
+            if ('_move_%s_step_up'% step.id) in request.POST:
+                if step.order == 1:
+                    return HttpResponseRedirect('/project/edit/%s' % project.project_id)
+                else:
+                    move_step_up(step_list, step)
+                    return HttpResponseRedirect('/project/edit/%s' % project.project_id)
+            if ('_move_%s_step_down'% step.id) in request.POST:
+                if step.order == (len(step_list)):
+                    return HttpResponseRedirect('/project/edit/%s' % project.project_id)
+                else:
+                    move_step_down(step_list, step)
+                    return HttpResponseRedirect('/project/edit/%s' % project.project_id)            
+ 
+
+        return super(ReviseProjectView, self).dispatch(request, *args, **kwargs)

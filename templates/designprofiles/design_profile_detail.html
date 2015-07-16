@@ -1,0 +1,19 @@
+{% extends "site_base.html" %}
+{% load follow_tags %}
+{% load thumbnail %}
+{% load filename %}
+{% load mathfilters %}
+
+{%block body %}
+
+    <h1>{{user_profile.user}}</h1>
+    <h2> {{user_profile.location}}</h2>
+
+    {% for project in projects %}
+
+        {{project.project_link.project_name}}
+
+    {% endfor %}
+
+
+{% endblock %}

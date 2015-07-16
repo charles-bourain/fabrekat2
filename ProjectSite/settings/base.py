@@ -34,7 +34,6 @@ SITE_ID = 1
 
 TEMPLATE_CONTEXT_PROCESSORS = (
     'django.contrib.auth.context_processors.auth',
-    'account.context_processors.account',
     'django.core.context_processors.request',
 )
 
@@ -48,8 +47,6 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'account.middleware.LocaleMiddleware',
-    'account.middleware.TimezoneMiddleware',
 )
 
 #Using the SIMPLE backend.  Very basic database searching.  Will want to switch to elasticsearch or solr
@@ -101,4 +98,6 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
 LOGIN_URL = '/account/login/'
+
+ACCOUNT_CREATE_ON_SAVE = False
 

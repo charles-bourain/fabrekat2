@@ -1,5 +1,7 @@
 from django.contrib import admin
-from project.models import Project, PurchasedComponent, FabricatedComponent, ProjectStep
+from project.models import Project
+from projectsteps.models import ProjectStep, PurchasedComponent, FabricatedComponent, StepOrder
+
 
 #class FabricatedComponentInline (admin.TabularInline):
 #	model = FabricatedComponent
@@ -11,14 +13,15 @@ class FabricatedComponentInline(admin.TabularInline):
 	model = FabricatedComponent
 	fk_name = 'fabricated_component_for_project'
 
-class ProjectStepInline(admin.TabularInline):
-	model = ProjectStep
+class ProjectStepOrderInline(admin.TabularInline):
+	model = StepOrder
+
 	
 
 class ProjectAdmin (admin.ModelAdmin):
 	inlines = [
 	FabricatedComponentInline,
-	ProjectStepInline,
+	ProjectStepOrderInline,
 	]
 
 # Register your models here. 

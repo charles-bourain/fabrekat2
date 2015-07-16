@@ -46,6 +46,7 @@
 	            {% csrf_token %}
 	            <div>
 	                {{ form.as_p }}
+	                {{steporder_formset.management_form}}
 	            </div>
 
 	            <fieldset>

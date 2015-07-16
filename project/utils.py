@@ -1,4 +1,6 @@
-from .models import Project, ProjectStep
+from project.models import Project
+from projectsteps.models import ProjectStep
+
 from publishedprojects.models import PublishedProject
 import uuid
 
@@ -23,34 +25,25 @@ def is_project_published(project_id):
 		return False
 
 
-#This is for Step ordering.  This function assigns the newly created step to the next avialable step order
-def get_order(project):
-	order = 1
-	while ProjectStep.objects.filter(step_for_project = project.id).filter(step_order = order):		
-		order += 1
-		print order
-	return order
-
 #function for moving the step order of the selected step with the previous step
-def move_step_up(project, step):
-	step_before_this_step = ProjectStep.objects.filter(step_for_project = project.id).get(step_order =(step.step_order-1))
-	old_step = step.step_order
-	new_step = step_before_this_step.step_order
-	step.step_order = new_step
-	step.save()
-	step_before_this_step.step_order = old_step
-	step_before_this_step.save()	
+def move_step_up(step_order_object, step):
+	old_step = step_order_object.get(step = step.step)
+	old_step_order = old_step.order
+	new_step = step_order_object.get(order = old_step_order - 1)
+	old_step.order = old_step_order-1
+	old_step.save()
+	new_step.order = old_step_order
+	new_step.save()
 
 #function for moving the step order of the selected stpe with the next step
-def move_step_down(project, step):
-	step_after_this_step = ProjectStep.objects.filter(step_for_project = project.id).get(step_order =(step.step_order+1))
-	print step_after_this_step
-	old_step = step.step_order
-	new_step = step_after_this_step.step_order
-	step.step_order = new_step
-	step.save()
-	step_after_this_step.step_order = old_step
-	step_after_this_step.save()
+def move_step_down(step_order_object, step):
+	old_step = step_order_object.get(step = step.step)
+	old_step_order = old_step.order
+	new_step = step_order_object.get(order = old_step_order + 1)
+	old_step.order = old_step_order+1
+	old_step.save()
+	new_step.order = old_step_order
+	new_step.save()
 
 
 def is_user_project_creator(user, request):
@@ -60,17 +53,15 @@ def is_user_project_creator(user, request):
 		return False
 
 
-def adjust_order_for_deleted_step(project, step):
-	project_steps = ProjectStep.objects.filter(step_for_project = project.id)
-	deleted_step = project_steps.get(step_order =(step.step_order))
+def adjust_order_for_deleted_step(project, step, step_list):
+	deleted_step = step
 
-	for step in project_steps:
-		if step == deleted_step:
+	for step in step_list:
+		if step.step == deleted_step:
 			pass
-		elif step.step_order < deleted_step.step_order:
+		elif step.order < deleted_step.order:
 			pass
 		else:
-			step.step_order = step.step_order-1
+			step.order = step.order-1	
 			step.save()
-
-
+	step.delete()

@@ -2,6 +2,7 @@
 {% load follow_tags %}
 {% load thumbnail %}
 {% load filename %}
+{% load mathfilters %}
 
 {%block body %}
 
@@ -66,11 +67,12 @@
 			</ul>
 				<ul>
 					<h2>Component: 
-						<a href="{{component.purchased_component_url_link}}">{{component.purchased_component_name}} 
+						<!--Can This be on-click open tab? -->
+						<a href="{{component.product.url}}">{{component.product.name}} 
 						</a>
-						x {{component.purchased_component_quantity}}
+						x {{component.purchased_component_quantity}} -- ${{component.product.price|div:100}}
 					</h2>
-				</ul>	
+				</ul>
 				{% endif %}			
 			{% endfor %}
 			

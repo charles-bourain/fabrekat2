@@ -12,11 +12,10 @@ from publishedprojects.models import PublishedProject
 from projectpricer.models import Product
 
 
-
 #Currently does - /project_image_albums/user_id/project_name/filename.
 #I want it to do /project_image_albums/user_id/project_id/filename.
 #ISSUE - when this is called, the primary key for project is not created yet, so calling project.id
-#   results in none.
+#   results in none. 
 
 def get_file_path(instance, filename):
     project_step_id = instance.project_file_for_step_id
@@ -55,8 +54,7 @@ def get_image_path(instance, filename):
             )
 
 
-        return image_upload_path    
-
+        return image_upload_path   
 
 class Project(models.Model):
 
@@ -73,55 +71,6 @@ class Project(models.Model):
 
     def __unicode__(self):
         return unicode("%s Created By %s" % (self.project_name, self.project_creator))
-
-class ProjectStep(models.Model):
-
-    step_for_project = models.ForeignKey(Project,
-        related_name = 'project_step',
-        blank = False,
-        null = False,
-        )
-    project_step_description = models.TextField(max_length = 200)
-    project_step_image = models.ImageField(
-        upload_to = image_upload_path,
-        blank = True,
-        null = True,
-        )
-    step_order = models.IntegerField()
-    
-    def __unicode__(self):
-        return unicode("Project {0} -- Step {1}".format(self.step_for_project.project_name, self.step_order))
-
-
-
-class PurchasedComponent(models.Model):
-
-    purchased_component_for_step = models.ForeignKey(ProjectStep)
-    purchased_component_name = models.CharField(max_length = 20)
-    purchased_component_url_link = models.URLField(null = True, blank = True, max_length = 10000)
-    purchased_component_quantity = models.IntegerField(default = 1)
-    product = models.ForeignKey(Product)
-    
-    def __unicode__(self):
-        return unicode(self.purchased_component_name)   
-
-class FabricatedComponent(models.Model):
-    fabricated_component_for_project = models.ForeignKey(
-    Project, 
-    blank=True,
-    null=True,
-    related_name = 'base_project'
-    )
-    fabricated_component_from_project = models.ForeignKey(
-    PublishedProject, 
-    blank=True,
-    null = True,
-    related_name = 'component_project'
-    )
-    fabricated_component_quantity = models.IntegerField(default = 0)
-    #price = Gotta get the price somehow....
-
-    fabricated_component_for_step = models.ForeignKey(ProjectStep)
     
 
 
@@ -153,19 +102,6 @@ class InspiredProject(models.Model):
         blank=True,
         null=True,
         )
-
-class ProjectFile(models.Model):
-    project_file_for_project = models.ForeignKey(
-        Project,
-        blank=True,
-        null=True,)
-    project_file_for_step = models.ForeignKey(ProjectStep)
-
-
-    project_file=models.FileField(
-    upload_to=get_file_path,
-    validators = [validate_file_extension], 
-    )   
 
 utils.register(Project)
 

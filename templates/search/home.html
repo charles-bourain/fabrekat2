@@ -29,7 +29,7 @@
                 
                 {% if result.content_type == "publishedprojects.publishedproject" %}
                     <p><a href='/project/{{result.object.project_link.project_id}}'> {{result.object.project_link.project_name}}</a>
-                        Designed By <a href = ""> {{result.object.project_link.project_creator}} </a></p>
+                        Designed By <a href = {% url 'design_profile_detail' result.object.project_link.project_creator %} > {{result.object.project_link.project_creator}} </a></p>
                 {% endif %}
 
             {% empty %}

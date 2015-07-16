@@ -11,12 +11,14 @@ urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),   
     url(r'^admin_tools/', include('admin_tools.urls')),
     url(r'^project/', include('project.urls')),
-	url(r'^account/', include('account.urls')),
+	url(r'^account/', include('registration.backends.simple.urls')),
 	url(r'^', include('haystack.urls')),
 	url(r'^', include('follow.urls')),
 	# url(r'^', include('fabricator.urls')),
 	url(r'^autocomplete/', include('autocomplete_light.urls')),
-	url(r'^', include('publishedprojects.urls')),			
+	url(r'^', include('publishedprojects.urls')),
+    url(r'^profile/', include('designprofiles.urls')),
+
 )
 
 #Put these in so Server/media/image/ in the HTML for project detail will work
