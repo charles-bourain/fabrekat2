@@ -16,6 +16,8 @@ class Migration(migrations.Migration):
             name='DesignProfile',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('location', models.CharField(max_length=50)),
+                ('slug', models.SlugField()),
                 ('user', models.OneToOneField(to=settings.AUTH_USER_MODEL)),
             ],
             options={

@@ -1,28 +1,32 @@
 {% extends 'site_base.html' %}
 
-{% block body %}
+
 
        
 
-    <div class="container">
-        
-        <div class="row">
-
-            <h2>Search</h2>
+ {% block search_nav %}   
 
             <!--*** Search Offers geo stuff, need to check it out.  Proximity search is possible here (for Fab) ****-->
                 <div class="form-group">
                         
                 <form method="get" action="." type="search">
-                    <input class="class_name" id="id_q" name="q" type="search"></input>
+                    <input class="class_name" id="id_q" name="q" type="search" placeholder="Search"></input>
                     <input 
-                    <input type="submit" class="btn btn-success" value="Search"></input>
-
+                    <input type="submit" class="btn btn-success" value="GO!"></input>
+                </form>
                 
 
+
+        
+        </div>
+{% endblock %}
+
+{% block body %}
+
+<div class="container">
         {% if query or page.object_list %}
                         <h3>Search Results</h3>
-        </div>
+        <div class="row">
         <div class="containe">
             <div class="row">
             {% for result in page.object_list %}
