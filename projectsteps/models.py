@@ -1,20 +1,51 @@
 from django.db import models
-from project.models import Project, get_file_path, image_upload_path, validate_file_extension
+from project.models import Project
 from projectpricer.models import Product
 from publishedprojects.models import PublishedProject
 
 # Create your models here.
+
+
+
+def get_file_path(instance, filename):
+    project_step_id = instance.project_file_for_step_id
+    file_upload_path = os.path.join('step_files',
+        'step_%s' % project_step_id,
+        filename
+        )
+    return file_upload_path 
+
+
+def validate_file_extension(value):
+    ext = os.path.splitext(value.name)[1]
+    valid_extensions = ['.jpg',]
+    if not ext in valid_extensions:
+        raise ValidationError(u'File not supported!')
+
+
+def get_step_image_path(instance, filename):
+    image_upload_path = os.path.join('step_files',
+        'PLACEHOLDER',
+        filename
+        )
+    return image_upload_path
+
+
+
+
+
+
 class ProjectStep(models.Model):
 
     project_step_description = models.TextField(max_length = 200)
     project_step_image = models.ImageField(
-        upload_to = image_upload_path,
+        upload_to = get_step_image_path,
         blank = True,
         null = True,
         )
     
-    # def __unicode__(self):
-    #     return unicode("Project {0} -- Step {1}".format(self.step_for_project.project_name))
+    def __unicode__(self):
+        return self.id
 
 
 

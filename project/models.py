@@ -17,31 +17,8 @@ from projectpricer.models import Product
 #ISSUE - when this is called, the primary key for project is not created yet, so calling project.id
 #   results in none. 
 
-def get_file_path(instance, filename):
-    project_step_id = instance.project_file_for_step_id
-    file_upload_path = os.path.join('project_files',
-        'step_%s' % project_step_id,
-        filename
-        )
-    return file_upload_path 
 
-
-def validate_file_extension(value):
-    ext = os.path.splitext(value.name)[1]
-    valid_extensions = ['.jpg',]
-    if not ext in valid_extensions:
-        raise ValidationError(u'File not supported!')
-
-
-def image_upload_path(instance, filename):
-    project_id = instance.step_for_project_id
-    image_upload_path = os.path.join('project_image_albums',
-        'project_%s' % project_id,
-        filename
-        )
-    return image_upload_path
-
-def get_image_path(instance, filename):
+def get_project_image_path(instance, filename):
 
         project_id = instance.project_image_for_project_id      
         print project_id
@@ -82,7 +59,7 @@ class ProjectImage(BaseAlbum):
 
     project_image_for_project = models.ForeignKey(Project, related_name = 'imageforproject')
     image=models.ImageField(
-    upload_to=get_image_path, 
+    upload_to=get_project_image_path, 
     blank=True, 
     null=True,
     )   
