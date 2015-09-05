@@ -6,9 +6,9 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.urlresolvers import reverse
 from project.models import Project, ProjectImage
 from projectsteps.models import PurchasedComponent, FabricatedComponent, ProjectFile, ProjectStep, StepOrder
-from django.views.generic import CreateView, UpdateView
-from project.forms import ProjectForm, ProjectImageForm, ProjectStepForm, ReOrderStepForm, CatagoryForm
-from project.forms import   PurchasedComponentFormSet, FabricatedComponentFormSet, ProjectFileFormSet
+from django.views.generic import CreateView, UpdateView, TemplateView
+from project.forms import ProjectForm, ProjectImageForm, ProjectStepForm, ReOrderStepForm, TagForm, CatagoryForm
+from project.forms import   PurchasedComponentFormSet, FabricatedComponentFormSet, ProjectFileFormSet, CatagoryFormSet
 from .mixins import LoginRequiredMixin
 from publishedprojects.models import PublishedProject
 from publishedprojects.views import publish_project
@@ -16,8 +16,8 @@ from follow import utils
 from follow.models import Follow
 import uuid
 from projectpricer.utils import get_product
-from projectcatagories.models import ProjectCatagory
-from projectcatagories.views import catagory_assign, catagory_remove
+from projecttags.models import ProjectTag
+from projecttags.views import tag_assign, tag_remove
 from .utils import get_project_id, is_project_published, move_step_up, move_step_down, is_user_project_creator, adjust_order_for_deleted_step
 from django import forms
 import autocomplete_light
@@ -74,6 +74,75 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
                 form = form,
             )
         )
+
+class ProjectDetailView(TemplateView):
+    template_name = 'project/pub_detail.html'
+
+    def get_context_data(self, **kwargs):
+        user_id = self.request.user.id
+        context = super(ProjectDetailView, self).get_context_data(**kwargs)
+        project = get_object_or_404(Project, project_id = self.kwargs['project_id'])
+        project_index = project.id
+        creator_id = project.project_creator.id
+        purchasedcomponent = []
+        fabricatedcomponent = []
+        projectfile = []        
+
+
+        #Project Image List
+        projectimage  = list(
+            ProjectImage.objects.filter(
+            project_image_for_project = project_index
+            )
+        )
+        
+        #Project Step Handling
+        step_list = StepOrder.objects.filter(step_order_for_project = project).order_by('order')
+        step_value_list = step_list.values_list('step', flat = True)
+        if step_list: 
+
+            purchasedcomponent =PurchasedComponent.objects.filter(
+                    purchased_component_for_step__in = step_value_list,
+                    )
+
+            fabricatedcomponent =FabricatedComponent.objects.filter(
+                    fabricated_component_for_step__in = step_value_list,
+                    )
+            fabricatedcomponent_from_project_list_id = fabricatedcomponent.values_list('fabricated_component_from_project_id', flat = True)
+            fabricated_component_thumbnails = ProjectImage.objects.filter(project_image_for_project__in = fabricatedcomponent_from_project_list_id).first()
+
+            projectfile  = list(
+            ProjectFile.objects.filter(
+                project_file_for_step__in = step_value_list,
+                )
+            )
+
+            #Tag Handling
+        tags = ProjectTag.objects.filter(tag_for_project = project_index)
+
+        context['project'] = project
+        context['purchasedcomponent'] = purchasedcomponent
+        context['fabricatedcomponent'] = fabricatedcomponent
+        context['projectfile'] = projectfile
+        context['projectstep'] = step_list
+        context['projectimage'] = projectimage
+        context['tags'] = tags
+
+        return context
+
+
+class PublishProjectDetailView(ProjectDetailView):
+    template_name = 'project/pub_detail.html'
+    
+    def get_context_data(self, *args, **kwargs):
+        context = super(PublishProjectDetailView, self).get_context_data(**kwargs)
+        unpub_project_index = context['project']
+        project = PublishedProject.objects.get(project_link = unpub_project_index)
+        saved_project_count = len(Follow.objects.get_follows(project))
+        context['saved_project_count'] = saved_project_count
+        context['published_project_index'] = project
+        return context
+
 
 #View for Creating a Step for a project.
 class StepCreateView(LoginRequiredMixin, CreateView):
@@ -239,7 +308,7 @@ class ImageCreateView(LoginRequiredMixin, CreateView):
 @login_required
 def my_saved_projects(request):
 
-    my_saved_projects_id = Follow.objects.get_follows(Project).values('target_project_id')
+    my_saved_projects_id = Follow.objects.get_follows(PublishedProject).values('target_publishedproject_id')
 
     my_saved_projects =  Project.objects.filter(id__in = my_saved_projects_id)
 
@@ -280,82 +349,56 @@ def my_projects(request):
         )
 
 #Edit project view is the main view for any unpublished projects.  Shows everything assigned to the project and POST buttons for edits.
-@login_required
-def edit_project(request, project_id):
-    user_id = request.user.id
-    project = get_object_or_404(Project, project_id = project_id)
-    project_index = project.id 
-    creator_id = project.project_creator.id
-    purchasedcomponent = []
-    fabricatedcomponent = []
-    projectfile = []
 
-    #Can Redo this as a decorator......
-    if user_id != creator_id:
-        return HttpResponseRedirect('/')
-    elif is_project_published(project_id) == True:
-        return HttpResponseRedirect('/')    
-    else:
+
+
+class EditProjectView(ProjectDetailView, LoginRequiredMixin):
+    template_name = 'project/edit.html'
+
+    def get_context_data(self, **kwargs):
+        print 'EDIT PROJECT CONTEXST DTATA'
+        context = super(EditProjectView, self).get_context_data(**kwargs)
+        project = context['project']
+    
         form = ProjectForm(instance = project)
-        catagory_form = CatagoryForm
+        context['form'] = form
 
-        projectimage  = list(
-            ProjectImage.objects.filter(
-            project_image_for_project = project_index
-            )
-        )
+        tag_form = TagForm
+        context['tag_form'] = tag_form
 
-        step_list = StepOrder.objects.filter(step_order_for_project = project).order_by('order')
-        step_value_list = step_list.values_list('step', flat = True)
+        catagory_form = CatagoryFormSet()
+        context['catagory_form'] = catagory_form   
 
+        return context
 
-        if step_list: 
-
-            purchasedcomponent =PurchasedComponent.objects.filter(
-                    purchased_component_for_step__in = step_value_list,
-                    )
-
-            fabricatedcomponent =FabricatedComponent.objects.filter(
-                    fabricated_component_for_step__in = step_value_list,
-                    )
-            fabricatedcomponent_from_project_list_id = fabricatedcomponent.values_list('fabricated_component_from_project_id', flat = True)
-            fabricated_component_thumbnails = ProjectImage.objects.filter(project_image_for_project__in = fabricatedcomponent_from_project_list_id).first()
-
-            projectfile  = list(
-            ProjectFile.objects.filter(
-                project_file_for_step__in = step_value_list,
-                )
-            )
-
-        catagories = ProjectCatagory.objects.filter(catagory_for_project = project_index)
-
-        for cat in catagories:
-            if ('_remove_catagory_%s'% cat.id) in request.POST:
-                catagory_remove(project, cat)   
+    def post(self, request, *args, **kwargs):
+        print request
+        context = self.get_context_data()
+        project = context['project']
+        for tag in context['tags']:
+            if ('_remove_tag_%s'% tag.id) in request.POST:
+                tag_remove(project, tag)   
                 return HttpResponseRedirect('/project/edit/%s' % project.project_id)        
-        if request.POST:
-            if '_addstep' in request.POST:
-                return HttpResponseRedirect('/project/edit/%s/addstep/' % project.project_id)
-            
-            if '_addcatagory' in request.POST:
-                print 'Checking Catagory:::::',CatagoryForm(request.POST)
-                catagory_assign(project, CatagoryForm(request.POST))    
-                return HttpResponseRedirect('/project/edit/%s' % project.project_id)                    
-            
-            elif '_publish' in request.POST:
-                publish_project(project, request)
-                return HttpResponseRedirect('/project/%s' % project.project_id)   
-            
-            elif '_save' in request.POST:
-                form = ProjectForm(request.POST, instance = project)
-            
-            elif '_delete_project' in request.POST:
-                return HttpResponseRedirect('/project/edit/%s/delete/' % project.project_id)    
-            
-            elif '_addimage' in request.POST:
-                return HttpResponseRedirect('/project/edit/%s/addimage/' % project.project_id)  
-            # elif '_reorder_steps' in request.POST:
-            #   return HttpResponseRedirect('/project/edit/%s/ordersteps/' % project.project_id)       
+        if '_addstep' in request.POST:
+            return HttpResponseRedirect('/project/edit/%s/addstep/' % project.project_id)
+        
+        if '_addtag' in request.POST:
+            tag_assign(project, TagForm(request.POST))    
+            return HttpResponseRedirect('/project/edit/%s' % project.project_id)                    
+        
+        elif '_publish' in request.POST:
+            publish_project(project, request)   
+        
+        elif '_save' in request.POST:
+            form = ProjectForm(request.POST, instance = project)
+        
+        elif '_delete_project' in request.POST:
+            return HttpResponseRedirect('/project/edit/%s/delete/' % project.project_id)    
+        
+        elif '_addimage' in request.POST:
+            return HttpResponseRedirect('/project/edit/%s/addimage/' % project.project_id)            
+        # elif '_reorder_steps' in request.POST:
+        #   return HttpResponseRedirect('/project/edit/%s/ordersteps/' % project.project_id)       
         for step in step_list:
             if ('_deletestep_%s'% step.id) in request.POST:
                 adjust_order_for_deleted_step(project, step, step_list)
@@ -376,23 +419,121 @@ def edit_project(request, project_id):
 
 
 
-        context = {
-            'form' : form,
-            'purchasedcomponent':purchasedcomponent,
-            'fabricatedcomponent':fabricatedcomponent,              
-            'projectfile': projectfile,
-            'projectstep':step_list,
-            'projectimage':projectimage,
-            'catagory_form': catagory_form,
-            'catagories':catagories,
-        }   
 
 
-        return render_to_response(
-            'project/edit.html',
-            context,
-            context_instance = RequestContext(request),
-            )
+# @login_required
+# def edit_project(request, project_id):
+#     user_id = request.user.id
+#     project = get_object_or_404(Project, project_id = project_id)
+#     project_index = project.id 
+#     creator_id = project.project_creator.id
+#     purchasedcomponent = []
+#     fabricatedcomponent = []
+#     projectfile = []
+
+#     #Can Redo this as a decorator......
+#     if user_id != creator_id:
+#         return HttpResponseRedirect('/')
+#     elif is_project_published(project_id) == True:
+#         return HttpResponseRedirect('/')    
+#     else:
+#         form = ProjectForm(instance = project)
+#         tag_form = TagForm
+#         catagory_form = CatagoryFormSet
+
+#         projectimage  = list(
+#             ProjectImage.objects.filter(
+#             project_image_for_project = project_index
+#             )
+#         )
+
+#         step_list = StepOrder.objects.filter(step_order_for_project = project).order_by('order')
+#         step_value_list = step_list.values_list('step', flat = True)
+
+
+#         if step_list: 
+
+#             purchasedcomponent =PurchasedComponent.objects.filter(
+#                     purchased_component_for_step__in = step_value_list,
+#                     )
+
+#             fabricatedcomponent =FabricatedComponent.objects.filter(
+#                     fabricated_component_for_step__in = step_value_list,
+#                     )
+#             fabricatedcomponent_from_project_list_id = fabricatedcomponent.values_list('fabricated_component_from_project_id', flat = True)
+#             fabricated_component_thumbnails = ProjectImage.objects.filter(project_image_for_project__in = fabricatedcomponent_from_project_list_id).first()
+
+#             projectfile  = list(
+#             ProjectFile.objects.filter(
+#                 project_file_for_step__in = step_value_list,
+#                 )
+#             )
+
+#         tags = ProjectTag.objects.filter(tag_for_project = project_index)
+
+#         for cat in tags:
+#             if ('_remove_tag_%s'% cat.id) in request.POST:
+#                 tag_remove(project, cat)   
+#                 return HttpResponseRedirect('/project/edit/%s' % project.project_id)        
+#         if request.POST:
+#             if '_addstep' in request.POST:
+#                 return HttpResponseRedirect('/project/edit/%s/addstep/' % project.project_id)
+            
+#             if '_addtag' in request.POST:
+#                 tag_assign(project, TagForm(request.POST))    
+#                 return HttpResponseRedirect('/project/edit/%s' % project.project_id)                    
+            
+#             elif '_publish' in request.POST:
+#                 publish_project(project, request)   
+            
+#             elif '_save' in request.POST:
+#                 form = ProjectForm(request.POST, instance = project)
+            
+#             elif '_delete_project' in request.POST:
+#                 return HttpResponseRedirect('/project/edit/%s/delete/' % project.project_id)    
+            
+#             elif '_addimage' in request.POST:
+#                 return HttpResponseRedirect('/project/edit/%s/addimage/' % project.project_id)  
+#             # elif '_reorder_steps' in request.POST:
+#             #   return HttpResponseRedirect('/project/edit/%s/ordersteps/' % project.project_id)       
+#         for step in step_list:
+#             if ('_deletestep_%s'% step.id) in request.POST:
+#                 adjust_order_for_deleted_step(project, step, step_list)
+#                 return HttpResponseRedirect('/project/edit/%s' % project.project_id)
+
+#             if ('_move_%s_step_up'% step.id) in request.POST:
+#                 if step.order == 1:
+#                     return HttpResponseRedirect('/project/edit/%s' % project.project_id)
+#                 else:
+#                     move_step_up(step_list, step)
+#                     return HttpResponseRedirect('/project/edit/%s' % project.project_id)
+#             if ('_move_%s_step_down'% step.id) in request.POST:
+#                 if step.order == (len(step_list)):
+#                     return HttpResponseRedirect('/project/edit/%s' % project.project_id)
+#                 else:
+#                     move_step_down(step_list, step)
+#                     return HttpResponseRedirect('/project/edit/%s' % project.project_id)            
+
+
+
+#         context = {
+#             'form' : form,
+#             'purchasedcomponent':purchasedcomponent,
+#             'fabricatedcomponent':fabricatedcomponent,              
+#             'projectfile': projectfile,
+#             'projectstep':step_list,
+#             'projectimage':projectimage,
+#             'tag_form': tag_form,
+#             'tags':tags,
+#             'catagory_form':catagory_form,            
+#         }   
+
+
+#         return render_to_response(
+#             'project/edit.html',
+#             context,
+#             context_instance = RequestContext(request),
+#             )
 
 
 
@@ -610,7 +751,7 @@ class ReviseProjectView(LoginRequiredMixin, UpdateView):
             )
         )
 
-        catagories = ProjectCatagory.objects.filter(catagory_for_project = project)
+        catagories = ProjectTag.objects.filter(tag_for_project = project)
 
         context = {
             'form':form,
@@ -619,8 +760,7 @@ class ReviseProjectView(LoginRequiredMixin, UpdateView):
             'projectfile': projectfile,
             'projectstep':projectstep,
             'projectimage':projectimage,
-            # 'catagory_form': catagory_form,
-            'catagories':catagories,
+            'tags':tags,
         } 
         return render_to_response(
             'project/edit.html',
@@ -638,8 +778,8 @@ class ReviseProjectView(LoginRequiredMixin, UpdateView):
             return HttpResponseRedirect('/project/edit/%s/addstep/' % project.project_id)
             
         if '_addcatagory' in request.POST:
-            print 'Checking Catagory:::::',CatagoryForm(request.POST)
-            catagory_assign(project, CatagoryForm(request.POST))    
+            print 'Checking Catagory:::::',TagForm(request.POST)
+            tag_assign(project, TagForm(request.POST))    
             return HttpResponseRedirect('/project/edit/%s' % project.project_id)                    
             
         elif '_publish' in request.POST:

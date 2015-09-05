@@ -1,7 +1,7 @@
 from django.db import models
-from project.models import Project
 from projectpricer.models import Product
-from publishedprojects.models import PublishedProject
+from project.models import Project
+import os
 
 # Create your models here.
 
@@ -45,7 +45,7 @@ class ProjectStep(models.Model):
         )
     
     def __unicode__(self):
-        return self.id
+        return self.project_step_description
 
 
 
@@ -68,7 +68,7 @@ class FabricatedComponent(models.Model):
     related_name = 'base_project'
     )
     fabricated_component_from_project = models.ForeignKey(
-    PublishedProject, 
+    'publishedprojects.PublishedProject', 
     blank=True,
     null = True,
     related_name = 'component_project'
@@ -96,3 +96,6 @@ class StepOrder(models.Model):
    step_order_for_project = models.ForeignKey(Project, null = True, blank = True)
    step = models.ForeignKey(ProjectStep)
    order = models.PositiveIntegerField(default = 0)
+
+   def __unicode__(self):
+    return unicode('Project Order for: ' + self.step_order_for_project.project_name)

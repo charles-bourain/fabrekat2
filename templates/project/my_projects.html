@@ -7,6 +7,7 @@
 {% block body %}
 
 <h1> My Published Projects </h1>
+<body>
 
 	{% if my_published_projects %}
 		{% for project in my_published_projects %}
@@ -25,5 +26,6 @@
 		You Have No Published Projects
 	{% endif %}
 
+</body>
 
 {% endblock %}

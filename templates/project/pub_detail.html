@@ -8,12 +8,13 @@
 
 <h1>{{ project.project_name }}</h1>
 
-<form method="POST" action="{% follow_url project user%}">
+
+<form method="POST" action="{% project_follow_url published_project_index user%}">
 	{% csrf_token %}
-	{% if user|is_following:project = True %}
-		<input class="Save_Project" type="submit" value="Remove Project From My Saved Projects" />
+	{% if user|is_following:published_project_index = True %}
+	    <button class="unfollow" type="submit" name="_unfollow"> Remove Project From My Saved Projects </button>
 	{% else %}
-		<input class="follow" type="submit" value="Add Project to My Saved Projects" />
+		<button class="follow" type="submit" name="_follow"> Add Project From My Saved Projects </button>
 	{% endif %}
 </form>
 
@@ -55,29 +56,28 @@
 	<h1> Project Steps </h1>
 	{% for step in projectstep %}
 		<fieldset>
-			<h2> Step {{ forloop.counter }} </h2>
+			<h2> Step {{ step.order}} </h2>
 			<ul>
-			{{ step.project_step_description }}
-			{% if step.project_step_image %}
-				<img src="{{step.project_step_image.url}}" alt="" height = 300 />
+			{{ step.step.project_step_description }}
+			{% if step.step.project_step_image %}
+				<img src="{{step.step.project_step_image.url}}" alt="" height = 300 />
 			{% endif %}
-			
 			{% for component in purchasedcomponent %}
-				{% if component.purchased_component_for_step_id == step.id %}
+				{% if component.purchased_component_for_step == step.step %}
+						YES
 			</ul>
 				<ul>
 					<h2>Component: 
-						<!--Can This be on-click open tab? -->
 						<a href="{{component.product.url}}">{{component.product.name}} 
 						</a>
 						x {{component.purchased_component_quantity}} -- ${{component.product.price|div:100}}
 					</h2>
-				</ul>
+				</ul>	
 				{% endif %}			
 			{% endfor %}
 			
 			{% for component in fabricatedcomponent %}
-				{% if component.fabricated_component_for_step_id == step.id %}
+				{% if component.fabricated_component_for_step == step.step %}
 			</ul>
 				<ul>
 					<h2>Fabricated Component: 
@@ -92,7 +92,7 @@
 			{% endfor %}
 
 			{% for file in projectfile %}
-				{% if file.project_file_for_step_id == step.id %}
+				{% if file.project_file_for_step == step.step %}
 			</ul>
 				<ul>
 					<h2>File: 
@@ -104,8 +104,6 @@
 			{% endfor %}						
 
 		</fieldset>
-
-
 
 	{% endfor %}
 

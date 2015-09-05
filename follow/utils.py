@@ -2,6 +2,7 @@ from django.core.urlresolvers import reverse
 from django.db.models.fields.related import ManyToManyField, ForeignKey
 from follow.models import Follow
 from follow.registry import registry, model_map
+from designprofiles.utils import add_project_to_working_projects, remove_project_from_working_projects
 
 def get_followers_for_object(instance):
     return Follow.objects.get_follows(instance)
@@ -64,3 +65,26 @@ def follow_url(user, obj):
     """ Returns the right follow/unfollow url """
     return toggle_link(obj)
 
+
+
+
+###############MODIFIED FOR PROJECTS ONLY - CONTAINS A PROJECT SPECIFIC FUNCTION
+
+def project_toggle_link(object):
+    return reverse('follow.views.project_toggle', args=[object._meta.app_label, object._meta.object_name.lower(), object.pk])
+
+def project_follow_url(user, obj):
+    """ Returns the right follow/unfollow url """
+    return project_toggle_link(obj)   
+
+def project_toggle(user, obj):
+    """ Toggles a follow status. Useful function if you don't want to perform follow
+    checks but just toggle it on / off. """
+    if Follow.objects.is_following(user, obj):
+        remove_project_from_working_projects(user, obj)
+        return unfollow(user, obj)
+    add_project_to_working_projects(user, obj)    
+    return follow(user, obj)    
+
+
+##################################################################################################    

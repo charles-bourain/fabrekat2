@@ -7,8 +7,6 @@ from filebrowser.sites import site
 from imagestore.models.bases.album import BaseAlbum
 from imagestore.models.bases.image import BaseImage
 from django.core.exceptions import ValidationError
-from follow import utils
-from publishedprojects.models import PublishedProject
 from projectpricer.models import Product
 
 
@@ -42,14 +40,12 @@ class Project(models.Model):
     project_creator = models.ForeignKey(User, related_name = 'project_creator_set', editable=False)
     project_time_created = models.DateTimeField(auto_now_add=True, editable=False)
     project_last_modified = models.DateTimeField(auto_now=True, editable=False)
-    inspired_from_project = models.OneToOneField(PublishedProject, null = True, blank = True)
     revised_project = models.OneToOneField('self', null = True, blank = True, editable = False)
     project_id_from_revised_project = models.SlugField(editable = False)
 
     def __unicode__(self):
         return unicode("%s Created By %s" % (self.project_name, self.project_creator))
     
-
 
 class ProjectImage(BaseAlbum):
     
@@ -68,19 +64,15 @@ class ProjectImage(BaseAlbum):
         return unicode(self.project_image_for_project)
 
 
+class Catagory(models.Model):
+    catagory = models.CharField(max_length = 100)
+    project = models.ForeignKey(Project)
+
 #Inspired From: Should be able to pull ALL information from the Inspired from project.
 #Auto-populate a lot of the fields prior to editting.  All creating user to edit things that need to be changed etc.
 #Include an area where a descriptions of the deviations occur from the inspired from project.
 #SHOULD NOT IMPORT IMAGES.  Optional to import files.
-class InspiredProject(models.Model):
-    project_inspired_link = models.ForeignKey(
-        Project, 
-        related_name = 'inspired',
-        blank=True,
-        null=True,
-        )
 
-utils.register(Project)
 
 
 #Registering Project model with the follows app to allow users to follow Projects

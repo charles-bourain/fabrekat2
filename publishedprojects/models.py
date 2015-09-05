@@ -1,9 +1,10 @@
 from django.db import models
-from follow import utils
+from follow import utils 
+from project.models import Project
 
 # Create your models here.
 class PublishedProject(models.Model):
-    project_link = models.OneToOneField('project.Project', blank=False, null=False, editable = False)
+    project_link = models.OneToOneField(Project, blank=False, null=False, editable = False)
     project_slug_id = models.SlugField(editable = False)
 
     def __unicode__(self):

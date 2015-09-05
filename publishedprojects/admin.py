@@ -3,14 +3,14 @@ from .models import PublishedProject
 from project.models import Project
 
 
-class ProjectInline (admin.TabularInline):
-	model = Project
+# class ProjectInline (admin.TabularInline):
+# 	model = Project
 
 
-class PublishedProjectAdmin (admin.ModelAdmin):
-	inlines = [
-	ProjectInline,
-	]	
+# class PublishedProjectAdmin (admin.ModelAdmin):
+# 	inlines = [
+# 	ProjectInline,
+# 	]	
 
 # Register your models here.
-admin.site.register(PublishedProject, PublishedProjectAdmin)
+admin.site.register(PublishedProject)

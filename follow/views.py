@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models.loading import cache
 from django.http import HttpResponse, HttpResponseRedirect, \
     HttpResponseServerError, HttpResponseBadRequest
-from follow.utils import follow as _follow, unfollow as _unfollow, toggle as _toggle
+from follow.utils import follow as _follow, unfollow as _unfollow, toggle as _toggle, project_toggle as _project_toggle
 
 def check(func):
     """ 
@@ -50,3 +50,13 @@ def toggle(request, app, model, id):
     model = cache.get_model(app, model)
     obj = model.objects.get(pk=id)
     return _toggle(request.user, obj)
+
+
+##MODIFIED FOR PROJECTS ONLY - CONTAINS A PROJECT SPECIFIC FUNCTION
+@login_required
+@check
+def project_toggle(request, app, model, id):
+    model = cache.get_model(app, model)
+    obj = model.objects.get(pk=id)
+    return _project_toggle(request.user, obj)
+######################################################################    

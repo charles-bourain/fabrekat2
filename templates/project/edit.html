@@ -22,7 +22,7 @@
 
 
 {% block body %}
-	<body>
+
 		<div>
 	        <h1>Edit Project</h1>
 
@@ -32,17 +32,42 @@
 	            {{form.management_form}}
 	            {{form.as_p}}
 	            <div>
-	            		{{catagory_form.management_form}}
-	            		{{catagory_form.as_p}}
+	            		{{tag_form.management_form}}
+	            		{{tag_form.as_p}}
 	            		
-	                <input type="submit" value="ADD CATAGORY" name = '_addcatagory' >
+	                <input type="submit" value="Add Tag" name = '_addtag' >
 	            </div>
+	            </form>
+	            <div>
+					<fieldset>
+					{% if tags %}
+						{% for tag in tags %}
+							<ul>
+								#{{ tag.tag }} <input type="submit" value="Remove Tag: {{ tag.tag }}" name = '_remove_tag_{{ tag.id }}' >
+							</ul>	
+						{% endfor %}
+					{% endif %}
+					</fieldset>	   
+				</div>      	            
+	            
+	            <form enctype="multipart/form-data" method='POST' action="">
+	            {% csrf_token %}
+	            <div>
+	            		{{catagory_form.management_form}}
+	            		{{catagory_form}}
+	            		
+	                <input type="submit" value="Add Catagory" name = '_addcat' >
+	            </div>
+            	</form>
 
+	<form action ='' method = "POST">
+	{% csrf_token %}
     <input type="submit" value="Add Step" name = '_addstep' >
  	<input type="submit" value="Add Image" name = '_addimage' >
     <input type="submit" value="Save Project" name = '_save' >
     <input type="submit" value="Publish Project" name = '_publish' > 
-    <input type="submit" value="Delete Project" name = '_delete_project' >        
+    <input type="submit" value="Delete Project" name = '_delete_project' >
+    </form>       
 <fieldset>
 	{% if projectimage %}
 		{% for image in projectimage %}
@@ -51,16 +76,6 @@
 			</ul>
 		{% endfor %}
 	{% endif %}
-</fieldset>
-
-<fieldset>
-{% if catagories %}
-	{% for cat in catagories %}
-		<ul>
-			{{ cat.catagory }} <input type="submit" value="REMOVE CATAGORY: {{ cat.catagory }}" name = '_remove_catagory_{{ cat.id }}' >
-		</ul>	
-	{% endfor %}
-{% endif %}
 </fieldset>
 
          
@@ -129,7 +144,6 @@
 	            </fieldset>	            
 	        </form>
 	    </div>
-	</body>
 
 {% endblock %}
 

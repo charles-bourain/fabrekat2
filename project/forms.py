@@ -1,20 +1,19 @@
 from django import forms
-from project.models import Project, ProjectImage
+from project.models import Project, ProjectImage, Catagory
 from projectsteps.models import PurchasedComponent, FabricatedComponent, ProjectFile, ProjectStep, StepOrder
 from django.forms.models import inlineformset_factory
 from django.forms import ImageField, CharField
 import autocomplete_light
-from projectcatagories.models import ProjectCatagory
+from projecttags.models import ProjectTag
 
 
 #Use fields instead of exclude.
 
 
-class CatagoryForm(forms.ModelForm):
+class TagForm(forms.ModelForm):
 	class Meta:
-		model = ProjectCatagory
-		fields = ['catagory']
-		widgets = {'catagory' : autocomplete_light.TextWidget('ProjectCatagoryAutocompleteCatagory')}
+		model = ProjectTag
+		fields = ['tag']
 
 
 class ProjectForm(forms.ModelForm):
@@ -106,3 +105,19 @@ class ProjectFileForm(forms.ModelForm):
 
 ProjectFileFormSet = inlineformset_factory(ProjectStep, ProjectFile, form = ProjectFileForm, fields = ('project_file',), extra = 1, )
 
+class CatagoryForm(forms.ModelForm):
+	class Meta:
+		model = Catagory
+		fields = ('catagory',)
+	
+	CATAGORY_CHOICE_LIST = [
+	    ('LifeStyle','LifeStyle'),
+	    ('Outdoors','Outdoors'),
+	    ('Transporation','Transportation'),
+	    ('Technology','Technology'),
+	]
+
+	catagory = forms.ChoiceField(choices = CATAGORY_CHOICE_LIST)
+
+
+CatagoryFormSet = inlineformset_factory(Project, Catagory, form = CatagoryForm, extra = 1)

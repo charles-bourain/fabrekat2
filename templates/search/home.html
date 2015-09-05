@@ -23,6 +23,19 @@
 
 {% block body %}
 
+{% if user.username == "" %}
+    <div class="centered">
+        <div id="overview" class="jumbotron_back jumbotron" style="height: 300px;">
+            <div class="centered">
+                <ul>
+                    <a class="btn btn-success" type="button" href="{% url 'registration_register' %}"> Sign Up</a> 
+                    <!-- *Broken Until we get functioning Email-->
+                </ul>
+            </div>
+        </div>
+    </div>  
+{% endif %}
+
 <div class="container">
         {% if query or page.object_list %}
                         <h3>Search Results</h3>

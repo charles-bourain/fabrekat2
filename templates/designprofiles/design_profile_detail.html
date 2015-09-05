@@ -9,11 +9,40 @@
     <h1>{{user_profile.user}}</h1>
     <h2> {{user_profile.location}}</h2>
 
+    <h4>My Submitted Projects</h4>
+
     {% for project in projects %}
 
-        {{project.project_link.project_name}}
+        <ul>{{project.project_link.project_name}}</ul>
 
     {% endfor %}
+
+    <h4> Projects in Progress </h4>
+
+
+<!-- JavaScript Needed for % Complete Bar for an in-work Project.  Step numbers will not be shown here, only a 'complete' bar -->
+    {%for project in in_work_projects %}
+        <ul> --{{project.project.project_link.project_name}}--</ul>
+            {% for steporder in in_work_step_order %}
+                {% if steporder.project = project.project %}
+
+
+
+                <ul> Step# {{steporder.steporder.order }}: {{steporder.steporder.step}} -- {{steporder.complete}} 
+                <form method="POST" action="" >
+                    {% csrf_token %}
+                        <button type="submit" name="complete_toggle_{{steporder.id}}"> {{steporder.complete}}  </button>
+                </form>
+
+
+                </ul>
+               {% endif %}
+
+
+    {% endfor %}
+    {% endfor %}
+
+
 
 
 {% endblock %}

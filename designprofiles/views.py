@@ -9,6 +9,10 @@ from publishedprojects.models import PublishedProject
 from project.models import Project
 from django.http import HttpResponseRedirect
 from django.contrib.auth.models import User
+from .models import WorkingStepOrder
+from publishedprojects.models import PublishedProject
+from projectsteps.models import StepOrder
+from designprofiles.utils import complete_step_toggle
 
 
 # Create your views here.
@@ -80,17 +84,38 @@ class DesignProfileDetailView(TemplateView):
 
         #Getting Users Created by The User that is being Viewed        
         user_slug = self.kwargs['slug']
-        user_id = User.objects.get(username = user_slug).id
-        user_projects = Project.objects.filter(project_creator = user_id)
+        user = User.objects.get(username = user_slug)
+        user_projects = Project.objects.filter(project_creator = user)
         user_projects_id = user_projects.values_list('id', flat = True)
+
+        #Gets Projects Created by User and adds them to context dict
         user_published_projects = PublishedProject.objects.filter(project_link = user_projects_id)
         context['projects'] = user_published_projects
 
-        #Getting Info on the User whos profile is currently being viewed
 
-        user_profile = DesignProfile.objects.get(user = user_id)
-        print user_profile
+        user_profile = DesignProfile.objects.get(user = user)
         context['user_profile'] = user_profile
+
+        #gets projects current user is working on
+        in_work_steps = WorkingStepOrder.objects.filter(user = user_profile)
+        in_work_projects = in_work_steps.distinct('project')
+        in_work_step_order = in_work_steps.order_by('steporder__order')
+
+
+
+
+        context['in_work_projects'] = in_work_projects
+        context['in_work_step_order'] = in_work_step_order
 
         return context
 
+
+#View for the Designer to View their Own Profile
+class MyDesignProfileView(DesignProfileDetailView, LoginRequiredMixin):
+    def post(self, request, *args, **kwargs):
+        context = self.get_context_data()
+        for steporder in context['in_work_step_order']:
+            step = steporder.steporder.step
+            if 'complete_toggle_%s' % steporder.id in request.POST:
+                complete_step_toggle(request, steporder)
+                return HttpResponseRedirect(request.user)

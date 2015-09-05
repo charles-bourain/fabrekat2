@@ -2,7 +2,7 @@ from django import forms
 from django.forms.models import inlineformset_factory
 from django.forms import ImageField, CharField
 
-from .models import DesignProfile
+from .models import DesignProfile, WorkingStepOrder
 
 
 
@@ -12,4 +12,3 @@ class DesignProfileForm(forms.ModelForm):
         fields = [
             'location',
             ]
-
