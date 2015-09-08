@@ -6,6 +6,7 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 from haystack.forms import ModelSearchForm, FacetedSearchForm
 from haystack.query import EmptySearchQuerySet
+from project.models import ProjectImage
 
 
 RESULTS_PER_PAGE = getattr(settings, 'HAYSTACK_SEARCH_RESULTS_PER_PAGE', 20)
@@ -129,12 +130,25 @@ class SearchView(object):
         """
         (paginator, page) = self.build_page()
 
+        ###MOD FOR PROJECT SEARCHES
+
+        project_list=[]
+        print page.object_list
+        for item in page.object_list:
+            project_list.append(item.id)
+
+        projectimages=ProjectImage.objects.filter(project_image_for_project__in=project_list)
+        print projectimages
+
+        ###MOD FOR PROJECT SEARCHES
+
         context = {
             'query': self.query,
             'form': self.form,
             'page': page,
             'paginator': paginator,
             'suggestion': None,
+            'projectimages':projectimages, #MODIFIED FOR PROJECT SEARCHES
         }
 
         if self.results and hasattr(self.results, 'query') and self.results.query.backend.include_spelling:
@@ -215,6 +229,10 @@ def basic_search(request, template='search/home.html', load_all=True, form_class
         page = paginator.page(int(request.GET.get('page', 1)))
     except InvalidPage:
         raise Http404("No such page of results!")
+
+    projectimages=ProjectImage.objects.filter(id__in=page.object_list)
+
+
 
     context = {
         'form': form,

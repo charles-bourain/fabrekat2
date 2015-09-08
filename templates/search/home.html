@@ -1,57 +1,31 @@
 {% extends 'site_base.html' %}
 
-
-
-       
-
- {% block search_nav %}   
-
-            <!--*** Search Offers geo stuff, need to check it out.  Proximity search is possible here (for Fab) ****-->
-                <div class="form-group">
-                        
-                <form method="get" action="." type="search">
-                    <input class="class_name" id="id_q" name="q" type="search" placeholder="Search"></input>
-                    <input 
-                    <input type="submit" class="btn btn-success" value="GO!"></input>
-                </form>
-                
-
-
-        
-        </div>
-{% endblock %}
-
 {% block body %}
-
-{% if user.username == "" %}
-    <div class="centered">
-        <div id="overview" class="jumbotron_back jumbotron" style="height: 300px;">
-            <div class="centered">
-                <ul>
-                    <a class="btn btn-success" type="button" href="{% url 'registration_register' %}"> Sign Up</a> 
-                    <!-- *Broken Until we get functioning Email-->
-                </ul>
-            </div>
-        </div>
-    </div>  
-{% endif %}
-
 <div class="container">
         {% if query or page.object_list %}
-                        <h3>Search Results</h3>
-        <div class="row">
-        <div class="containe">
-            <div class="row">
-            {% for result in page.object_list %}
-                
-                {% if result.content_type == "publishedprojects.publishedproject" %}
-                    <p><a href='/project/{{result.object.project_link.project_id}}'> {{result.object.project_link.project_name}}</a>
-                        Designed By <a href = {% url 'design_profile_detail' result.object.project_link.project_creator %} > {{result.object.project_link.project_creator}} </a></p>
+            <div class='page-header'>
+                <h3>Search Results</h3>
+            </div>
+            <div class='row'>
+                {% for result in page.object_list %}
+                    {% if result.content_type == "publishedprojects.publishedproject" %}
+                    <div class='col-md-4'>
+                        <div class='thumbnail'>
+                            <img scr='' alt=''>
+                            <div class='caption'>
+                                <h3><a href='/project/{{result.object.project_link.project_id}}'>{{result.object.project_link.project_name}}</a></h3>
+                                <p>
+                                    Built By <a href = {% url 'design_profile_detail' result.object.project_link.project_creator %}> {{result.object.project_link.project_creator}} </a>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
                 {% endif %}
-
             {% empty %}
                 <p>No results found.</p>
             {% endfor %}
+
+            </div>
                 {% if page.has_previous or page.has_next %}
                         <div>
                             {% if page.has_previous %}<a href="?q={{ query }}&amp;page={{ page.previous_page_number }}">{% endif %}&laquo; Previous{% if page.has_previous %}</a>{% endif %}
@@ -66,23 +40,10 @@
                             {% endfor %}
                     {% endif %} 
                 {% endif %}
-            </div>
-        </div>
-    </div>
-    <!--
-    <div class="container">
-        <div class="row">
-            <div class="col-sm-12 col-xs-12 col-md-4 col-lg-4">test</div>
-            <div class="col-sm-12 col-xs-12 col-md-4 col-lg-4">test</div>
-            <div class="col-sm-12 col-xs-12 col-md-4 col-lg-4">test</div>
-            <div class="col-sm-12 col-xs-12 col-md-4 col-lg-4">test</div>
-            <div class="col-sm-12 col-xs-12 col-md-4 col-lg-4">test</div>
-            <div class="col-sm-12 col-xs-12 col-md-4 col-lg-4">test</div>
-            <div class="col-sm-12 col-xs-12 col-md-4 col-lg-4">test</div>
-            <div class="col-sm-12 col-xs-12 col-md-4 col-lg-4">test</div>
-            <div class="col-sm-12 col-xs-12 col-md-4 col-lg-4">test</div>
-        </div>
-    </div>
-    -->
+</div>
+
+
+
     
 {% endblock %}
+m.model_2_set.all

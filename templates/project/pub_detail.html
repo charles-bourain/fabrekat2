@@ -4,132 +4,136 @@
 {% load filename %}
 {% load mathfilters %}
 
+{% block extra_head %}
+
+<style>
+    .carousel-inner > .item > img {
+        margin:0 auto;
+    }
+
+</style>
+
+
+{% endblock %}
+
+
 {%block body %}
 
-<h1>{{ project.project_name }}</h1>
+<div class='container'>
+    <div class='page-header'>
+        <h1>{{ project.project_name}} <small> Created by {{project.project_creator}}, Created at Time: {{project.project_time_created}} </small></h1>
+        <form method="POST" action="{% project_follow_url published_project_index user%}">
+            {% csrf_token %}
+            {% if user|is_following:published_project_index = True %}
+                <button class='btn btn-default unfollow' name='_unfollow' type='submit'><span class='glyphicon glyphicon-star'></span></button>
+            {% else %}
+                <button class='btn btn-default follow' name='_follow' type='submit'><span class='glyphicon glyphicon-star-empty'></span></button>
+            {% endif %}
+            <span class='badge'> {{saved_project_count }}</span>
+        </form>         
+    </div>
+    <div class='row'>
+        <div id='carousel-project-complete' class='carousel slide' data-ride='carousel'>
+            <ol class='carousel-indicators'>
+                {% if projectimage %}
+                    {% for image in projectimage %}
+                        <li data-target='#carousel-project-complete' data-slide-to='{{ forloop.counter0 }}' class='{% if forloop.first %} active {% endif %}'></li>
+                    
+                    {% endfor %}
+                {% endif %}                   
+            </ol>
+            <div class='carousel-inner' role='listbox'>
+                {% if projectimage %}
+                    {% for image in projectimage %}
+                        <div class='item {% if forloop.first %} active {% endif %}'>
+                            <img src="{{image.image.url}}" alt="">
+                        </div>                          
+                    {% endfor %}
+                {% endif %}            
+            </div>
+          <a class="left carousel-control" href="#carousel-project-complete" role="button" data-slide="prev">
+            <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+          </a>
+          <a class="right carousel-control" href="#carousel-project-complete" role="button" data-slide="next">
+            <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+          </a>        
+        </div>
+    </div>
+    <div class='row well' id='projectDescription'>
+        {{project.project_description}}
+    </div>
+
+    
+        {% if projectstep %}
+            {% for step in projectstep %}
+                <div class='panel panel-default'>
+                    <div class='panel-heading' id='stepPanelHeading'> <h4>Step {{step.order}}</h4> </div>
+                    <div class='panel-body' id='stepPanelBody'>
+                        <div class='row'>
+                            <div class='well col-md-6' id='wellStepDescription'>
+                                    {{ step.step.project_step_description }}
+                            </div>
+                            {% if step.step.project_step_image %}
+                                    <div class='thumbnail col-md-6' id='stepThumbnail'>
+                                        <img src="{{step.step.project_step_image.url}}" alt="">
+                                    </div>
+                            {% endif %}
+                        </div>
+                        <table class='table table-striped'>'
+                            <thead>
+                                <tr>
+                                    <th>Component</th>
+                                    <th>Price</th>
+                                    <th>Quanitity</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for component in purchasedcomponent %}
+                                    {% if component.purchased_component_for_step == step.step %}
+                                        <tr>
+                                            <td><a href="{{component.product.url}}">{{component.product.name}}</a></td>
+                                            <td>${{component.product.price|div:100}}</td>
+                                            <td><span class='badge'>{{component.purchased_component_quantity}}</span></td>
+                                        </tr>  
+                                               
+                                    {% endif %}         
+                                {% endfor %} 
+                                {% for component in fabricatedcomponent %}
+                                    {% if component.fabricated_component_for_step == step.step %}
+                                        <tr>
+                                            <td><a href="/project/{{component.fabricated_component_from_project.project_link.project_id}}">{{component.fabricated_component_from_project.project_link.project_name}} </a></td>
+                                            <td></td>
+                                            <td><span class='badge'>{{component.fabricated_component_quantity}}</span></td>
+                                        </tr>
+                                    {% endif %}         
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                            <div>
+                                {% for file in projectfile %}
+                                    {% if file.project_file_for_step == step.step %}
+                                        File:<a href="{{ file.project_file.url }}" download > {{file.project_file|filename}} </a>
+                                    {% endif %}             
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>    
+            {% endfor %}
+        {% endif %}                                                
+    </div>
+        
 
 
-<form method="POST" action="{% project_follow_url published_project_index user%}">
-	{% csrf_token %}
-	{% if user|is_following:published_project_index = True %}
-	    <button class="unfollow" type="submit" name="_unfollow"> Remove Project From My Saved Projects </button>
-	{% else %}
-		<button class="follow" type="submit" name="_follow"> Add Project From My Saved Projects </button>
-	{% endif %}
-</form>
-
-
-<h2>Created by: {{project.project_creator}}</h2>
-<h3>Created at Time: {{project.project_time_created }}</h3>
-<h4>Amount of Users that have saved this project: {{saved_project_count }}</h4>
-
-{% if user_is_creator == True %}
-	<form action ='' method = 'POST'>
-		{% csrf_token %}
-		<input type = 'submit' value = 'Revise Project' name = '_revise'>
-	</form>
-{% endif %}
-
-{% if user_is_creator == False %}
-	<form action ='' method = 'POST'>
-		{% csrf_token %}
-		<input type = 'submit' value = 'Create an Inspired Project' name = '_inspired'>
-	</form>
-{% endif %}
-
-
-<fieldset>
-	{% if projectimage %}
-		{% for image in projectimage %}
-			<ul>
-				<img src="{{image.image.url}}" alt="" height = 300 />
-			</ul>
-		{% endfor %}
-	{% endif %}
-</fieldset>
-<fieldset>
-	Project Description: {{project.project_description}}
-
-</fieldset>
-
-{% if projectstep %}
-	<h1> Project Steps </h1>
-	{% for step in projectstep %}
-		<fieldset>
-			<h2> Step {{ step.order}} </h2>
-			<ul>
-			{{ step.step.project_step_description }}
-			{% if step.step.project_step_image %}
-				<img src="{{step.step.project_step_image.url}}" alt="" height = 300 />
-			{% endif %}
-			{% for component in purchasedcomponent %}
-				{% if component.purchased_component_for_step == step.step %}
-						YES
-			</ul>
-				<ul>
-					<h2>Component: 
-						<a href="{{component.product.url}}">{{component.product.name}} 
-						</a>
-						x {{component.purchased_component_quantity}} -- ${{component.product.price|div:100}}
-					</h2>
-				</ul>	
-				{% endif %}			
-			{% endfor %}
-			
-			{% for component in fabricatedcomponent %}
-				{% if component.fabricated_component_for_step == step.step %}
-			</ul>
-				<ul>
-					<h2>Fabricated Component: 
-						<a href="/project/{{component.fabricated_component_from_project.project_id}}">
-							<img src="{{fabricated_component_thumbnails.image.url}}" alt="" height = 50 />
-							{{component.fabricated_component_from_project.project_name}}
-					</a>
-					x {{component.fabricated_component_quantity}}
-				</h2>
-				</ul>	
-				{% endif %}			
-			{% endfor %}
-
-			{% for file in projectfile %}
-				{% if file.project_file_for_step == step.step %}
-			</ul>
-				<ul>
-					<h2>File: 
-							<a href="{{ file.project_file.url }}" download > {{file.project_file|filename}} </h2></a>
-					</a>
-				</h2>
-				</ul>	
-				{% endif %}			
-			{% endfor %}						
-
-		</fieldset>
-
-	{% endfor %}
-
-{% endif %}
 
 
 
 
-<!-- {% if fabricatedcomponent %}
-	{% for component in fabricatedcomponent %}
-			<ul>
-				<h2>Fabricated Component: 
-					<a href="/project/{{component.fabricated_component_from_project.id}}">
-						<img src="{{fabricated_component_thumbnails.image.url}}" alt="" height = 50 />
-						{{component.fabricated_component_from_project.project_name}}
-					</a>
-					x {{component.fabricated_component_quantity}}
-				</h2>
-			</ul>
-	{% endfor %}
 
-{% else %}
-	<ul>  There Are No Fabricated Components </ul>
 
-{% endif %} -->
 
-<!-- {% if error_message %}<p><strong>{{ error_message }} </strong>/</p>{% endif %} -->
+
+
+
+
 
 {% endblock %}

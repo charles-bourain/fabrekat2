@@ -2,133 +2,75 @@
 {% load url from future %}
 
 <html>
-	<head>
-		<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
-		<title>{% block title %}FABREKAT{% endblock %} </title>
-		<meta charset="utf-8" />
+    <head>
+        <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+        <title>{% block title %}FABREKAT{% endblock %} </title>
+        <meta charset="utf-8" />
 
-		{% load staticfiles %}
-		
-		<link rel="stylesheet" type="text/css" href= "{% static 'project/css/bootstrap.css' %}"></link>
-		<link rel="stylesheet" type="text/css" href= "{% static 'project/css/custom_bootstrap.css' %}"></link>
-		<link href='http://fonts.googleapis.com/css?family=Cambo' rel='stylesheet' type='text/css'></link>
-		
-		
+        {% load staticfiles %}
+        
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+        <link href='http://fonts.googleapis.com/css?family=Cambo' rel='stylesheet' type='text/css'></link>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+        <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css">
+        <script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js'></script>
 
-		{% block extra_head %} {% endblock %}
-	</head>
-	
-	<body>	
-			
+        <style>
+            body {
+                padding-top:80px;
+            }
+        </style>
+        
+        
 
-			<nav role="navigation" class="navbar navbar-default navbar-fixed-top" id="nav">
+        {% block extra_head %} {% endblock %}
+    </head>
+            <div class="navbar navbar-default navbar-fixed-top">
+                <div class="container-fluid">
+                        <div class="navbar-header">
+                            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse" aria-expanded="false" aria-controls="navbar">
+                                <span class="sr-only">Toggle navigation</span>
+                                <span class="icon-bar"></span>
+                                <span class="icon-bar"></span>
+                                <span class="icon-bar"></span>
+                            </button>
+                            <a class="navbar-brand" href="{% url 'home' %}">
+                                <img style="max-width:234px; margin-top: -15px;" src="{% static 'project/css/Logo.png' %}"></img>
+                            </a>
+                        </div>                            
+                    
+                        <div class="collapse navbar-collapse" aria-expanded="false" style="height: 1px;">
+                            {% if user.username == "" %}
+                                <ul class="nav navbar-nav">
+                                    <li><a href="{% url 'login' %}"> Log In</a></li>
+                                </ul>
+                            {% else %}
+                                <ul class="nav navbar-nav">
+                                    <li><a href="{% url 'prj_create' %}"> Create Project</a></li>
+                                    <li><a href="{% url 'my_saved_projects' %}"> Saved Projects</a></li>
+                                    <li><a href="{% url 'my_projects' %}"> My Projects</a></li> 
+                                    <li><a href="{% url 'design_profile_create'   %}"> Create Design Profile</a></li>
+                                    <li><a href="#"> Profile Settings</a></li>
+                                    <li><a href="{% url 'logout' %}"> Logout</a></li>
+                                </ul>                             
+                            {% endif %}
+                        </div>
+                        <form method="get" action="." type="search" class='navbar-form-fluid' role='search'>
+                            <div class='input-group'>
+                                <span class='input-group-btn'><button type="submit" class="btn btn-default">Go!</button></span>
+                                <input class="form-control" id="id_q" name="q" type="search" placeholder="Search"></input>
+                            </div>
+                        </form>    
+                        </div>                   
+            </div>
+<body>
+            {% block body %}{% endblock %}
+            {% block extra_body %}{% endblock %}
+</body>
 
-            <style>
-                body {
-                  padding-top: 150px;
-                }
-                @media (max-width: 979px) {
-                  body {
-                    padding-top: 50px;
-                  }
-                }    
-            </style>            
-
-				<div class="container">
-					<div class="col-sm-12 col-xs-12 col-md-4 col-lg-4">
-						<header class="navbar-header">
-							<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse" aria-expanded="false" aria-controls="navbar">
-					            <span class="sr-only">Toggle navigation</span>
-					            <span class="icon-bar"></span>
-					            <span class="icon-bar"></span>
-					            <span class="icon-bar"></span>
-					        </button>
-							<a class="navbar-brand" href="{% url 'home' %}">
-								<img style="max-width:234px; margin-top: -15px;"
-	            				src="{% static 'project/css/Logo.png' %}"></img>
-	         				</a>
-						</header>
-					</div>
-					
-						<div class="collapse navbar-collapse" aria-expanded="false" style="height: 1px;">
-							{% if user.username == "" %}
-								<ul class="nav navbar-nav navbar-right">
-									<li><a href="{% url 'login' %}"> Log In</a></li>
-									<li><form method="get" action="." type="search">
-										<div class="input-group">
-					                    <input class="form-control" id="id_q" name="q" type="search" placeholder="Search"></input>
-					                    <span class="input-group-btn">
-					                    	<button type="submit" class="btn btn-default">Go!</button>
-					                    </span>
-					               		</div>
-					                </form></li>
-				              	</ul>
-							{% else %}
-
-								<ul class="nav navbar-nav navbar-right">
-									<li class="dropdown">
-										<a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Projects <span class="caret"></span></a>
-										<ul class="dropdown-menu">
-											<li><a href="{% url 'prj_create' %}"> Create Project</a></li>
-											<li><a href="{% url 'my_saved_projects' %}"> Saved Projects</a></li>
-											<li><a href="{% url 'my_projects' %}"> My Projects</a></li> 
-										</ul>
-									</li>
-									<li class="dropdown">
-										<a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Profile <span class="caret"></span></a>
-										<ul class="dropdown-menu">
-											<li><a href="{% url 'design_profile_create'   %}"> Create Design Profile</a></li>
-											<li><a href="#"> Profile Settings</a></li>
-									</ul>
-									</li>
-									<li><a href="{% url 'logout' %}"> Logout</a></li>
-									<li><form method="get" action="." type="search">
-										<div class="input-group">
-					                    <input class="form-control" id="id_q" name="q" type="search" placeholder="Search"></input>
-					                    <span class="input-group-btn">
-					                    	<button type="submit" class="btn btn-default">Go!</button>
-					                    </span>
-					               		</div>
-					                </form></li>
-								</ul>
-								
-							{% endif %}
-						</div>
-					
-				</div>
-			</nav>
-			
-			{% if user.username == "" %}
-				<div class="centered">
-					<div id="overview" class="jumbotron_back jumbotron" style="height: 300px;">
-						<div class="centered">
-							<ul>
-								<a class="btn btn-success" type="button" href="{% url 'registration_register' %}"> Sign Up</a> 
-								<!-- *Broken Until we get functioning Email-->
-							</ul>
-						</div>
-					</div>
-				</div>	
-			{% endif %}
-
-		<div class="container">
-
-			{% block body %}{% endblock %}
-			{% block extra_body %}{% endblock %}
-		</div>
-
-
-		<footer class="panel-footer">
-			<div class="centered container">
-				<a href="{% url 'home' %}">The Freedom to FABREKAT ©  2015</a>
-			</div>
-		</footer>
-
-
-	</body>
-
-	<script src= "{% static 'project/js/jquery-2.1.3.min.js' %}"> </script>
-	<script src= "{% static 'project/js/jquery.formset.js' %}"> </script>
-	<script src= "{% static 'project/js/bootstrap.js' %}"></script>
+    <script src= "{% static 'project/js/jquery-2.1.3.min.js' %}"> </script>
+    <script src= "{% static 'project/js/jquery.formset.js' %}"> </script>
+    <script src= "{% static 'project/js/bootstrap.js' %}"></script>
 </html
 
