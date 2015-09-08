@@ -9,12 +9,14 @@
 
         {% load staticfiles %}
         
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-        <link href='http://fonts.googleapis.com/css?family=Cambo' rel='stylesheet' type='text/css'></link>
+        <!-- jQuery -->
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
         <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css">
         <script type='text/javascript' src='http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js'></script>
+
+        <!-- BootStrap -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 
         <style>
             body {
@@ -68,9 +70,5 @@
             {% block body %}{% endblock %}
             {% block extra_body %}{% endblock %}
 </body>
-
-    <script src= "{% static 'project/js/jquery-2.1.3.min.js' %}"> </script>
-    <script src= "{% static 'project/js/jquery.formset.js' %}"> </script>
-    <script src= "{% static 'project/js/bootstrap.js' %}"></script>
 </html
 
