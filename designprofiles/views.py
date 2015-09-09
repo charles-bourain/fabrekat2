@@ -102,6 +102,25 @@ class DesignProfileDetailView(TemplateView):
         in_work_step_order = in_work_steps.order_by('steporder__order')
 
 
+        # project_percent_complete={}
+        # step_total=0
+        # step_complete=0
+        # for project in in_work_projects:
+        #     for step in in_work_steps:
+        #         if step.project == project.project:
+        #             step_total=step_total+1
+        #             if step.complete==True:
+        #                 step_complete=step_complete+1
+        #     project_percent_complete[project.project]=step_complete/step_total*100
+
+        #     print project_percent_complete
+
+
+
+
+
+        # context['project_percent_complete']=project_percent_complete
+
 
 
         context['in_work_projects'] = in_work_projects
@@ -119,3 +138,10 @@ class MyDesignProfileView(DesignProfileDetailView, LoginRequiredMixin):
             if 'complete_toggle_%s' % steporder.id in request.POST:
                 complete_step_toggle(request, steporder)
                 return HttpResponseRedirect(request.user)
+
+
+from django.template.defaulttags import register
+
+@register.filter
+def get_item(dictionary, key):
+    return dictionary.get(key)

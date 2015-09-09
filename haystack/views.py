@@ -6,7 +6,7 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 from haystack.forms import ModelSearchForm, FacetedSearchForm
 from haystack.query import EmptySearchQuerySet
-from project.models import ProjectImage
+from project.models import Project, ProjectImage
 
 
 RESULTS_PER_PAGE = getattr(settings, 'HAYSTACK_SEARCH_RESULTS_PER_PAGE', 20)
@@ -122,7 +122,19 @@ class SearchView(object):
 
         Must return a dictionary.
         """
-        return {}
+        results=self.get_results()
+        results_pk_list = []
+        for r in results:
+            results_pk_list.append(r.pk)
+
+        projects=Project.objects.filter(pk__in = results_pk_list).distinct('id')
+        projectimages=ProjectImage.objects.filter(project_image_for_project = projects).distinct('project_image_for_project')
+
+
+        print projectimages
+
+
+        return {'projectimages':projectimages,}
 
     def create_response(self):
         """
@@ -132,13 +144,13 @@ class SearchView(object):
 
         ###MOD FOR PROJECT SEARCHES
 
-        project_list=[]
-        print page.object_list
-        for item in page.object_list:
-            project_list.append(item.id)
+        # project_list=[]
+        # print page.object_list
+        # for item in page.object_list:
+        #     project_list.append(item.id)
 
-        projectimages=ProjectImage.objects.filter(project_image_for_project__in=project_list)
-        print projectimages
+        # projectimages=ProjectImage.objects.filter(project_image_for_project__in=project_list)
+        # print projectimages
 
         ###MOD FOR PROJECT SEARCHES
 
@@ -148,7 +160,6 @@ class SearchView(object):
             'page': page,
             'paginator': paginator,
             'suggestion': None,
-            'projectimages':projectimages, #MODIFIED FOR PROJECT SEARCHES
         }
 
         if self.results and hasattr(self.results, 'query') and self.results.query.backend.include_spelling:

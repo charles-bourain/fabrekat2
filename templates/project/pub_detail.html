@@ -7,9 +7,15 @@
 {% block extra_head %}
 
 <style>
-    .carousel-inner > .item > img {
-        margin:0 auto;
+
+    .carousel-inner > .item > .img-responsive{
+        height:auto;
+        max-height:500px;
+        width:auto;
     }
+    .carousel-inner > .item {
+    }   
+
 
 </style>
 
@@ -46,7 +52,7 @@
                 {% if projectimage %}
                     {% for image in projectimage %}
                         <div class='item {% if forloop.first %} active {% endif %}'>
-                            <img src="{{image.image.url}}" alt="">
+                            <img class='img-responsive center-block'src="{{image.image.url}}" alt="">
                         </div>                          
                     {% endfor %}
                 {% endif %}            
