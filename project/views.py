@@ -7,7 +7,7 @@ from django.core.urlresolvers import reverse
 from project.models import Project, ProjectImage
 from projectsteps.models import PurchasedComponent, FabricatedComponent, ProjectFile, ProjectStep, StepOrder
 from django.views.generic import CreateView, UpdateView, TemplateView
-from project.forms import ProjectForm, ProjectImageForm, ProjectStepForm, ReOrderStepForm, TagForm, CatagoryForm
+from project.forms import ProjectForm, ProjectImageForm, ProjectStepForm, ReOrderStepForm, TagForm, CatagoryForm, ProjectEditForm
 from project.forms import   PurchasedComponentFormSet, FabricatedComponentFormSet, ProjectFileFormSet, CatagoryFormSet
 from .mixins import LoginRequiredMixin
 from publishedprojects.models import PublishedProject
@@ -18,7 +18,7 @@ import uuid
 from projectpricer.utils import get_product
 from projecttags.models import ProjectTag
 from projecttags.views import tag_assign, tag_remove
-from .utils import get_project_id, is_project_published, move_step_up, move_step_down, is_user_project_creator, adjust_order_for_deleted_step
+from .utils import get_project_id, is_project_published, move_step_up, move_step_down, is_user_project_creator, adjust_order_for_deleted_step, delete_project
 from django import forms
 import autocomplete_light
 
@@ -50,6 +50,7 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
 
     #Begins the posting proccess.  Returns the valid/invalid forms.     
     def post(self, request, *args, **kwargs):
+        print request.is_ajax()
         self.object = None
         form_class = self.get_form_class()
         form = self.get_form(form_class)        
@@ -360,7 +361,7 @@ class EditProjectView(ProjectDetailView, LoginRequiredMixin):
         context = super(EditProjectView, self).get_context_data(**kwargs)
         project = context['project']
     
-        form = ProjectForm(instance = project)
+        form = ProjectEditForm(instance = project)
         context['form'] = form
 
         tag_form = TagForm
@@ -372,9 +373,9 @@ class EditProjectView(ProjectDetailView, LoginRequiredMixin):
         return context
 
     def post(self, request, *args, **kwargs):
-        print request
         context = self.get_context_data()
         project = context['project']
+        step_list = context['projectstep']
         for tag in context['tags']:
             if ('_remove_tag_%s'% tag.id) in request.POST:
                 tag_remove(project, tag)   
@@ -387,18 +388,37 @@ class EditProjectView(ProjectDetailView, LoginRequiredMixin):
             return HttpResponseRedirect('/project/edit/%s' % project.project_id)                    
         
         elif '_publish' in request.POST:
-            publish_project(project, request)   
+            publish_project(project, request)
+            return HttpResponseRedirect('/project/%s' % project.project_id)   
         
         elif '_save' in request.POST:
-            form = ProjectForm(request.POST, instance = project)
+            form = ProjectEditForm(request.POST, instance=project)
+            print form.errors
+            print 'SAVING PROJECT.....'
+            if form.is_valid():
+                print 'FORM WAS VALID'
+                form.save()
+            else:
+                print 'FORM SAVE FAILED.'
+            return HttpResponseRedirect('/project/edit/%s' % project.project_id) 
         
         elif '_delete_project' in request.POST:
-            return HttpResponseRedirect('/project/edit/%s/delete/' % project.project_id)    
+            delete_project(
+                context['project'], 
+                context['projectstep'], 
+                context['tags'], 
+                context['purchasedcomponent'], 
+                context['fabricatedcomponent'], 
+                context['projectimage'], 
+                context['projectfile'],
+                )
+            return HttpResponseRedirect('/')    
         
         elif '_addimage' in request.POST:
             return HttpResponseRedirect('/project/edit/%s/addimage/' % project.project_id)            
         # elif '_reorder_steps' in request.POST:
-        #   return HttpResponseRedirect('/project/edit/%s/ordersteps/' % project.project_id)       
+        #   return HttpResponseRedirect('/project/edit/%s/ordersteps/' % project.project_id)   
+
         for step in step_list:
             if ('_deletestep_%s'% step.id) in request.POST:
                 adjust_order_for_deleted_step(project, step, step_list)
@@ -581,81 +601,6 @@ def edit_step(request, id):
         context_instance = RequestContext(request),
         )
 
-#Need to check what is deleted using this.  Need to make sure its EVERYTHING.  This Delete is only for unpublished projects.
-@login_required
-def delete_project(request, project_id):
-    user_id = request.user.id
-    project = get_object_or_404(Project, project_id = project_id)
-    project_index = project.id 
-    creator_id = project.project_creator.id
-    purchasedcomponent = []
-    fabricatedcomponent = []
-    projectfile = []
-
-    #Can Redo this as a decorator......
-    if user_id != creator_id:
-        return HttpResponseRedirect('/')
-    elif is_project_published(project_id) == True:
-        return HttpResponseRedirect('/')    
-    else:
-
-        projectimage  = ProjectImage.objects.filter(
-            project_image_for_project = project_index
-            )
-
-        projectstep  =ProjectStep.objects.filter(
-            step_for_project = project_index,
-            ).order_by('step_order')
-        step_list = []
-        for step in projectstep:
-            step_list.append(step.id)
-
-        purchasedcomponent =PurchasedComponent.objects.filter(
-                purchased_component_for_step__in = step_list,
-                )
-
-
-        fabricatedcomponent =FabricatedComponent.objects.filter(
-                fabricated_component_for_step__in = step_list,
-                )
-
-
-        fabricatedcomponent_from_project_list_id = fabricatedcomponent.values_list('fabricated_component_from_project_id', flat = True)
-        fabricated_component_thumbnails = ProjectImage.objects.filter(project_image_for_project__in = fabricatedcomponent_from_project_list_id).first()
-
-        projectfile  =ProjectFile.objects.filter(
-            project_file_for_step__in = step_list,
-            )
-
-        if request.POST:
-            if '_delete_project_confirm' in request.POST:
-                purchasedcomponent.delete()
-                fabricatedcomponent.delete()
-                projectfile.delete()
-                projectimage.delete()
-                projectstep.delete()
-                project.delete()
-                return HttpResponseRedirect('/')    
-            elif '_backto_project' in request.POST:
-                return HttpResponseRedirect('/project/edit/%s' % project.project_id)            
-
-
-
-        context = {
-            'project':project,
-            'purchasedcomponent':purchasedcomponent,
-            'fabricatedcomponent':fabricatedcomponent,              
-            'projectfile': projectfile,
-            'projectstep':projectstep,
-            'projectimage':projectimage,
-        }   
-
-
-        return render_to_response(
-            'project/delete.html',
-            context,
-            context_instance = RequestContext(request),
-            )
 
 #Removes The step association with the project object.  Does not remove from database.
 # @login_required

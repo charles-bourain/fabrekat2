@@ -36,7 +36,7 @@ class Project(models.Model):
     project_id = models.SlugField(editable = False)
     project_name = models.CharField(max_length=20)
     project_spotlight = models.BooleanField(default=False)
-    project_description = models.TextField(max_length= 1000)
+    project_description = models.TextField(max_length= 1000, default='')
     project_creator = models.ForeignKey(User, related_name = 'project_creator_set', editable=False)
     project_time_created = models.DateTimeField(auto_now_add=True, editable=False)
     project_last_modified = models.DateTimeField(auto_now=True, editable=False)

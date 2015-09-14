@@ -101,30 +101,30 @@ class DesignProfileDetailView(TemplateView):
         in_work_projects = in_work_steps.distinct('project')
         in_work_step_order = in_work_steps.order_by('steporder__order')
 
+        complete_project_dict={}
+        for i in in_work_projects:
+            total_count=0
+            complete_count=0
+            for j in in_work_steps:
+                if i.project == j.project:
+                    total_count += 1
+                    if j.complete:
+                        complete_count +=1
+            percent_complete = int(round(float(complete_count)/float(total_count)*100))
+            complete_project_dict[i.project] = percent_complete
 
-        # project_percent_complete={}
-        # step_total=0
-        # step_complete=0
-        # for project in in_work_projects:
-        #     for step in in_work_steps:
-        #         if step.project == project.project:
-        #             step_total=step_total+1
-        #             if step.complete==True:
-        #                 step_complete=step_complete+1
-        #     project_percent_complete[project.project]=step_complete/step_total*100
-
-        #     print project_percent_complete
-
-
+        print complete_project_dict
 
 
-
-        # context['project_percent_complete']=project_percent_complete
-
+            # print 'Project = ', steporder.project
+            # print 'User = ', steporder.user
+            # print 'Complete = ', steporder.complete
+            # print 'StepOrder = ', steporder.steporder
 
 
         context['in_work_projects'] = in_work_projects
         context['in_work_step_order'] = in_work_step_order
+        context['project_percent_complete'] = complete_project_dict
 
         return context
 

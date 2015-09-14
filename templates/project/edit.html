@@ -22,10 +22,11 @@
 
 
 {% block body %}
-
-		<div>
-	        <h1>Edit Project</h1>
-
+	<div class='container'>
+		<div class='page-header'>
+	       	<h1>Edit Project</h1>	
+       	</div> 
+       	<div class='form-group'>
 	        <form enctype="multipart/form-data" method='POST' action="">
 	            {% csrf_token %}
 	            
@@ -37,136 +38,117 @@
 	            		
 	                <input type="submit" value="Add Tag" name = '_addtag' >
 	            </div>
-	            </form>
-	            <div>
-					<fieldset>
-					{% if tags %}
-						{% for tag in tags %}
-							<ul>
-								#{{ tag.tag }} <input type="submit" value="Remove Tag: {{ tag.tag }}" name = '_remove_tag_{{ tag.id }}' >
-							</ul>	
-						{% endfor %}
-					{% endif %}
-					</fieldset>	   
-				</div>      	            
-	            
-	            <form enctype="multipart/form-data" method='POST' action="">
-	            {% csrf_token %}
+            </form>       		
+       	</div>
+        
+        <ul>
+			{% if tags %}
+				{% for tag in tags %}
+						<li>#{{ tag.tag }} <form method='post'>{% csrf_token %}<input type="submit" value="Remove Tag: {{ tag.tag }}" name = '_remove_tag_{{ tag.id }}'> </li></form>
+				{% endfor %}
+			{% endif %}
+		</ul>      	            
+	    
+	    <div class='form-group'>
+            <form enctype="multipart/form-data" method='POST' action="">
+            	{% csrf_token %}
 	            <div>
 	            		{{catagory_form.management_form}}
 	            		{{catagory_form}}
 	            		
 	                <input type="submit" value="Add Catagory" name = '_addcat' >
 	            </div>
-            	</form>
+        	</form>	    
+	    </div>        
 
-	<form action ='' method = "POST">
-	{% csrf_token %}
-    <input type="submit" value="Add Step" name = '_addstep' >
- 	<input type="submit" value="Add Image" name = '_addimage' >
-    <input type="submit" value="Save Project" name = '_save' >
-    <input type="submit" value="Publish Project" name = '_publish' > 
-    <input type="submit" value="Delete Project" name = '_delete_project' >
-    </form>       
-<fieldset>
-	{% if projectimage %}
-		{% for image in projectimage %}
-			<ul>
-				<img src="{{image.image.url}}" alt="" height = 300 />
-			</ul>
-		{% endfor %}
-	{% endif %}
-</fieldset>
-
-         
-
-{% if projectstep %}
-	<h1> Project Steps </h1>
-	{% for step in projectstep %}
-		<fieldset>
-			<h2> Step {{ step.order}} </h2>
-			<h5><a href="editstep/{{step.id}}/" > (edit) </a></h5>
-			    <input type="submit" value="Move Step Up" name = '_move_{{step.id}}_step_up' > 
-			    <input type="submit" value="Move Step Down" name = '_move_{{step.id}}_step_down' > 
-			    <input type="submit" value="Delete This Step" name = '_deletestep_{{step.id}}' >
-			<ul>
-			{{ step.step.project_step_description }}
-			{% if step.step.project_step_image %}
-				<img src="{{step.step.project_step_image.url}}" alt="" height = 300 />
-			{% endif %}
-			{% for component in purchasedcomponent %}
-				{% if component.purchased_component_for_step == step.step %}
-						YES
-			</ul>
-				<ul>
-					<h2>Component: 
-						<a href="{{component.product.url}}">{{component.product.name}} 
-						</a>
-						x {{component.purchased_component_quantity}} -- ${{component.product.price|div:100}}
-					</h2>
-				</ul>	
-				{% endif %}			
-			{% endfor %}
-			
-			{% for component in fabricatedcomponent %}
-				{% if component.fabricated_component_for_step == step.step %}
-			</ul>
-				<ul>
-					<h2>Fabricated Component: 
-						<a href="/project/{{component.fabricated_component_from_project.project_id}}">
-							<img src="{{fabricated_component_thumbnails.image.url}}" alt="" height = 50 />
-							{{component.fabricated_component_from_project.project_name}}
-					</a>
-					x {{component.fabricated_component_quantity}}
-				</h2>
-				</ul>	
-				{% endif %}			
-			{% endfor %}
-
-			{% for file in projectfile %}
-				{% if file.project_file_for_step == step.step %}
-			</ul>
-				<ul>
-					<h2>File: 
-							<a href="{{ file.project_file.url }}" download > {{file.project_file|filename}} </h2></a>
-					</a>
-				</h2>
-				</ul>	
-				{% endif %}			
-			{% endfor %}						
-
-		</fieldset>
-
-	{% endfor %}
-
-{% endif %}
-
-	            </fieldset>	            
-	        </form>
+	    <div class='form-group'>
+			<form action ='' method = "POST">
+				{% csrf_token %}
+			    <input type="submit" value="Add Step" name = '_addstep' >
+			 	<input type="submit" value="Add Image" name = '_addimage' >
+			    <input type="submit" value="Save Project" name = '_save' >
+			    <input type="submit" value="Publish Project" name = '_publish' > 
+			    <input type="submit" value="Delete Project" name = '_delete_project' >
+    		</form>  	    
 	    </div>
-
-{% endblock %}
-
-
-
-
-<!-- 
-<body>
-	<form enctype="multipart/form-data" method='POST' action="">
-		{% csrf_token %}
-		<ul>
-			<div>
-				{% for field in project_form %}
-					{{ field }}
+		<div>
+			<ul>
+			{% if projectimage %}
+				{% for image in projectimage %}
+						<li><img src="{{image.image.url}}" alt="" height = 300 /></li>
 				{% endfor %}
-			</div>
-			<div>
-				{{ purchasedcomponent_form.as_ul}}
-			</div>
-			
-			
-		</ul
->		<input type="submit" value="Create Project" >
-	</form>
-</body>
- -->
+			{% endif %}	
+			</ul>	
+		</div>
+	</div>
+
+	<div class='container' id='stepContainer'>
+        {% if projectstep %}
+            {% for step in projectstep %}
+                <div class='panel panel-default'>
+                    <div class='panel-heading' id='stepPanelHeading'> 
+                    	<h4>
+                    		<a href="editstep/{{step.id}}/" > Step {{step.order}}</a>
+							<form method='POST'>
+								{% csrf_token %}
+							    <input type="submit" value="Move Step Up" name = '_move_{{step.id}}_step_up' > 
+							    <input type="submit" value="Move Step Down" name = '_move_{{step.id}}_step_down' > 
+							    <input type="submit" value="Delete This Step" name = '_deletestep_{{step.id}}' >
+						    </form>
+                    	</h4>
+
+                    </div>
+                    <div class='panel-body' id='stepPanelBody'>
+                        <div class='row'>
+                            <div class='well col-md-6' id='wellStepDescription'>
+                                    {{ step.step.project_step_description }}
+                            </div>
+                            {% if step.step.project_step_image %}
+                                    <div class='thumbnail col-md-6' id='stepThumbnail'>
+                                        <img src="{{step.step.project_step_image.url}}" alt="">
+                                    </div>
+                            {% endif %}
+                        </div>
+                        <table class='table table-striped'>'
+                            <thead>
+                                <tr>
+                                    <th>Component</th>
+                                    <th>Price</th>
+                                    <th>Quanitity</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for component in purchasedcomponent %}
+                                    {% if component.purchased_component_for_step == step.step %}
+                                        <tr>
+                                            <td><a href="{{component.product.url}}">{{component.product.name}}</a></td>
+                                            <td>${{component.product.price|div:100}}</td>
+                                            <td><span class='badge'>{{component.purchased_component_quantity}}</span></td>
+                                        </tr>  
+                                               
+                                    {% endif %}         
+                                {% endfor %} 
+                                {% for component in fabricatedcomponent %}
+                                    {% if component.fabricated_component_for_step == step.step %}
+                                        <tr>
+                                            <td><a href="/project/{{component.fabricated_component_from_project.project_link.project_id}}">{{component.fabricated_component_from_project.project_link.project_name}} </a></td>
+                                            <td></td>
+                                            <td><span class='badge'>{{component.fabricated_component_quantity}}</span></td>
+                                        </tr>
+                                    {% endif %}         
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                            <div>
+                                {% for file in projectfile %}
+                                    {% if file.project_file_for_step == step.step %}
+                                        File:<a href="{{ file.project_file.url }}" download > {{file.project_file|filename}} </a>
+                                    {% endif %}             
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>    
+            {% endfor %}
+        {% endif %}  
+	</div>
+{% endblock %}

@@ -21,8 +21,15 @@ class ProjectForm(forms.ModelForm):
 		model = Project
 		fields = [
 			'project_name',
-			'project_description',
 		]
+
+class ProjectEditForm(forms.ModelForm):
+	class Meta:
+		model = Project
+		fields = [
+			'project_name',
+			'project_description',
+		]		
 
 class ProjectDeleteForm(forms.ModelForm):
 	class Meta:

@@ -47,9 +47,6 @@ def publish_project(self, request):
             published_project = form.save(commit = False)
             published_project.project_link = self
             published_project.project_slug_id = self.project_id
-
-
             published_project.save()
-            return HttpResponseRedirect('/project/%s' % published_project.project_slug_id)
     else:
         return HttpResponseRedirect('/project/edit/%s' % project.project_id)

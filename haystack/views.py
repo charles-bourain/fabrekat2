@@ -130,10 +130,6 @@ class SearchView(object):
         projects=Project.objects.filter(pk__in = results_pk_list).distinct('id')
         projectimages=ProjectImage.objects.filter(project_image_for_project = projects).distinct('project_image_for_project')
 
-
-        print projectimages
-
-
         return {'projectimages':projectimages,}
 
     def create_response(self):

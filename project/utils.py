@@ -65,3 +65,30 @@ def adjust_order_for_deleted_step(project, step, step_list):
 			step.order = step.order-1	
 			step.save()
 	step.delete()
+
+def delete_project(project, step_orders, tags, purchased_components, fabricated_components, project_images, project_files):
+	try:
+		#VERIFYING THAT PROJECT IS NOT A PUBLISHED PROJECT.
+		published_project_check = PublishedProject.objects.get(project_link=project)
+		return HttpResponseRedirect('/project/%s' % published_project_check.project_link.id)
+	except:
+		project.delete()
+
+		for i in step_orders:
+			i.delete()
+		
+		for i in tags:
+			i.delete()
+
+		for i in purchased_components:
+			i.delete()
+
+		for i in fabricated_components:
+			i.delete()
+
+		for i in project_images:
+			i.delete()
+
+		for i in project_files:
+			i.delete()
+

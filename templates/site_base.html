@@ -20,10 +20,26 @@
         <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css">
         <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
 
+        <!-- Magnific Popup -->
+        <link rel="stylesheet" href="{% static 'magnific-popup/magnific-popup.css' %}"> 
+        <script src="{% static 'magnific-popup/jquery.magnific-popup.js' %}"></script>
+
+
         <style>
             body {
                 padding-top:80px;
             }
+
+            #brandLogo {
+                max-width:245px;
+                margin-top:-15px;
+            }
+
+            #stepContainer {
+                
+            }
+
+
         </style>
         
         
@@ -40,7 +56,7 @@
                                 <span class="icon-bar"></span>
                             </button>
                             <a class="navbar-brand" href="{% url 'home' %}">
-                                <img style="max-width:234px; margin-top: -15px;" src="{% static 'project/css/Logo.png' %}"></img>
+                                <img src="{% static 'images/Logo_large.png' %}" id='brandLogo'>
                             </a>
                         </div>                            
                     
@@ -51,7 +67,7 @@
                                 </ul>
                             {% else %}
                                 <ul class="nav navbar-nav">
-                                    <li><a href="{% url 'prj_create' %}"> Create Project</a></li>
+                                    <li><a id="create-project-ajax-popup" href="{% url 'prj_create' %}">Create Project</a></li>
                                     <li><a href="{% url 'my_saved_projects' %}"> Saved Projects</a></li>
                                     <li><a href="{% url 'my_projects' %}"> My Projects</a></li> 
                                     <li><a href="{% url 'design_profile_create'   %}"> Create Design Profile</a></li>
@@ -71,6 +87,19 @@
 <body>
             {% block body %}{% endblock %}
             {% block extra_body %}{% endblock %}
+
+    <script>
+        $(document).ready(function() {
+
+            $('#create-project-ajax-popup').magnificPopup({
+                type: 'ajax',
+                closeBtnInside:true,
+                closeOnBgClick:false,
+
+            });
+            
+        }); 
+    </script>
 </body>
 </html
 

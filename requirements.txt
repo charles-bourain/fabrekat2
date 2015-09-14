@@ -22,6 +22,7 @@ django-registration-redux==1.2
 django-sortedm2m==0.9.4
 django-tagging==0.3.4
 django-toolbelt==0.0.1
+django-widget-tweaks==1.4.1
 djrill==1.4.0
 easy-thumbnails==2.2
 gunicorn==19.3.0
