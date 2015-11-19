@@ -1,5 +1,5 @@
 from django.contrib import admin
-from project.models import Project
+from project.models import Project, ProjectImage, Catagory
 from projectsteps.models import ProjectStep, PurchasedComponent, FabricatedComponent, StepOrder
 
 
@@ -14,14 +14,20 @@ class FabricatedComponentInline(admin.TabularInline):
 	fk_name = 'fabricated_component_for_project'
 
 class ProjectStepOrderInline(admin.TabularInline):
-	model = StepOrder
+	model = StepOrder	
 
-	
+class ProjectImageInline(admin.TabularInline):
+	model = ProjectImage	
+
+class ProjectCatagoryInline(admin.TabularInline):
+	model = Catagory
 
 class ProjectAdmin (admin.ModelAdmin):
 	inlines = [
 	FabricatedComponentInline,
 	ProjectStepOrderInline,
+	ProjectImageInline,
+	ProjectCatagoryInline
 	]
 
 # Register your models here. 

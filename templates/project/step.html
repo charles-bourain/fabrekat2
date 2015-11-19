@@ -1,0 +1,196 @@
+{% load thumbnail %}
+{% load filename %}
+<!-- Need to load mathfilters(django-mathfilters) to do do division/multiplication/addition/subtraction in templates -->
+{% load mathfilters %}
+{% load staticfiles %}
+
+{%block extra_head %} 
+	<head>
+
+
+        <style>
+
+            body {
+                position:relative;
+            }
+
+            .wellStepDescription {
+                min-height: 100%;
+            }
+
+            .landing {
+                display:block;
+                height:85px;
+                margin-top:-85px;
+                visibility: hidden;
+            }
+
+            .nav .active {
+              font-weight: bold;
+              background: #72bcd4;
+            }
+
+            .nav .nav {
+              display: none;
+            }
+
+            .nav .active .nav {
+              display: block;
+            }
+
+            .nav .nav a {
+              font-weight: normal;
+              font-size: .85em;
+            }
+
+            .nav .nav span {
+              margin: 0 5px 0 2px;
+            }
+
+            .nav .nav .active a,
+            .nav .nav .active:hover a,
+            .nav .nav .active:focus a {
+              font-weight: bold;
+              padding-left: 30px;
+              border-left: 5px solid black;
+            }
+
+            .nav .nav .active span,
+            .nav .nav .active:hover span,
+            .nav .nav .active:focus span {
+              display: none;
+            }
+
+            #toolBox {
+                padding-left:10px;
+                padding-top:10px;
+            }
+
+            #affixBox {
+                max-width:209.5px;
+                width:100%;                
+            }
+
+            #locSpy{
+                padding-top:10px;
+            }
+
+            #addStepButton {
+                color:red;
+            }
+            #addStepButtonContainer {
+                padding-top:5px;
+            }            
+
+            .slideProjectImage {
+                max-height:100px;
+                max-width:95%;
+                margin-left:auto;
+                margin-right:auto;
+            }
+
+            .pictureRoll {
+                max-width:95%;
+            }
+
+            .editSpan {
+                font-size:40px;
+            }
+
+        </style>
+
+
+	</head>
+{% endblock %}
+
+
+<div class='panel panel-default stepPanel' id='stepPanel_{{step.step.id}}'>
+    <div class='panel-heading stepPanelHeading' data-step-id='{{step.step.id}}'> 
+        <span class='editSpan hidden glyphicon glyphicon-wrench pull-right' aria-hidden='true'></span>
+        <h4 style='font-size:25px'>
+            Step {{step.order}}
+        </h4>                        
+    </div>
+    <div class='panel-body' id='stepPanelBody'>
+        <div class='row'>
+            <div class='col-md-6'>
+                    {{ step.step.project_step_description }}
+            </div>
+            {% if step.step.project_step_image %}
+                    <div class='thumbnail col-md-6' id='stepThumbnail'>
+                        <img src="{{step.step.project_step_image.url}}" alt="">
+                    </div>
+            {% endif %}
+        </div>
+        <table class='table table-striped'>
+            <thead>
+                <tr>
+                    <th>Component</th>
+                    <th>Price</th>
+                    <th>Quanitity</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for component in purchasedcomponent %}
+                    {% if component.purchased_component_for_step == step.step %}
+                        <tr>
+                            <td><a href="{{component.product.url}}">{{component.product.name}}</a></td>
+                            <td>${{component.product.price|div:100}}</td>
+                            <td><span class='badge'>{{component.purchased_component_quantity}}</span></td>
+                        </tr>  
+                               
+                    {% endif %}         
+                {% endfor %} 
+                {% for component in fabricatedcomponent %}
+                    {% if component.fabricated_component_for_step == step.step %}
+                        <tr>
+                            <td><a href="/project/{{component.fabricated_component_from_project.project_link.project_id}}">{{component.fabricated_component_from_project.project_link.project_name}} </a></td>
+                            <td></td>
+                            <td><span class='badge'>{{component.fabricated_component_quantity}}</span></td>
+                        </tr>
+                    {% endif %}         
+                {% endfor %}
+            </tbody>
+        </table>
+            <div>
+                {% for file in projectfile %}
+                    {% if file.project_file_for_step == step.step %}
+                        File:<a href="{{ file.project_file.url }}" download > {{file.project_file|filename}} </a>
+                    {% endif %}             
+                {% endfor %}
+            </div>
+        </div>
+    </div>       
+
+{% block extra_body %}
+
+<script type="text/javascript">
+            
+
+$('.stepPanelHeading').on('click', function() {
+    if ($('#activeEdit').length == 0) {
+        $('#stepPanel_'+$(this).data("step-id")).load('{% url "load_edit_step" project_id=project_id %}'+'?'+$.param({stepid: $(this).data("step-id") }));
+    } else {
+        $('html, body').animate({
+            scrollTop: $('#activeEditLanding').offset().top,
+        }, 200); 
+        $('#activeEdit').effect('shake');       
+    }
+    })
+                           
+
+$('.stepPanelHeading').hover(function() {
+    $(this).css('cursor','pointer');
+    $(this).css('background','orange');
+    $(this).find('.editSpan').removeClass('hidden');
+},
+function() {
+    $(this).css('background','');
+    $(this).find('.editSpan').addClass('hidden');
+});
+
+</script>
+
+
+{% endblock %}
+

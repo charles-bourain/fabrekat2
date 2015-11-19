@@ -6,7 +6,7 @@ import uuid
 
 
 def get_project_id():
-	project_id = str(uuid.uuid4())[:20].replace('-','').lower()
+	project_id = str(uuid.uuid4())[:10].replace('-','').lower()
 	
 	try:
 		id_exists = Project.objects.get(project_id = project_id)
@@ -53,18 +53,19 @@ def is_user_project_creator(user, request):
 		return False
 
 
-def adjust_order_for_deleted_step(project, step, step_list):
+def adjust_order_for_deleted_step(step, step_list):
 	deleted_step = step
+	deleted_step.delete()
 
-	for step in step_list:
-		if step.step == deleted_step:
+	for x in step_list:
+		if x.step == deleted_step:
 			pass
-		elif step.order < deleted_step.order:
+		elif x.order <= deleted_step.order:
 			pass
 		else:
-			step.order = step.order-1	
-			step.save()
-	step.delete()
+			y=x.order
+			x.order -=1	
+			x.save()
 
 def delete_project(project, step_orders, tags, purchased_components, fabricated_components, project_images, project_files):
 	try:

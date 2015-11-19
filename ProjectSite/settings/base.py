@@ -35,6 +35,8 @@ SITE_ID = 1
 TEMPLATE_CONTEXT_PROCESSORS = (
     'django.contrib.auth.context_processors.auth',
     'django.core.context_processors.request',
+    "django.core.context_processors.media",
+
 )
 
 
@@ -47,7 +49,24 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'designprofiles.middleware.RequireLoginMiddleware',
 )
+
+
+LOGIN_REQUIRED_URLS = (
+    r'/$',
+    )
+
+LOGIN_REQUIRED_URLS_EXCEPTIONS = (
+    )
+
+OWNERSHIP_REQUIRED_URLS = (
+    r'/profile/(.*)$',
+    r'/project/edit/(.*)$',
+
+
+    )
+
 
 #Using the SIMPLE backend.  Very basic database searching.  Will want to switch to elasticsearch or solr
 # es = urlparse(os.environ.get('SEARCHBOX_URL') or 'http://127.0.0.1:9200/')

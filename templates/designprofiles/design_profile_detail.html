@@ -13,14 +13,33 @@
         <div class='panel-header'>
             <h4>My Published Projects</h4>
         </div>
-        <div class='panel-body'>
-            <ul class='list-group'>
-                {% for project in projects %}
-                    <a class='list-group-item' href="{% url 'pub_detail' project.project_link.project_id %}">{{project.project_link.project_name}} </a>
-                {% endfor %} 
-            </ul>       
+
+        <div class='row'>
+            {% for project in projects %}
+                <div class='col-md-3'>
+                    <div class='thumbnail'>
+                        {% for image in published_project_images %}
+                            {% if image.project_image_for_project == project.project_link %}
+                                    <a href="{% url 'pub_detail' project.project_link.project_id %}"> 
+                                        <img src='{{image.image.url}}' alt=''></a>                                 
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}    
         </div>
     </div>
+
+    <div class='panel panel-default'>
+        <div class='panel-header'>
+            <h4>Projects on the Drafting Board</h4>
+        </div>
+        <ul>
+        {% for project in project_drafts %}
+            <li><a href = "{% url 'prj_edit' project.project_id %}"> {{project.project_name}}</a></li>
+        {% endfor %}  
+        </ul>
+    </div>  
 
     <div class='panel panel-default'>
         <div class='panel-header'>

@@ -41,10 +41,17 @@ def product_info_from_amazon(item_id):
     print etree.tostring(response, pretty_print = True)
     #These may Return None.  Need to Error Coding in this.  There is something wrong with grabbing the price right here for certain situations.
     price = items_response.find(AMAZON_NS +'Amount').text
+    print price
     currency = items_response.find(AMAZON_NS+'CurrencyCode').text
     asin = str(item_id)
-    upc = itemattributes_response.find(AMAZON_NS + 'UPC').text
-    ean = itemattributes_response.find(AMAZON_NS + 'EAN').text
+    if itemattributes_response.find(AMAZON_NS + 'UPC'):
+        upc = itemattributes_response.find(AMAZON_NS + 'UPC').text
+    else: 
+        upc = None
+    if itemattributes_response.find(AMAZON_NS + 'EAN'):
+        ean = itemattributes_response.find(AMAZON_NS + 'EAN').text
+    else:
+        ean = None
     name = itemattributes_response.find(AMAZON_NS + 'Title').text
     referral_url = itemattributes_response.find(AMAZON_NS+'DetailPageURL').text
     return_dict = {

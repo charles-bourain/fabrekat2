@@ -1,4 +1,5 @@
 {% extends "site_base.html" %}
+{% load crispy_forms_tags %}
 
 {% block title %}Create - {{block.super}}{% endblock %}
 
@@ -31,19 +32,12 @@
 
 {% block body %}
 	<body>
-		<div class='container' id='createPopup'>
+		<div class='container-fluid' id='createPopup'>
 			<div class='page-header'>
 	        	<h1>Create Project</h1>
         	</div>
-	       
-	        <form enctype="multipart/form-data" method='post' action="{% url 'prj_create' %}" role='form-horizontal'>
-	            {% csrf_token %}
-	            <div class='form-group'>
-	            	<label class='control-label' for="id_project_name">Project Name</label>
-	                {% render_field form.project_name class+="form-control"%}         	
-	            </div>
-	            <button type="submit" value="Save Project" name = '_save' class='btn btn-default' id='create_project_button' disabled>Submit</button>
-	        </form>
+	       {% crispy form %}
+
 
 	    </div>
 
@@ -60,7 +54,14 @@
 	});
 
 
-	
+	        <form enctype="multipart/form-data" method='post' action="{% url 'prj_create' %}" role='form-horizontal'>
+	            {% csrf_token %}
+	            <div class='form-group'>
+	            	<label class='control-label' for="id_project_name">Project Name</label>
+	                {% render_field form.project_name class+="form-control"%}         	
+	            </div>
+	            <button type="submit" value="Save Project" name = '_save' class='btn btn-default' id='create_project_button' disabled>Submit</button>
+	        </form>	
 
 
 </script>

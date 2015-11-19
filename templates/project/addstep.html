@@ -2,138 +2,41 @@
 
 {% block title %}Add Step - {{block.super}}{% endblock %}
 
+{% load crispy_forms_tags %}
+
 {%block extra_head %} 
 	<head>
 		{% load staticfiles %}
 		<script src='http://code.jquery.com/jquery-latest.js'></script>
 	    <script src= "{% static 'project/js/jquery.formset.js' %}" > </script>
-	    <script src="{% static 'project/js/jquery.formset.min.js' %}" ></script>
-	    <!-- Charlie| Brian this is an important include,Autocomplete_light needs to be loaded AFTER jquery -->
-	    {% include 'autocomplete_light/static.html' %}
-	    
-	      <script type="text/javascript">
-	        $(function() {	
-	            $(".inLine.{{projectstep_formset.prefix}}").formset({
-	                prefix: "{{projectstep_formset.prefix}}",
-	            })  	                	
-	            $(".inLine.{{projectimage_formset.prefix}}").formset({
-	                prefix: "{{projectimage_formset.prefix}}",
-	            })
-	            $(".inLine.{{projectfile_formset.prefix}}").formset({
-	                prefix: "{{projectfile_formset.prefix}}",
-	            })	            
-	            $(".inLine.{{purchasedcomponent_formset.prefix}}").formset({
-	                prefix: "{{purchasedcomponent_formset.prefix}}",
-	            })      
-	            $(".inLine.{{fabricatedcomponent_formset.prefix}}").formset({
-	                prefix: "{{fabricatedcomponent_formset.prefix}}",
-	            })   	                    	      	
-	        })
-    	</script>
+	    <script src="{% static 'project/js/jquery.formset.min.js' %}" ></script>	    
   
 	 
 	       
 <!--	    <link rel="stylesheet" type="text/css" href="{% static 'project/style.css' %}"> -->
 	</head>
+
 {% endblock %}
 
 
 {% block body %}
 	<body>
-		<div>
-	        <h1>Add Step</h1>
-	        <form enctype="multipart/form-data" method='POST' action="">
-	            {% csrf_token %}
-	            <div>
-	                {{ form.as_p }}
-	                {{steporder_formset.management_form}}
-	            </div>
+		<div class='container'>
+			<div class='page-header'>
+				<h1>Add Step</h1>
+			</div>
 
-	            <fieldset>
-	                <legend>Files Needed For Step</legend>
+			<form enctype="multipart/form-data" method='POST'>
 
-	                {{ projectfile_formset.management_form }}
-	                {{ projectfile_formset.non_form_errors }}
+					{% crispy form %}
+					{% crispy purchasedcomponent_formset purchasedcomponent_formset_helper %}
+					{% crispy projectfile_formset formset_helper %}				
+					{% crispy fabricatedcomponent_formset fabricatedcomponent_formset_helper %}
 
-	                {% for form in projectfile_formset %}
-	                    {{ form.id }}
-	                    <div class="inLine {{projectfile_formset.prefix}}">
-	                        {{ form.project_file.errors }}
-	                        {{ form.project_file.label_tag }}
-	                        {{ form.project_file }}    
-	                    </div>                    
-	                {% endfor %}
-
-				</fieldset>
-
-
-	            <fieldset>         
-	                <legend>Purchased Component For Step</legend>
-	                {{ purchasedcomponent_formset.management_form }}
-	                {{ purchasedcomponent_formset.non_form_errors }}
-	                
-	                {% for form in purchasedcomponent_formset %}
-	                    {{ form.id }}
-	                    <div class="inLine {{purchasedcomponent_formset.prefix}}">
-	                        {{ form.purchased_component_name.errors }}
-	                        {{ form.purchased_component_name.label_tag }}
-	                        {{ form.purchased_component_name }}
-	                        
-	                        {{ form.purchased_component_url_link.errors }}
-	                        {{ form.purchased_component_url_link.label_tag }}
-	                        {{ form.purchased_component_url_link }}
-
-	                        {{ form.purchased_component_quantity.errors }}
-	                        {{ form.purchased_component_quantity.label_tag }}
-	                        {{ form.purchased_component_quantity }}
-	                    </div>                    
-	                {% endfor %}
-	            </fieldset>	
-
-	            <fieldset>         
-	                <legend>Fabricated Component For Step</legend>
-	                {{ fabricatedcomponent_formset.management_form }}
-	                
-	                {% for form in fabricatedcomponent_formset %}
-	                    {{ form.id }}
-	                    <div class="inLine {{fabricatedcomponent_formset.prefix}}">
-	                        {{ form.fabricated_component_from_project.errors }}
-	                        {{ form.fabricated_component_from_project.label_tag }}
-	                        {{ form.fabricated_component_from_project}}
-
-	                        {{ form.fabricated_component_quantity.errors }}
-	                        {{ form.fabricated_component_quantity.label_tag }}
-	                        {{ form.fabricated_component_quantity }}
-	                    </div>	                    
-	                {% endfor %}
-	            </fieldset>	            
-	            <input type="submit" value="Add Step" name = '_save' >
-	        </form>
+				<input type="submit" name="submit" value="Save" class="btn btn-primary" id="submit-save">
+				
+			</form>
 	    </div>
 	</body>
 
 {% endblock %}
-
-
-
-
-<!-- 
-<body>
-	<form enctype="multipart/form-data" method='POST' action="">
-		{% csrf_token %}
-		<ul>
-			<div>
-				{% for field in project_form %}
-					{{ field }}
-				{% endfor %}
-			</div>
-			<div>
-				{{ purchasedcomponent_form.as_ul}}
-			</div>
-			
-			
-		</ul
->		<input type="submit" value="Create Project" >
-	</form>
-</body>
- -->

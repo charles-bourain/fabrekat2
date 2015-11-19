@@ -8,9 +8,10 @@ from django.shortcuts import render_to_response
 #Takes in requesting user, the project, 
 def add_project_to_working_projects(user, project):
     designprofile = DesignProfile.objects.get_or_create(user = user, slug = user)[0]
-    step_order = StepOrder.objects.filter(step_order_for_project = project)
+    step_order = StepOrder.objects.filter(step_order_for_project = project.project_link)
     for so in step_order:
         working_step_order = WorkingStepOrder.objects.create(user = designprofile, project = project, steporder = so)
+
 
 def remove_project_from_working_projects(user, project):
     designprofile = DesignProfile.objects.get(user = user, slug = user)
@@ -18,8 +19,6 @@ def remove_project_from_working_projects(user, project):
 
     for step in working_step_order:
         step.delete()
-
-    print 'REMOVE FROM PROFILE'
     pass
 
 

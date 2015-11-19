@@ -37,13 +37,14 @@ def get_step_image_path(instance, filename):
 
 class ProjectStep(models.Model):
 
-    project_step_description = models.TextField(max_length = 200)
+    project_step_description = models.TextField(blank=True, null=True, max_length = 200)
     project_step_image = models.ImageField(
         upload_to = get_step_image_path,
         blank = True,
         null = True,
         )
-    
+    project_step_video = models.URLField(null=True, blank=True)
+
     def __unicode__(self):
         return self.project_step_description
 
@@ -52,13 +53,13 @@ class ProjectStep(models.Model):
 class PurchasedComponent(models.Model):
 
     purchased_component_for_step = models.ForeignKey(ProjectStep)
-    purchased_component_name = models.CharField(max_length = 20)
-    purchased_component_url_link = models.URLField(null = True, blank = True, max_length = 10000)
+    purchased_component_name = models.CharField(max_length = 300)
+    purchased_component_url_link = models.URLField(null = True, blank = True)
     purchased_component_quantity = models.IntegerField(default = 1)
     product = models.ForeignKey(Product)
     
     def __unicode__(self):
-        return unicode(self.purchased_component_name)   
+        return unicode(self.product.name)   
 
 class FabricatedComponent(models.Model):
     fabricated_component_for_project = models.ForeignKey(
@@ -74,7 +75,6 @@ class FabricatedComponent(models.Model):
     related_name = 'component_project'
     )
     fabricated_component_quantity = models.IntegerField(default = 0)
-    #price = Gotta get the price somehow....
 
     fabricated_component_for_step = models.ForeignKey(ProjectStep)
 

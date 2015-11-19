@@ -5,18 +5,41 @@ from django.forms.models import inlineformset_factory
 from django.forms import ImageField, CharField
 import autocomplete_light
 from projecttags.models import ProjectTag
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Submit, Layout, Div, HTML, Fieldset
+from crispy_forms.bootstrap import InlineCheckboxes, PrependedText
 
 
 #Use fields instead of exclude.
 
 
 class TagForm(forms.ModelForm):
+
+	def __init__(self, *args, **kwargs):
+		super(TagForm, self).__init__(*args,**kwargs)
+		self.helper = FormHelper()
+		# form_id value is the 'id = blah blah' in the HTML.  Good for CSS/java id
+		self.helper.form_method = 'post'
+		self.helper.form_name = '_addtag'
+		self.helper.layout = Layout(
+			PrependedText('tag', '#', placeholder = 'Add a Tag to your Project'),
+			Submit('_addtag','Submit'),
+			)
+
 	class Meta:
 		model = ProjectTag
 		fields = ['tag']
 
-
 class ProjectForm(forms.ModelForm):
+
+	def __init__(self, *args, **kwargs):
+		super(ProjectForm, self).__init__(*args,**kwargs)
+		self.helper = FormHelper()
+		# form_id value is the 'id = blah blah' in the HTML.  Good for CSS/java id
+		self.helper.form_method = 'post'
+		self.helper.form_id = 'createPopup'
+		self.helper.add_input(Submit('submit','Submit'))
+
 	class Meta:
 		model = Project
 		fields = [
@@ -24,6 +47,16 @@ class ProjectForm(forms.ModelForm):
 		]
 
 class ProjectEditForm(forms.ModelForm):
+
+	def __init__(self, *args, **kwargs):
+		super(ProjectEditForm, self).__init__(*args,**kwargs)
+		self.helper = FormHelper()
+		self.helper.form_method = 'post'
+		self.helper.form_name = '_save'
+		self.helper.add_input(Submit('_save','Save Project'))
+
+
+
 	class Meta:
 		model = Project
 		fields = [
@@ -39,38 +72,81 @@ class ProjectDeleteForm(forms.ModelForm):
 			'project_description',
 		]
 
+# ----- Forms Contained within Step Create View -----
+class ProjectStepDescriptionForm(forms.ModelForm):
 
-class ProjectStepForm(forms.ModelForm):
+	def __init__(self, *args, **kwargs):
+		super(ProjectStepDescriptionForm, self).__init__(*args,**kwargs)
+		self.helper = FormHelper()
+		self.helper.form_method = 'post'
+		self.helper.form_tag = False
+		self.helper.layout = Layout(
+			'project_step_description',
+			)		
+
 
 	class Meta:
 		model = ProjectStep
 		fields = [
 		 	'project_step_description',
-		 	'project_step_image',
-	 		]	
+	 		]
 
 
-class ReOrderStepForm(forms.ModelForm):
+class ProjectStepImageForm(forms.ModelForm):
+
+	def __init__(self, *args, **kwargs):
+		super(ProjectStepImageForm, self).__init__(*args,**kwargs)
+		self.helper = FormHelper()
+		self.helper.form_method = 'post'
+		self.helper.form_tag = False
 	
+
+
 	class Meta:
 		model = ProjectStep
 		fields = [
+		 	'project_step_image',
 	 		]	
+
+class ProjectStepVideoForm(forms.ModelForm):
+
+	def __init__(self, *args, **kwargs):
+		super(ProjectStepVideoForm, self).__init__(*args,**kwargs)
+		self.helper = FormHelper()
+		self.helper.form_method = 'post'
+		self.helper.form_tag = False
+		self.helper.layout = Layout(
+			PrependedText('project_step_video', 'URL:', placeholder = 'https://www.youtube.com/'),
+			)		
+
+
+	class Meta:
+		model = ProjectStep
+		fields = [
+		 	'project_step_video',
+	 		]	 	 		 		
 
 class PurchasedComponentForm(forms.ModelForm):
 
 	class Meta:
 		model = PurchasedComponent
-		fields = ['purchased_component_name', 'purchased_component_url_link', 'purchased_component_quantity']
+		fields = ['purchased_component_url_link', 'purchased_component_quantity']
+
 
 PurchasedComponentFormSet = inlineformset_factory(
 	ProjectStep, 
 	PurchasedComponent,   
 	form = PurchasedComponentForm,
 	fk_name = 'purchased_component_for_step',
-	extra = 1, 
-	can_delete = True,
-	)
+	extra = 0, 
+	can_delete = False,
+	)	
+
+class PurchasedComponentFormsetHelper(FormHelper):
+	def __init__(self, *args, **kwargs):
+		super(PurchasedComponentFormsetHelper, self).__init__(*args,**kwargs)
+		self.form_tag = False
+		self.template = 'project/step_edit_component_table.html'
 
 
 
@@ -90,17 +166,16 @@ FabricatedComponentFormSet = inlineformset_factory(
 		'fabricated_component_quantity',
 		),
 	extra = 1, 
-	can_delete = True,
+	can_delete = False,
 	 )
 
-class ProjectImageForm(forms.ModelForm):
-
-	class Meta:
-		model = ProjectImage
-		fields = ('image',)
-		required = True
-
-# ProjectImageFormSet = inlineformset_factory(Project, ProjectImage, form = ProjectImageForm, fields = ('image',), extra = 1, )
+class FabricatedComponentFormsetHelper(FormHelper):
+	def __init__(self, *args, **kwargs):
+		super(FabricatedComponentFormsetHelper, self).__init__(*args,**kwargs)
+		self.form_tag = False
+		self.template = 'bootstrap/table_inline_formset.html'
+		self.layout= Layout(
+			)
 
 class ProjectFileForm(forms.ModelForm):
 
@@ -112,10 +187,36 @@ class ProjectFileForm(forms.ModelForm):
 
 ProjectFileFormSet = inlineformset_factory(ProjectStep, ProjectFile, form = ProjectFileForm, fields = ('project_file',), extra = 1, )
 
+# ----- End of Project Step Create Forms -----
+
+class ReOrderStepForm(forms.ModelForm):
+	
+	class Meta:
+		model = ProjectStep
+		fields = [
+	 		]	
+
+class ProjectImageForm(forms.ModelForm):
+
+	def __init__(self, *args, **kwargs):
+		super(ProjectImageForm, self).__init__(*args,**kwargs)
+		self.helper = FormHelper()
+		self.helper.form_method = 'post'
+		self.helper.form_class = 'createPopup'
+		self.helper.add_input(Submit('submit','Submit'))
+		self.helper.form_tag = False
+
+	class Meta:
+		model = ProjectImage
+		fields = ('image',)
+		required = True
+
 class CatagoryForm(forms.ModelForm):
+
 	class Meta:
 		model = Catagory
 		fields = ('catagory',)
+
 	
 	CATAGORY_CHOICE_LIST = [
 	    ('LifeStyle','LifeStyle'),
@@ -124,7 +225,30 @@ class CatagoryForm(forms.ModelForm):
 	    ('Technology','Technology'),
 	]
 
-	catagory = forms.ChoiceField(choices = CATAGORY_CHOICE_LIST)
+	catagory = forms.MultipleChoiceField(
+		choices = CATAGORY_CHOICE_LIST,
+		widget = forms.CheckboxSelectMultiple)
 
 
-CatagoryFormSet = inlineformset_factory(Project, Catagory, form = CatagoryForm, extra = 1)
+CatagoryFormSet = inlineformset_factory(
+	Project, 
+	Catagory, 
+	form = CatagoryForm,
+	can_delete = False,
+	extra = 1,
+
+	)
+
+class FormSetHelper(FormHelper):
+	def __init__(self, *args, **kwargs):
+		super(FormSetHelper, self).__init__(*args,**kwargs)
+		self.form_tag = False
+
+class CatagoryFormSetHelper(FormHelper):
+	def __init__(self, *args, **kwargs):
+		super(CatagoryFormSetHelper, self).__init__(*args, **kwargs)
+
+		self.layout = Layout(
+				InlineCheckboxes('catagory'),
+			)
+		self.form_tag = False

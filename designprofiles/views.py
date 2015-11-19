@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required
 from .forms import DesignProfileForm
 from project.mixins import LoginRequiredMixin
 from publishedprojects.models import PublishedProject
-from project.models import Project
+from project.models import Project, ProjectImage
 from django.http import HttpResponseRedirect
 from django.contrib.auth.models import User
 from .models import WorkingStepOrder
@@ -89,17 +89,24 @@ class DesignProfileDetailView(TemplateView):
         user_projects_id = user_projects.values_list('id', flat = True)
 
         #Gets Projects Created by User and adds them to context dict
-        user_published_projects = PublishedProject.objects.filter(project_link = user_projects_id)
-        context['projects'] = user_published_projects
+        user_published_projects = PublishedProject.objects.filter(project_link = user_projects_id).distinct('id')
+        project_value_list = user_published_projects.values_list('project_link')
 
+        context['projects'] = user_published_projects
+        published_project_images = ProjectImage.objects.filter(project_image_for_project__in = project_value_list).distinct('project_image_for_project')
+        context['published_project_images']=published_project_images
 
         user_profile = DesignProfile.objects.get(user = user)
         context['user_profile'] = user_profile
 
         #gets projects current user is working on
+        print 'User Profile: ', user_profile
         in_work_steps = WorkingStepOrder.objects.filter(user = user_profile)
+        print 'Steps In work: ',in_work_steps
         in_work_projects = in_work_steps.distinct('project')
+        print 'Projects In work: ', in_work_projects
         in_work_step_order = in_work_steps.order_by('steporder__order')
+        print in_work_step_order
 
         complete_project_dict={}
         for i in in_work_projects:
@@ -113,7 +120,6 @@ class DesignProfileDetailView(TemplateView):
             percent_complete = int(round(float(complete_count)/float(total_count)*100))
             complete_project_dict[i.project] = percent_complete
 
-        print complete_project_dict
 
 
             # print 'Project = ', steporder.project
@@ -126,11 +132,23 @@ class DesignProfileDetailView(TemplateView):
         context['in_work_step_order'] = in_work_step_order
         context['project_percent_complete'] = complete_project_dict
 
-        return context
+        return context, user_projects
 
 
 #View for the Designer to View their Own Profile
 class MyDesignProfileView(DesignProfileDetailView, LoginRequiredMixin):
+
+    def get_context_data(self, **kwargs):
+        context, user_projects = super(MyDesignProfileView, self).get_context_data(**kwargs)
+        my_published_projects = context['projects']
+        my_published_projects_id = my_published_projects.values_list('project_link_id', flat = True)
+
+        project_drafts = user_projects.exclude(id__in = my_published_projects_id)
+
+        context['project_drafts'] = project_drafts
+
+        return context
+
     def post(self, request, *args, **kwargs):
         context = self.get_context_data()
         for steporder in context['in_work_step_order']:

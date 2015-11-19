@@ -7,6 +7,7 @@ from django.template import RequestContext
 from haystack.forms import ModelSearchForm, FacetedSearchForm
 from haystack.query import EmptySearchQuerySet
 from project.models import Project, ProjectImage
+from publishedprojects.models import PublishedProject
 
 
 RESULTS_PER_PAGE = getattr(settings, 'HAYSTACK_SEARCH_RESULTS_PER_PAGE', 20)
@@ -125,10 +126,19 @@ class SearchView(object):
         results=self.get_results()
         results_pk_list = []
         for r in results:
+            print PublishedProject.objects.get(id = r.pk)
             results_pk_list.append(r.pk)
 
-        projects=Project.objects.filter(pk__in = results_pk_list).distinct('id')
-        projectimages=ProjectImage.objects.filter(project_image_for_project = projects).distinct('project_image_for_project')
+        print 'Result PK List: ',results_pk_list
+
+
+
+        projects=PublishedProject.objects.filter(pk__in = results_pk_list)
+        print 'Project QuerySet: ',projects
+        project_value_list = projects.values_list('project_link')
+
+        projectimages=ProjectImage.objects.filter(project_image_for_project__in = project_value_list).distinct('project_image_for_project')
+        print projectimages
 
         return {'projectimages':projectimages,}
 
