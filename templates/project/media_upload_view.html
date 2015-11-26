@@ -1,10 +1,15 @@
 {% extends "site_base.html" %}
 {% load crispy_forms_tags %}
-
-{% block title %}Create - {{block.super}}{% endblock %}
+{% load static %}
 
 {%block extra_head %} 
 	<head>
+
+		{% load staticfiles %}
+		<script src='http://code.jquery.com/jquery-latest.js'></script>
+	    <script src= "{% static 'project/js/jquery.formset.js' %}" > </script>
+	    <script src="{% static 'project/js/jquery.formset.min.js' %}" ></script>
+
 	    <style>
 	    #createPopup {
 			position: relative;
@@ -14,11 +19,45 @@
 			max-width: 500px;
 			margin: 20px auto;
 	    }
-
-
 	    </style>
-	
+
+		<!-- Magnific Popup -->
+		<script src="{% static 'magnific-popup/jquery.magnific-popup.js' %}"></script>
+
+		<script type='text/javascript'>
+
+		$('html').on('submit',"#mediaForm", function(e) {
+			e.preventDefault();
+			formdata = new FormData(($(this)[0]));
+
+			$.ajax({
+				url: $(this).attr('action'),
+				type:$(this).attr('method'),
+				data:formdata,
+				processData:false,
+				contentType:false,
+				success: function() {
+					$(document).on('click','#submitMediaButton', function(e){
+						e.preventDefault();
+						$('.ajax-popup').magnificpopup.instance.close();
+					});
+					
+
+
+                    $('#activeEdit').parent().load('{% url "load_edit_step" project_id %}'+'?'+$.param({stepid: '{{step_id}}'}));
+				},
+
+			});
+		})
+
+
+		</script>
+
+
 	</head>
+
+
+
 {% endblock %}
 
 
@@ -26,21 +65,25 @@
 	<body>
 		<div class='container-fluid' id='createPopup'>
 			<div class='page-header'>
-	        	<h1>Create Project</h1>
+	        	<h1>Upload Media</h1>
         	</div>
 
-			<form enctype="multipart/form-data" method='post' action="{% url 'media_upload_view' step_id=step_id project_id=project_id %}" role='form-horizontal'>
-			{% csrf_token %}
-	       {% crispy image_form %}
-	       {% crispy video_form %}
-	       <button type="submit" class='btn btn-default'>Submit</button>
+			<form enctype="multipart/form-data" method='post' id='mediaForm' action='{% url "media_upload_view" project_id=project_id step_id=step_id %}'>
+				{% csrf_token %}
+		       {% crispy image_form %}
+		       {% crispy video_form %}
+		       <button type="submit" class='btn btn-default' id='submitMediaButton'>Submit</button>
 	       	</form>
+
+			<script>
+
+
+			</script>
+
 
 	    </div>
 
-<script>
 
-</script>
 
 
 	</body>

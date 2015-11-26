@@ -61,7 +61,7 @@ LOGIN_REQUIRED_URLS_EXCEPTIONS = (
     )
 
 OWNERSHIP_REQUIRED_URLS = (
-    r'/profile/(.*)$',
+    r'/profile/myprofile/(.*)$',
     r'/project/edit/(.*)$',
 
 

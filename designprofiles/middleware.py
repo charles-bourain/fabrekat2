@@ -55,6 +55,7 @@ class RequireLoginMiddleware(object):
         for url in self.ownership:
             if url.match(request.path):
                 if request.user.is_authenticated() and self.check_ownership(request, view_func):
+                    print 'Ownship Check is GOOD'
                     return None
                 else:
                     return HttpResponseRedirect('/') 
@@ -73,7 +74,7 @@ class RequireLoginMiddleware(object):
         if str(requesting_user.username) in path:
             print str(requesting_user).upper()
 
-        if 'profile' in path and str(requesting_user.username) in path:
+        if 'myprofile' in path and str(requesting_user.username) in path:
             print 'This is a Profile View'
             try:
                 DesignProfile.objects.get(user = requesting_user)
@@ -82,11 +83,11 @@ class RequireLoginMiddleware(object):
                 pass
         elif '/project/edit/'in path:
             print 'This is a Project Edit View'
-            project_id_compiler = re.compile('(?<=(\/edit\/))(.*)')
+            project_id_compiler = re.compile('(?<=(\/edit\/))(\w*)')
             try:
                 project_regex_obj = project_id_compiler.search(path)
                 project_id = project_regex_obj.group(0)
-                print project_id
+                print 'PROJECT ID =',project_id
                 project = Project.objects.get(project_id = project_id)
                 if project.project_creator == requesting_user:
                     response = True

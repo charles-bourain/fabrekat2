@@ -122,6 +122,9 @@ class ProjectDetailView(TemplateView):
 
             #Tag Handling
         tags = ProjectTag.objects.filter(tag_for_project = project_index)
+        total_component_cost = 0
+        for component in purchasedcomponent:
+            total_component_cost += component.product.price
         try:
             catagories = Catagory.objects.get(project = project)
             context['catagory_list'] =catagories.catagory
@@ -137,6 +140,7 @@ class ProjectDetailView(TemplateView):
         context['projectstep'] = step_list
         context['projectimage'] = projectimage
         context['tags'] = tags
+        context['total_component_cost']=total_component_cost
 
         return context
 
@@ -214,6 +218,12 @@ class StepEditView(LoginRequiredMixin, UpdateView):
                 step_image_url = edited_step.project_step_image.url
             except:
                 step_image_url = 0
+
+            try:
+                step_video_url = edited_step.project_step_video
+            except:
+                step_video_url = 0
+
             purchasedcomponent = PurchasedComponent.objects.filter(purchased_component_for_step = step_order.step) 
             purchasedcomponent_formset = PurchasedComponentFormSet(instance = self.object)
             fabricatedcomponent_formset = FabricatedComponentFormSet(instance = self.object)
@@ -226,6 +236,7 @@ class StepEditView(LoginRequiredMixin, UpdateView):
                 step = edited_step.id,
                 step_order = step_order.order,
                 step_image_url = step_image_url,
+                step_video_url = step_video_url,
                 project_id = project_id,
                 description_form = description_form,
                 purchasedcomponent = purchasedcomponent,
@@ -239,6 +250,7 @@ class StepEditView(LoginRequiredMixin, UpdateView):
             )
 
     def post(self, request, *args, **kwargs):
+        print 'PROJECT EDIT POST'
         self.object = self.get_object()
         description_form = ProjectStepDescriptionForm(self.request.POST, instance=self.object)
         purchasedcomponent_formset = PurchasedComponentFormSet(self.request.POST, instance=self.object)  
@@ -260,8 +272,12 @@ class StepEditView(LoginRequiredMixin, UpdateView):
 
 
     def form_valid(self, description_form, purchasedcomponent_formset, projectfile_formset):
+        print 'FORM IS VALID, POSTING...'
+        print self.request.POST
+        print self.request.FILES
         description_form.save()
         purchaseform = purchasedcomponent_formset.save(commit = False)
+        projectfileform = projectfile_formset[0].save(commit=False)
 
         if purchaseform:
             product = get_product(   #ASSIGN ALL NEEDED VALUES
@@ -272,17 +288,12 @@ class StepEditView(LoginRequiredMixin, UpdateView):
             purchaseform[0].product = product
             purchaseform[0].save()
 
-
-
-        projectfile_formset.save()
+        projectfileform.save()
         self.object = self.get_object()
         project_id = self.kwargs['project_id']
         project = Project.objects.get(project_id = project_id)
         self.object.step_for_project = project
         self.object = description_form.save()
-
-
-
 
         return HttpResponseRedirect('/project/edit/%s' % project_id)
 
@@ -315,6 +326,7 @@ class StepMediaView(LoginRequiredMixin, UpdateView):
         return obj
 
     def get(self, request, *args, **kwargs):
+
         self.object = self.get_object()
         print self.object.id
         user_id = request.user.id
@@ -339,7 +351,9 @@ class StepMediaView(LoginRequiredMixin, UpdateView):
                 )
             )        
     def post(self, request, *args, **kwargs):
+        print 'MEDIA VIEW IS POSTING'
         print request.POST
+        print 'REQUEST FILES: ',request.FILES
         self.object = self.get_object()
         image_form = ProjectStepImageForm(request.POST, request.FILES, instance = self.object)
         video_form = ProjectStepVideoForm(request.POST, instance = self.object)         
@@ -352,6 +366,7 @@ class StepMediaView(LoginRequiredMixin, UpdateView):
 
             #Item Assigning Project to the FK does not seem to be working.
     def form_valid(self, image_form, video_form):
+        print 'FORM WAS VALID'
         image_form.save()
         video_form.save()
         print image_form
@@ -359,8 +374,10 @@ class StepMediaView(LoginRequiredMixin, UpdateView):
 
         project_id = self.kwargs['project_id']
 
-
-        return HttpResponseRedirect('/project/edit/%s' % project_id)
+        if self.request.is_ajax():
+            return HttpResponse('success')
+        else:
+            return HttpResponseRedirect('/project/edit/%s' % project_id)
 
 
     def form_invalid(self, image_form, video_form):
@@ -457,6 +474,7 @@ class EditProjectView(UpdateView, LoginRequiredMixin, ProjectDetailView):
         return context
 
     def post(self, request, *args, **kwargs):
+        print 'PROJECT VIEW WAS POSTED'
         context = self.get_context_data()
         step_list = context['projectstep']
         self.object = self.get_object()

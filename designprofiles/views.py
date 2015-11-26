@@ -71,11 +71,6 @@ class DesignProfileCreateView(LoginRequiredMixin, CreateView):
         )
 
 
-
-class DesignProfileEditView(LoginRequiredMixin, UpdateView):
-    model = DesignProfile
-
-
 class DesignProfileDetailView(TemplateView):
     template_name = 'designprofiles/design_profile_detail.html'
 
@@ -131,19 +126,21 @@ class DesignProfileDetailView(TemplateView):
         context['in_work_projects'] = in_work_projects
         context['in_work_step_order'] = in_work_step_order
         context['project_percent_complete'] = complete_project_dict
+        context['user_projects'] = user_projects
 
-        return context, user_projects
+        return context
 
 
 #View for the Designer to View their Own Profile
-class MyDesignProfileView(DesignProfileDetailView, LoginRequiredMixin):
+class MyProfileView(DesignProfileDetailView, LoginRequiredMixin):
+    template = 'designprofiles/my_profile.html'
 
     def get_context_data(self, **kwargs):
-        context, user_projects = super(MyDesignProfileView, self).get_context_data(**kwargs)
+        context = super(MyProfileView, self).get_context_data(**kwargs)
         my_published_projects = context['projects']
         my_published_projects_id = my_published_projects.values_list('project_link_id', flat = True)
 
-        project_drafts = user_projects.exclude(id__in = my_published_projects_id)
+        project_drafts = context['user_projects'].exclude(id__in = my_published_projects_id)
 
         context['project_drafts'] = project_drafts
 

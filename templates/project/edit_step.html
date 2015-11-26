@@ -44,11 +44,14 @@
         });  
 
         $('#stepPostForm').on('submit', function(event) {
+            formdata = new FormData($(this).get(0));
             event.preventDefault();
             $.ajax({
                 url:'{% url "save_edit_step" project_id=project_id step_id=step %}',
                 type:'POST',
-                data: $(this).serialize(),
+                data: formdata,
+                processData:false,
+                contentType:false,
                 success: function(){
                     $('#activeEdit').parent().load('{% url "load_step" project_id=project_id step_id=step %}')
                 }
@@ -60,7 +63,8 @@
                 $.ajax({
                     url: '{% url "delete_component" project_id=project_id step_id=step component_id=component.id %}',
                     success: function(){
-                            $('#activeEdit').parent().load('{% url "load_edit_step" %}'+'?'+$.param({stepid: '{{step}}'}))
+                            $('#activeEdit').parent().load('{% url "load_edit_step" project_id %}'+'?'+$.param({stepid: '{{step}}'}));
+                            $('.ajax-popup').close();
                         },
                     })
             });
@@ -77,7 +81,6 @@
             $('#componentTBody').append($('#emptyTBody').html().replace(/__prefix__/g, form_idx));
             $('#id_purchasedcomponent_set-TOTAL_FORMS').val(parseInt(form_idx)+1);
         });
-
 
 
     </script>

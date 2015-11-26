@@ -116,11 +116,13 @@
             <div class='col-md-6'>
                     {{ step.step.project_step_description }}
             </div>
+            <ul class='nav nav-tabs'>
             {% if step.step.project_step_image %}
                     <div class='thumbnail col-md-6' id='stepThumbnail'>
                         <img src="{{step.step.project_step_image.url}}" alt="">
                     </div>
             {% endif %}
+            </ul>
         </div>
         <table class='table table-striped'>
             <thead>
@@ -169,7 +171,7 @@
 
 $('.stepPanelHeading').on('click', function() {
     if ($('#activeEdit').length == 0) {
-        $('#stepPanel_'+$(this).data("step-id")).load('{% url "load_edit_step" project_id=project_id %}'+'?'+$.param({stepid: $(this).data("step-id") }));
+        $('#stepPanel_'+$(this).data("step-id")).load('{% url "load_edit_step" project_id %}'+'?'+$.param({stepid: $(this).data("step-id") }));
     } else {
         $('html, body').animate({
             scrollTop: $('#activeEditLanding').offset().top,
