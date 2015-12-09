@@ -22,6 +22,8 @@ class ProjectImageInline(admin.TabularInline):
 class ProjectCatagoryInline(admin.TabularInline):
 	model = Catagory
 
+
+
 class ProjectAdmin (admin.ModelAdmin):
 	inlines = [
 	FabricatedComponentInline,

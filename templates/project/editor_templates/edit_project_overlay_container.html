@@ -1,0 +1,126 @@
+{% load staticfiles %}
+
+
+{% block extra_head %}
+
+<style>
+
+    .buttonBox {
+        border:blue;
+        position:fixed;
+    }
+    .overlay {
+        padding-top:10px;
+        position: fixed;
+        height:70%;
+        width:16%;
+        
+    }
+
+    #locSpy{
+        overflow-y:auto;
+        padding-top:10px;
+        position:relative;
+        height:100% !important;
+    }
+
+    #addStepButton {
+        color:red;
+    }
+    #addStepButtonContainer {
+        padding-top:5px;
+    }            
+
+    .main {
+        float:right;
+        width:85%;
+    }
+
+
+
+
+</style>
+
+<script type='text/javascript'>
+
+    $(document).ready(function() {
+        $('body').attr('data-spy','scroll')
+        $('body').attr('data-target','#locSpy') 
+    }) 
+
+</script>
+
+
+{% endblock %}
+
+
+
+
+<div class='col-md-2 overlay'>
+        <div id='panel buttonBox'>
+            <form action ='' method = "POST">
+                {% csrf_token %}
+                <button type="submit" class='list-group-item' name = '_publish'>Publish Project</button>
+                <button type="submit" class='list-group-item' name = '_delete_project' >Delete Project</button>
+            </form>
+            <a href={% url 'add_image' project.project_id %} class = 'ajax-popup list-group-item'> Pictures</a>
+        </div>
+        <div class='panel'id='locSpy'>
+            <ul class = 'sortableStepList nav'>
+                <li><a class = 'list-group-item' href = '#projectInformationPanel'>Project Information</a></li>
+                <li><a class = 'list-group-item' href = '#billOfMaterialsLander'>Bill of Materials</a></li>
+                {% if projectstep %}
+                    {% for step in projectstep %}
+                        <li class='stepItem' id='stepId_{{step.id}}' data-step-order ='{{step.order}}'>
+                        <a class = 'list-group-item' href = '#step{{step.order}}'>Step #{{step.order}}<span id = 'moveGlyph' class = 'glyphicon glyphicon-sort pull-right hidden'></span></a>
+                        </li>
+                    {% endfor %}
+                {% endif %}   
+
+                    <button id='unlockSortButton' class='button btn-default list-group-item'>Sort Steps</button>
+                    <a id = 'addStepButton' href={% url 'add_step' project.project_id %} class = 'list-group-item'> Add Step</a>            
+            </ul>
+        </div>
+        <div id='addStepButtonContainer'>                                    
+        </div>   
+</div>
+
+<script src='http://code.jquery.com/jquery-latest.js'></script>
+<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+
+<script type='text/javascript'>
+
+$(document).ready(function() {
+
+    $(document).on('click','#lockSortButton', function() {
+        $('.stepItemActive').attr('class','stepItem');
+        $('#lockSortButton').attr('id','unlockSortButton');
+        var stepArray = [];
+        $.each($('.stepItem'), function(index, item) {
+            stepArray.push($(item).data('step-order'));
+        });
+        $.post("{% url 'update_step_order' project_id=project.project_id %}", {stepdata: stepArray, csrfmiddlewaretoken: '{{csrf_token}}' }, function(response){
+            if(response){
+            window.location.href = "{% url 'prj_edit' project_id %}";
+            }
+            else{alert('Error');}
+        });
+    });
+
+    $(document).on('click','#unlockSortButton',function() {
+        $('.stepItem').attr('class', 'stepItemActive');
+        $('.sortableStepList').sortable({
+            items: 'li.stepItemActive',
+        })
+        $('#unlockSortButton').html('Save Step Order');
+        $('#lockSortButton').attr('name', 'update_step_order');
+        $('.stepItemActive > a > #moveGlyph').removeClass('hidden');
+        $('#unlockSortButton').attr('id','lockSortButton');
+    });
+
+
+})
+
+
+</script>

@@ -1,0 +1,80 @@
+{% extends "site_base.html" %}
+{% load thumbnail %}
+{% load filename %}
+<!-- Need to load mathfilters(django-mathfilters) to do do division/multiplication/addition/subtraction in templates -->
+{% load mathfilters %}
+{% load crispy_forms_tags%}
+{% load staticfiles %}
+
+{% block title %}Project Draft - {{block.super}}{% endblock %}
+
+{%block extra_head %} 
+	<head>
+
+
+        <style>
+
+            body {
+                position:relative;
+            }
+
+        </style>
+
+	</head>
+{% endblock %}
+
+
+{% block body %}
+
+
+	<div class='container-fluid'>
+        <div class='row'>
+
+            {% include "project/editor_templates/edit_project_overlay_container.html" %}
+
+            {% include "project/editor_templates/project_edit_container.html" %}
+
+            {% include "project/project_templates/picture_carousel_container.html" %}
+
+            {% include "project/editor_templates/editor_step_list_container.html" %}  
+
+
+        </div>
+
+    </div>
+
+
+          	
+{% endblock %}
+
+
+
+{% block extra_body %}
+
+
+<!-- Slick Carousel Pictures -->
+<script type="text/javascript" src="//cdn.jsdelivr.net/jquery.slick/1.5.7/slick.min.js"></script>
+
+<link rel='stylesheet' type='text/css' href="{%static 'slick/slick.css'%}"/>
+<link rel='stylesheet' type='text/css' href="{%static 'slick/slick-theme.css'%}"/>
+
+<!-- Magnific Popup -->
+<link rel="stylesheet" href="{% static 'magnific-popup/magnific-popup.css' %}"> 
+<script src="{% static 'magnific-popup/jquery.magnific-popup.js' %}"></script>
+
+<script type="text/javascript">
+
+            
+$('.ajax-popup').magnificPopup({
+    type: 'ajax',
+    closeBtnInside:true,
+    closeOnBgClick:false,
+}); 
+
+
+
+
+</script>
+
+
+{% endblock %}

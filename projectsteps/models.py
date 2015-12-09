@@ -81,10 +81,7 @@ class FabricatedComponent(models.Model):
 
 
 class ProjectFile(models.Model):
-    project_file_for_project = models.ForeignKey(
-        Project,
-        blank=True,
-        null=True,)
+    project_file_for_project = models.ForeignKey(Project)
     project_file_for_step = models.ForeignKey(ProjectStep)
 
 

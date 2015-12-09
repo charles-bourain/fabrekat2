@@ -5,26 +5,30 @@
 {% load mathfilters %}
 
 {%block body %}
-<div class='container'>
+<div class='container-fluid'>
     <div class='page-header'>
         <h1>{{user_profile}}</h1>
     </div>
     <div class='panel panel-default'>
         <div class='panel-header'>
-            <h4>My Published Projects</h4>
+            <h3>My Published Projects</h3>
         </div>
 
         <div class='row'>
             {% for project in projects %}
-                <div class='col-md-3'>
+                <div class='col-md-2'>
+                    <a href="{% url 'pub_detail' project.project_link.project_id %}"> 
                     <div class='thumbnail'>
                         {% for image in published_project_images %}
                             {% if image.project_image_for_project == project.project_link %}
-                                    <a href="{% url 'pub_detail' project.project_link.project_id %}"> 
-                                        <img src='{{image.image.url}}' alt=''></a>                                 
+                                        <img src='{{image.image.url}}' alt=''>                                
                             {% endif %}
                         {% endfor %}
+                        <div class='caption'>
+                            {{project.project_link.project_name}}
+                        </div>
                     </div>
+                    </a> 
                 </div>
             {% endfor %}    
         </div>
@@ -32,7 +36,7 @@
 
     <div class='panel panel-default'>
         <div class='panel-header'>
-            <h4>Projects on the Drafting Board</h4>
+            <h3>Projects on the Drafting Board</h3>
         </div>
         <ul>
         {% for project in project_drafts %}

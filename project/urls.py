@@ -17,7 +17,8 @@ urlpatterns=patterns('',
 	url(r'^edit/(?P<project_id>[\w-]+)/delete/$', views.delete_project, name='deleteproject'),
     url(r'^edit/(?P<project_id>[\w-]+)/update_step_order/$', views.update_step_order, name='update_step_order'),
     url(r'^edit/(?P<project_id>[\w-]+)/editstep/(?P<step_id>[\w-]+)/delete_step/$', views.delete_step, name='delete_step'), 
-    url(r'^edit/(?P<project_id>[\w-]+)/editstep/(?P<step_id>[\w-]+)/delete_component/(?P<component_id>[\w-]+)$', views.delete_component, name='delete_component'),   		  
+    url(r'^edit/(?P<project_id>[\w-]+)/editstep/(?P<step_id>[\w-]+)/delete_component/(?P<component_id>[\w-]+)$', views.delete_component, name='delete_component'), 
+    url(r'^edit/(?P<project_id>[\w-]+)/editstep/(?P<step_id>[\w-]+)/delete_file/(?P<file_id>[\w-]+)$', views.delete_file, name='delete_file'),      		  
     # url(r'^revise/(?P<project_id>[\w-]+)/$', views.ReviseProjectView.as_view(), name='reviseproject'),	  	
 	)
 

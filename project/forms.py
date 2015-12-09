@@ -181,11 +181,18 @@ class ProjectFileForm(forms.ModelForm):
 
 	class Meta:
 		model = ProjectFile
-		fields = '__all__'
 		exclude = ['project_file_for_step']
 		required = False
 
-ProjectFileFormSet = inlineformset_factory(ProjectStep, ProjectFile, form = ProjectFileForm, fields = ('project_file',), extra = 1, )
+ProjectFileFormSet = inlineformset_factory(
+	ProjectStep, 
+	ProjectFile, 
+	form = ProjectFileForm, 
+	fk_name = 'project_file_for_step',
+	fields = ('project_file',), 
+	can_delete=True, 
+	extra=1, 
+	)
 
 # ----- End of Project Step Create Forms -----
 

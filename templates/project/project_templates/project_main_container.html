@@ -1,0 +1,70 @@
+{% load thumbnail %}
+{% load filename %}
+<!-- Need to load mathfilters(django-mathfilters) to do do division/multiplication/addition/subtraction in templates -->
+{% load mathfilters %}
+{% load crispy_forms_tags%}
+{% load staticfiles %}
+{% load follow_tags %}
+
+
+{% block extra_head %}
+
+    <style>
+        .landing {
+            display:block;
+            height:85px;
+            margin-top:-85px;
+            visibility: hidden;
+        }
+    </style>
+
+{% endblock %}
+            
+    <div class=' col-md-12 main'>
+        <div class='page-header'>
+            <h1>{{ project.project_name}} <small> Created by {{project.project_creator}}, Created at Time: {{project.project_time_created}} </small></h1>
+            <form method="POST" action="{% project_follow_url published_project_index user%}">
+                {% csrf_token %}
+                {% if user|is_following:published_project_index = True %}
+                    <button class='btn btn-default unfollow' name='_unfollow' type='submit'><span class='glyphicon glyphicon-star'></span></button>
+                {% else %}
+                    <button class='btn btn-default follow' name='_follow' type='submit'><span class='glyphicon glyphicon-star-empty'></span></button>
+                {% endif %}
+                <span class='badge'> {{saved_project_count }}</span>
+            </form>         
+        </div>
+
+
+        <span class='landing' id='projectInformationPanel'></span>                 
+        <div class='panel panel-default'>
+            <div class='panel-heading'>
+                <h4 style='font-size:25px'>
+                Project Information
+                </h4>
+            </div>
+            <div class='panel-body'>
+                <div class='row'>
+                    <div class='well col-lg-6' id='projectDescription'>
+                        {{project.project_description}}
+                    </div>
+                    <div class='col-lg-6'>
+                        {% for catagory in catagory_list %}
+                            {{ catagory }}
+                        {% endfor %}
+                        <ul>
+                            {% if tags %}
+                                {% for tag in tags %}
+                                        <li>#{{ tag.tag }}</li>
+                                {% endfor %}
+                            {% endif %}
+                        </ul>
+
+                    </div>
+
+                </div>
+
+
+            </div>        
+        </div>
+        {% include "project/project_templates/bom_container.html" %}
+

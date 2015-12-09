@@ -1,0 +1,40 @@
+{% load thumbnail %}
+{% load filename %}
+<!-- Need to load mathfilters(django-mathfilters) to do do division/multiplication/addition/subtraction in templates -->
+{% load mathfilters %}
+{% load crispy_forms_tags%}
+{% load staticfiles %}
+
+
+            
+    <div class=' col-md-10 main'>
+        <div class='page-header'>
+            <h1>Let's Build Your Project</h1>   
+        </div> 
+        <span class='landing' id='projectInformationPanel'></span>                 
+        <div class='panel panel-default'>
+            <div class='panel-heading'>
+                <h4 style='font-size:25px'>
+                Project Information
+                </h4>
+            </div>
+            
+            <div class='panel-body'>
+                <div class='row'>
+                    {% crispy form %}
+                    <form enctype="multipart/form-data" method='POST' action="" name = '_addcat'>
+                        {% crispy catagory_form catagory_formset_helper %}
+                        <input type="submit" value="Add Catagory" class = 'btn btn-primary' name='_addcat'>
+                    </form>  
+                    {%crispy tag_form %}
+                    <ul>
+                        {% if tags %}
+                            {% for tag in tags %}
+                                    <li>#{{ tag.tag }} <form method='post'>{% csrf_token %}<input type="submit" value="Remove Tag: {{ tag.tag }}" name = '_remove_tag_{{ tag.id }}'> </li></form>
+                            {% endfor %}
+                        {% endif %}
+                    </ul> 
+                </div>          
+            </div>        
+        </div>
+        {% include "project/project_templates/bom_container.html" %}

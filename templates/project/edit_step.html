@@ -28,9 +28,32 @@
         height:45px;
         margin-left:5px;
     }
+    
+    .mediaButton {
+        width:30%;
+    }
+
+    #mediaButtonContainer {
+        height:100%;
+    }  
+
+    .mediaButtonGlyph {
+        font-size:25px;
+    }      
+
+    .hiddenMedia {
+        display: none;
+    }
+
+    .activeMedia {
+    }
+
 
 
     </style>
+
+
+    
     <!-- Magnific Popup -->
     <link rel="stylesheet" href="{% static 'magnific-popup/magnific-popup.css' %}"> 
     <script src="{% static 'magnific-popup/jquery.magnific-popup.js' %}"></script>   
@@ -43,7 +66,18 @@
             closeOnBgClick:false,
         });  
 
-        $('#stepPostForm').on('submit', function(event) {
+        $(document).ready(function() {
+            $(".stepImage").magnificPopup({
+            type:'image',
+            zoom:{
+                enabled:true,
+            }
+            });
+        })
+       
+
+
+        $('#stepPostForm_{{step}}').on('submit', function(event) {
             formdata = new FormData($(this).get(0));
             event.preventDefault();
             $.ajax({
@@ -82,6 +116,28 @@
             $('#id_purchasedcomponent_set-TOTAL_FORMS').val(parseInt(form_idx)+1);
         });
 
+    $('.mediaButton').on('click', function(){
+       
+        var currentMedia = $('.activeMedia');
+        var desiredMediaButton = $(this);
+            if (desiredMediaButton.attr('id') =='videoButton'){
+                var desiredMedia = $('#videoMedia');
+            } else {
+                var desiredMedia = $('#pictureMedia');
+            }
+            toggleMedia(currentMedia, desiredMedia);
+    })
+
+    function toggleMedia(currentMedia, desiredMedia) {
+        if (currentMedia == desiredMedia) {
+        } else {
+            currentMedia.removeClass('activeMedia');
+            desiredMedia.addClass('activeMedia');
+            currentMedia.addClass('hiddenMedia');
+            desiredMedia.removeClass('hiddenMedia');
+        }
+        }        
+
 
     </script>
 
@@ -99,24 +155,55 @@
                     <span class='glyphicon glyphicon-trash' style='color:black;'></span>
                 </button>
             </a>
-            <button type='submit' form='stepPostForm' class='btn btn-lg pull-right editControlButton'>
+            <button type='submit' form='stepPostForm_{{step}}' class='btn btn-lg pull-right editControlButton'>
                 <span class='glyphicon glyphicon-floppy-disk' style='color:black;'></span>
             </button>            
             <h4 style='font-size:25px'>
                 Step {{step_order}}
             </h4>                        
         </div>
-        <form enctype="multipart/form-data" method='POST' action="" id='stepPostForm'>
+        <form enctype="multipart/form-data" method='POST' action="" id='stepPostForm_{{step}}'>
         <div class='panel-body' id='stepPanelBody'>
             {% csrf_token %}
             <div class='row'>
                 <div class='col-md-6'>
                         {% crispy description_form %}
                 </div>
-                        <div class='thumbnail col-md-6' id='stepThumbnail'>
-                            {% if step_image_url %}<img src="{{step_image_url}}" alt="">{%endif%}
-                            <a href='{% url "media_upload_view" project_id=project_id step_id=step %}' class = 'ajax-popup btn btn-default' role='button'>{% if step_image_url %}Change Media{% else %} Upload Image {%endif%}</a>
+                <div class='thumbnail col-md-6'>
+                    {% if step_image_url %}
+                        <a class='stepImage activeMedia' href='{{step_image_url}}' id='pictureMedia'><img src="{{step_image_url}}" alt=""></a>
+                    {% endif %}
+                    {% if step_video_url and step_image_url%}
+                        <div class='embed-responsive embed-responsive-16by9 hiddenMedia' id='videoMedia'>
+                            <iframe class='embed-responsive-item' src='{{step_video_url}}'></iframe>
                         </div>
+                    {% elif step_video_url %}
+                        <div class='embed-responsive embed-responsive-16by9 activeMedia' id='videoMedia'>
+                            <iframe class='embed-responsive-item' src='{{step_video_url}}'></iframe>
+                        </div>                    
+                    {% endif %}
+
+                    <div id='mediaButtonContainer'>
+                        {% if step_image_url and step_video_url%}
+                        <span>
+                            <button class='btn btn-default mediaButton' id='pictureButton' style='float:right' type='button'>
+                                <span class='mediaButtonGlyph glyphicon glyphicon-camera'></span>
+                            </button>
+                        </span>
+                        {% endif %}
+                        {% if step_video_url and step_image_url %}
+                        <span>
+                            <button class='btn btn-default mediaButton' style='float:right' id='videoButton' type='button'>
+                                <span class='mediaButtonGlyph glyphicon glyphicon-facetime-video'></span>
+                            </button>
+                        </span>
+                        {% endif %}
+                            <a href='{% url "media_upload_view" project_id=project_id step_id=step %}' style='float:left' class = 'ajax-popup btn btn-default' role='button'>{% if step_image_url or step_video_url %}Change Media{% else %} Use an Image or Video {%endif%}</a>                        
+                    </div>
+                </div>
+
+
+
             </div>
 
 <!-- Custom Crispy Form for Purchased Components -->
@@ -193,16 +280,15 @@
 
 
                 <div>
-                    {% for file in projectfile %}
-                        {% if file.project_file_for_step == step.step %}
-                            File:<a href="{{ file.project_file.url }}" download > {{file.project_file|filename}} </a>
-                        {% endif %}             
-                    {% endfor %}
+                    {% if projectfile %}
+                        {% for file in projectfile %}
+                                File:<a href="{{ file.project_file.url }}" download > {{file.project_file|filename}} </a>
+                                <a href='{% url "delete_file" project_id=project_id step_id=step file_id=file.id %}'>DELETE</a>           
+                        {% endfor %}
+                    {% endif %}
                     {% crispy projectfile_formset formset_helper %} 
+                    
                 </div>
-        </form>
-        </div>
-        {% for component in purchasedcomponent %}
-        {% endfor %}       
+        </form>   
     </div>
 

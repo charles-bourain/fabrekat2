@@ -79,7 +79,7 @@ class ProjectCreateView(LoginRequiredMixin, CreateView):
         )
 
 class ProjectDetailView(TemplateView):
-    template_name = 'project/pub_detail.html'
+    template_name = 'project/published_project_view.html'
 
     def get_context_data(self, **kwargs):
         user_id = self.request.user.id
@@ -146,7 +146,7 @@ class ProjectDetailView(TemplateView):
 
 
 class StepView(TemplateView):
-    template_name = 'project/step.html'
+    template_name = 'project/project_templates/step.html'
 
     def get_context_data(self, **kwargs):
         user_id = self.request.user.id
@@ -166,7 +166,7 @@ class StepView(TemplateView):
 
 
 class PublishProjectDetailView(ProjectDetailView):
-    template_name = 'project/pub_detail.html'
+    template_name = 'project/published_project_view.html'
     
     def get_context_data(self, *args, **kwargs):
         context = super(PublishProjectDetailView, self).get_context_data(**kwargs)      
@@ -191,7 +191,6 @@ class StepEditView(LoginRequiredMixin, UpdateView):
         return obj
 
     def get(self, request, *args, **kwargs):
-        print 'STEP GET'
         step_id = request.GET.get('stepid')
         user_id = request.user.id
 
@@ -205,6 +204,10 @@ class StepEditView(LoginRequiredMixin, UpdateView):
         # project index is what will track associated objects (Steps, Components, IMages etc..)
         project_index = project.id 
         creator_id = project.project_creator.id
+
+        projectfile = ProjectFile.objects.filter(
+            project_file_for_step = edited_step,
+            )
 
         #Can Redo this as a decorator......
         if user_id != creator_id:
@@ -233,6 +236,7 @@ class StepEditView(LoginRequiredMixin, UpdateView):
             fabricated_component_formset_helper = FabricatedComponentFormsetHelper
             return self.render_to_response(
                 self.get_context_data(
+                projectfile = projectfile,    
                 step = edited_step.id,
                 step_order = step_order.order,
                 step_image_url = step_image_url,
@@ -256,6 +260,7 @@ class StepEditView(LoginRequiredMixin, UpdateView):
         purchasedcomponent_formset = PurchasedComponentFormSet(self.request.POST, instance=self.object)  
         # fabricatedcomponent_formset = FabricatedComponentFormSet(self.request.POST, instance=self.object)
         projectfile_formset = ProjectFileFormSet(self.request.POST, self.request.FILES, instance=self.object)
+        print description_form.is_valid(), purchasedcomponent_formset.is_valid(), projectfile_formset.is_valid()
         if (
             description_form.is_valid()
             and  purchasedcomponent_formset.is_valid()
@@ -272,12 +277,14 @@ class StepEditView(LoginRequiredMixin, UpdateView):
 
 
     def form_valid(self, description_form, purchasedcomponent_formset, projectfile_formset):
-        print 'FORM IS VALID, POSTING...'
-        print self.request.POST
-        print self.request.FILES
+        print 'form valid'
         description_form.save()
+        project_id = self.kwargs['project_id']
+        project = Project.objects.get(project_id = project_id)
         purchaseform = purchasedcomponent_formset.save(commit = False)
-        projectfileform = projectfile_formset[0].save(commit=False)
+        projectfileform = projectfile_formset.save(commit=False)
+        for afile in projectfileform:
+            afile.save()
 
         if purchaseform:
             product = get_product(   #ASSIGN ALL NEEDED VALUES
@@ -287,11 +294,9 @@ class StepEditView(LoginRequiredMixin, UpdateView):
                 )
             purchaseform[0].product = product
             purchaseform[0].save()
-
-        projectfileform.save()
+            
         self.object = self.get_object()
-        project_id = self.kwargs['project_id']
-        project = Project.objects.get(project_id = project_id)
+        
         self.object.step_for_project = project
         self.object = description_form.save()
 
@@ -435,7 +440,7 @@ class ImageCreateView(LoginRequiredMixin, CreateView):
         self.object.project_image_for_project = project
         self.object = form.save()
 
-        return HttpResponse('/project/edit/%s' % project_id)
+        return HttpResponseRedirect('/project/edit/%s' % project_id)
 
 
     def form_invalid(self, form):
@@ -450,7 +455,7 @@ class ImageCreateView(LoginRequiredMixin, CreateView):
 
 
 class EditProjectView(UpdateView, LoginRequiredMixin, ProjectDetailView):
-    template_name = 'project/edit.html'
+    template_name = 'project/edit_view.html'
     model=Project
     form_class=ProjectEditForm
     second_form_class=TagForm
@@ -557,7 +562,6 @@ class EditProjectView(UpdateView, LoginRequiredMixin, ProjectDetailView):
             )
         )
 
-@login_required
 def update_step_order(request, project_id):
     #Posts a Querydict from jQuery function that includes the new step order decided from user.  
     #the list index is the desired order, the values in the list is the old values.
@@ -577,7 +581,6 @@ def update_step_order(request, project_id):
                     break
     return HttpResponseRedirect(reverse('prj_edit', args=[project_id])) 
 
-@login_required
 def delete_step(request, project_id, step_id):
     step=get_object_or_404(ProjectStep, id=step_id)
     step_order=get_object_or_404(StepOrder, step=step)
@@ -589,7 +592,7 @@ def delete_step(request, project_id, step_id):
     adjust_order_for_deleted_step(step_order, step_order_list)
     return HttpResponseRedirect('/project/edit/%s' % project.project_id)
 
-@login_required
+
 def delete_component(request, project_id, step_id, component_id):
     print 'DELTING COMPONENT.....'
     component = get_object_or_404(PurchasedComponent, id=component_id)
@@ -597,6 +600,17 @@ def delete_component(request, project_id, step_id, component_id):
     print 'Is Ajax? ', request.is_ajax()
     if request.is_ajax():
         return HttpResponse('Success')
+
+def delete_file(request, project_id, step_id, file_id):
+    print 'DELTING steop file'
+    deleted_file = get_object_or_404(ProjectFile, id=file_id)
+    step = get_object_or_404(ProjectStep, id=step_id)
+    deleted_file.delete()
+    print 'Is Ajax? ', request.is_ajax()
+    if request.is_ajax():
+        return HttpResponse('Success') 
+    else:
+        HttpResponseRedirect('/project/edit/%s' % project.project_id)       
 
 
 

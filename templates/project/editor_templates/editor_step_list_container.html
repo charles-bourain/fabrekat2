@@ -1,0 +1,11 @@
+
+<div class='stepContainer'>
+    {% if projectstep %}
+        {% for step in projectstep %}
+            <span class='landing' id='step{{step.order}}'></span>
+            <div id='stepPanel_{{step.step.id}}'>
+                {% include "project/editor_templates/editor_step_wrapper.html" %}
+            </div>
+        {% endfor %}
+    {% endif %}  
+</div>

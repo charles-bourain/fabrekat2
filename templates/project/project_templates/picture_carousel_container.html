@@ -1,0 +1,59 @@
+{% load staticfiles %}
+{% block extra_head %}
+
+    <style>
+        .pictureRoll {
+            max-width:95%;
+        }
+
+        .slideProjectThumb {
+            max-height:200px;
+            max-width:95%;
+            margin-left:auto;
+            margin-right:auto;
+        }
+
+        
+    </style>
+
+        <!-- Magnific Popup -->
+    <link rel="stylesheet" href="{% static 'magnific-popup/magnific-popup.css' %}"> 
+    <script src="{% static 'magnific-popup/jquery.magnific-popup.js' %}"></script>
+
+    <script>
+
+
+        $(document).ready(function(){
+          $('.pictureRoll').slick({
+            speed:300,
+            infinite:false,
+            variableWidth:true,
+            focusOnSelect:true,
+            centerMode: true,
+            arrows:false,
+          });
+
+          $(".slideProjectImageAnchor").magnificPopup({
+            type:'image',
+            gallery:{
+                enabled:true,
+            },
+        });
+
+        });
+    </script>
+
+
+{% endblock %}
+
+
+
+    
+
+{% if projectimage %}
+    <div class='pictureRoll'>
+        {% for image in projectimage %}
+            <a class='slideProjectImageAnchor' href='{{image.image.url}}'><img class='slideProjectThumb'src='{{image.image.url}}'></a>
+        {% endfor %}
+    </div>
+{% endif %}   

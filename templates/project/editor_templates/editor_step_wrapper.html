@@ -1,0 +1,44 @@
+{% load thumbnail %}
+{% load filename %}
+<!-- Need to load mathfilters(django-mathfilters) to do do division/multiplication/addition/subtraction in templates -->
+{% load mathfilters %}
+{% load crispy_forms_tags%}
+{% load staticfiles %}
+
+
+{% block extra_head %}
+
+<script>
+$(document).ready(function(){
+
+
+    $('.stepPanelHeading').on('click', function() {
+        if ($('#activeEdit').length == 0) {
+            $('#stepPanel_'+$(this).data("step-id")).load('{% url "load_edit_step" project_id %}'+'?'+$.param({stepid: $(this).data("step-id") }));
+        } else {
+            $('html, body').animate({
+                scrollTop: $('#activeEditLanding').offset().top,
+            }, 200); 
+            $('#activeEdit').effect('shake');       
+        }
+        })                           
+
+    $('.stepPanelHeading').hover(function() {
+        $(this).css('cursor','pointer');
+        $(this).css('background','orange');
+        $(this).find('.editSpan').removeClass('hidden');
+    },
+    function() {
+        $(this).css('background','');
+        $(this).find('.editSpan').addClass('hidden');
+    });
+    
+
+})
+</script>
+
+{% endblock %}
+
+
+{% include "project/project_templates/step.html"%}
+

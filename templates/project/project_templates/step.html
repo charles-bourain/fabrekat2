@@ -1,0 +1,176 @@
+{% load thumbnail %}
+{% load filename %}
+<!-- Need to load mathfilters(django-mathfilters) to do do division/multiplication/addition/subtraction in templates -->
+{% load mathfilters %}
+{% load staticfiles %}
+
+{% block extra_head %} 
+
+    <style>
+
+        .wellStepDescription {
+            min-height: 100%;
+        }
+
+        .editSpan {
+            font-size:40px;
+        }
+
+        .mediaButton{{step.id}} {
+            width:49.5%;
+        }
+
+        #mediaButtonContainer {
+            height:100%;
+        }  
+
+        .mediaButtonGlyph {
+            font-size:25px;
+        }      
+
+        .hiddenMedia{{step.id}} {
+            display: none;
+        }
+
+        .activeMedia{{step.id}} {
+        }
+    
+
+
+    </style>
+
+{% endblock %}
+
+
+<div class='panel panel-default stepPanel' id='stepPanel_{{step.step.id}}'>
+    <div class='panel-heading stepPanelHeading' data-step-id='{{step.step.id}}'> 
+        <span class='editSpan hidden glyphicon glyphicon-wrench pull-right' aria-hidden='true'></span>
+        <h4 style='font-size:25px'>
+            Step {{step.order}}
+        </h4>                        
+    </div>
+    <div class='panel-body' id='stepPanelBody'>
+            <div class='row'>
+                <div class='col-md-6'>
+                        {{ step.step.project_step_description }}
+                </div>
+                <div class='thumbnail col-md-6'>
+                    {% if step.step.project_step_image %}
+                        <a class='stepImage activeMedia{{step.id}}' href='{{step.step.project_step_image.url}}' id='pictureMedia{{step.id}}'><img src="{{step.step.project_step_image.url}}" alt=""></a>
+                    {% endif %}
+                    {% if step.step.project_step_video and step.step.project_step_image%}
+                        <div class='embed-responsive embed-responsive-16by9 hiddenMedia{{step.id}}' id='videoMedia{{step.id}}'>
+                            <iframe class='embed-responsive-item' src='{{step.step.project_step_video}}'></iframe>
+                        </div>
+                    {% elif step.step.project_step_video %}
+                        <div class='embed-responsive embed-responsive-16by9 activeMedia{{step.id}}' id='videoMedia{{step.id}}'>
+                            <iframe class='embed-responsive-item' src='{{step.step.project_step_video}}'></iframe>
+                        </div>                    
+                    {% endif %}
+
+                    <div id='mediaButtonContainer'>
+                        {% if step.step.project_step_image and step.step.project_step_video%}
+                        <span>
+                            <button class='btn btn-default mediaButton{{step.id}} pictureButton' id='pictureButton{{step.id}}'>
+                                <span class='mediaButtonGlyph glyphicon glyphicon-camera'></span>
+                            </button>
+                        </span>
+                        {% endif %}
+                        {% if step.step.project_step_video and step.step.project_step_image %}
+                        <span>
+                            <button class='btn btn-default mediaButton{{step.id}} videoButton' style='float:right' id='videoButton{{step.id}}'>
+                                <span class='mediaButtonGlyph glyphicon glyphicon-facetime-video'></span>
+                            </button>
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        <table class='table table-striped'>
+            <thead>
+                <tr>
+                    <th>Component</th>
+                    <th>Price</th>
+                    <th>Quanitity</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for component in purchasedcomponent %}
+                    {% if component.purchased_component_for_step == step.step %}
+                        <tr>
+                            <td><a href="{{component.product.url}}">{{component.product.name}}</a></td>
+                            <td>${{component.product.price|div:100}}</td>
+                            <td><span class='badge'>{{component.purchased_component_quantity}}</span></td>
+                        </tr>  
+                               
+                    {% endif %}         
+                {% endfor %} 
+                {% for component in fabricatedcomponent %}
+                    {% if component.fabricated_component_for_step == step.step %}
+                        <tr>
+                            <td><a href="/project/{{component.fabricated_component_from_project.project_link.project_id}}">{{component.fabricated_component_from_project.project_link.project_name}} </a></td>
+                            <td></td>
+                            <td><span class='badge'>{{component.fabricated_component_quantity}}</span></td>
+                        </tr>
+                    {% endif %}         
+                {% endfor %}
+            </tbody>
+        </table>
+            <div>
+                    {% for file in projectfile %}
+                        {% if file.project_file_for_step == step.step %}
+                            {% if file.project_file %}
+                                File:<a href="{{ file.project_file.url }}" download > {{file.project_file|filename}} </a>
+                            {% endif %}
+                        {% endif %}             
+                    {% endfor %}
+            </div>
+        </div>
+    </div>       
+
+{% block extra_body %}
+
+    <!-- Magnific Popup -->
+<link rel="stylesheet" href="{% static 'magnific-popup/magnific-popup.css' %}"> 
+<script src="{% static 'magnific-popup/jquery.magnific-popup.js' %}"></script>
+
+<script type="text/javascript">
+
+
+$(document).ready(function() {
+    $(".stepImage").magnificPopup({
+    type:'image',
+    zoom:{
+        enabled:true,
+    }
+    });
+})
+
+
+
+$('.mediaButton{{step.id}}').on('click', function(){
+   
+    var currentMedia = $('.activeMedia{{step.id}}');
+    var desiredMediaButton = $(this);
+        if (desiredMediaButton.attr('id') =='videoButton{{step.id}}'){
+            var desiredMedia = $('#videoMedia{{step.id}}');
+        } else {
+            var desiredMedia = $('#pictureMedia{{step.id}}');
+        }
+        toggleMedia(currentMedia, desiredMedia);
+})
+
+function toggleMedia(currentMedia, desiredMedia) {
+    if (currentMedia == desiredMedia) {
+    } else {
+        currentMedia.removeClass('activeMedia{{step.id}}');
+        desiredMedia.addClass('activeMedia{{step.id}}');
+        currentMedia.addClass('hiddenMedia{{step.id}}');
+        desiredMedia.removeClass('hiddenMedia{{step.id}}');
+    }
+    }
+
+</script>
+
+{% endblock %}
+

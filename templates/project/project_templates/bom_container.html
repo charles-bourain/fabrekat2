@@ -1,0 +1,41 @@
+{% if purchasedcomponent %}
+    {% load mathfilters %}
+
+    <span class='landing' id='billOfMaterialsLander'></span>
+    <div class='panel panel-default'>
+        <div class='panel-heading'>
+            <h4 style='font-size:25px'>
+            Bill of Materials
+            </h4>
+        </div>
+        <div class='panel-body'>
+            <table class='table table-striped'>
+                <thead>
+                    <tr>
+                        <th>Component</th>
+                        <th>Price</th>
+                        <th>Quanitity</th>
+                    </tr>
+                </thead>
+                <tbody>  
+                    {% for component in purchasedcomponent %}
+                        <tr>
+                            <td><a href="{{component.product.url}}">{{component.product.name}}</a></td>
+                            <td>${{component.product.price|div:100}}</td>
+                            <td><span class='badge'>{{component.purchased_component_quantity}}</span></td>
+                        </tr>
+                    {% endfor %}
+                        <tr>
+                            <td>Total Cost</td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+
+                </tbody>
+            </table>                      
+        </div>  
+        <div class='panel-footer'>
+            <h4>Total Cost: ${{total_component_cost|div:100}}</h4>
+        </div>  
+    </div>
+{% endif %}
