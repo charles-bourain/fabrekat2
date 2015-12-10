@@ -40,7 +40,6 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 )
 
 
-
 MIDDLEWARE_CLASSES = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',

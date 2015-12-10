@@ -7,8 +7,11 @@ DEBUG = False
 TEMPLATE_DEBUG = False
 
 # Parse database configuration from $DATABASE_URL
+
 import dj_database_url
-DATABASES['default'] =  dj_database_url.config()
+DATABASES = {
+    "default": dj_database_url.config(default='postgres://localhost'),
+}
 
 # Honor the 'X-Forwarded-Proto' header for request.is_secure()
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
@@ -25,6 +28,24 @@ ALLOWED_HOSTS = ['*']
 # STATICFILES_DIRS = (
 #     os.path.join(BASE_DIR, 'static'),
 # )
+
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "level": "INFO",
+            "class": "logging.StreamHandler",
+        },
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["console"],
+        }
+    }
+}
+
 
 MANDRILL_API_KEY = "3rxHtBbmRLBbLi4EgazU-A"
 EMAIL_BACKEND = "djrill.mail.backends.djrill.DjrillBackend"
@@ -43,7 +64,6 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'jquery',
     'project',
-    'account',
     'pinax_theme_bootstrap',
     'bootstrapform',
     'haystack',
@@ -54,8 +74,15 @@ INSTALLED_APPS = (
     'easy_thumbnails',
     'publishedprojects',
     'projectpricer',
-    'projectcatagories',
+    'projecttags',
+    'debug_toolbar',
+    'bottlenose',
     'mathfilters',
-    'bottlenose',    
+    'registration',
+    'designprofiles',
+    'projectsteps',
+    'widget_tweaks',
+    'crispy_forms',
     'djrill',
+    'herokuapp',
 )
