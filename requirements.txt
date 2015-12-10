@@ -28,10 +28,8 @@ easy-thumbnails==2.2
 imagestore==2.9.1
 lxml==3.4.4
 markdown2==2.3.0
-Pillow==2.2.1
 pinax-theme-bootstrap==5.7.1
 psycopg2==2.6
-pygeoip==0.3.2
 pyreadline==2.0
 pytz==2014.10
 requests==2.7.0
