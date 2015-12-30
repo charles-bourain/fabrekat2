@@ -40,3 +40,5 @@ sorl-thumbnail==12.2
 sqlparse==0.1.15
 static3==0.6.1
 swapper==0.2.1
+waitress==0.8.10
+whitenoise==2.0.6
