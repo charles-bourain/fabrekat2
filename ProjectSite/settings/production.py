@@ -4,7 +4,8 @@ from django.conf import settings
 DATABASES = settings.DATABASES
 
 import os
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+# BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 
 DEBUG = False
 TEMPLATE_DEBUG = False
