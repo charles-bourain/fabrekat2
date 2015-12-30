@@ -10,6 +10,7 @@ https://docs.djangoproject.com/en/1.7/ref/settings/
 import os
 import dj_database_url
 # from urlparse import urlparse
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 
 
 # Quick-start development settings - unsuitable for production
@@ -105,10 +106,6 @@ USE_TZ = True
 TEMPLATE_DIRS=(
     os.path.join(BASE_DIR, 'templates'),
     )
-
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-MEDIA_URL = '/media/'
-LOGIN_URL = '/account/login/'
 
 ACCOUNT_CREATE_ON_SAVE = False
 
