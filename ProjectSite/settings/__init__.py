@@ -10,3 +10,5 @@ except:
 if live:
 	print live
 	from .production import *
+
+print 'LIVE = ', live

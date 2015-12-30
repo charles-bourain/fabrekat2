@@ -23,6 +23,10 @@ SECRET_KEY = 'ax#kf7xmh^=d!$r01)$wk0$$9_5(!cb)=_+uiv5ym!g_r_ybml'
 
 ALLOWED_HOSTS = []
 
+DEBUG = True
+
+TEMPLATE_DEBUG = True
+
 SITE_ID = 1
 
 # Application definition
