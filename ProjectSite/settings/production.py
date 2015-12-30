@@ -10,7 +10,7 @@ TEMPLATE_DEBUG = False
 
 import dj_database_url
 DATABASES = {
-    "default": dj_database_url.config(default='postgres://localhost'),
+    "default": dj_database_url.config(),
 }
 
 DATABASES['default']['CONN_MAX_AGE'] = 500
@@ -102,4 +102,5 @@ STATICFILES_DIRS = (
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
+
 LOGIN_URL = '/account/login/'
