@@ -3,6 +3,9 @@ from django.conf import settings
 
 DATABASES = settings.DATABASES
 
+import os
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 DEBUG = False
 TEMPLATE_DEBUG = False
 
@@ -26,8 +29,6 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 ALLOWED_HOSTS = ['*']
 
 # Static asset configuration
-import os
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 STATIC_ROOT = 'staticfiles'
 STATIC_URL = '/static/'
 
@@ -56,6 +57,16 @@ LOGGING = {
 MANDRILL_API_KEY = "3rxHtBbmRLBbLi4EgazU-A"
 EMAIL_BACKEND = "djrill.mail.backends.djrill.DjrillBackend"
 DEFAULT_FROM_EMAIL = "webmaster@fabrekat.com"
+
+
+TEMPLATE_DIRS=(
+    os.path.join(BASE_DIR, 'templates'),
+    )
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
+LOGIN_URL = '/account/login/'
+
 
 INSTALLED_APPS = (
     'admin_tools.theming',
