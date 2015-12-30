@@ -19,9 +19,6 @@ class ProjectStepOrderInline(admin.TabularInline):
 class ProjectImageInline(admin.TabularInline):
 	model = ProjectImage	
 
-class ProjectCatagoryInline(admin.TabularInline):
-	model = Catagory
-
 
 
 class ProjectAdmin (admin.ModelAdmin):
@@ -29,10 +26,10 @@ class ProjectAdmin (admin.ModelAdmin):
 	FabricatedComponentInline,
 	ProjectStepOrderInline,
 	ProjectImageInline,
-	ProjectCatagoryInline
 	]
 
 # Register your models here. 
 admin.site.register(Project, ProjectAdmin)
 admin.site.register(PurchasedComponent)
 admin.site.register(FabricatedComponent)
+admin.site.register(Catagory)

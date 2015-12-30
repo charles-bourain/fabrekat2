@@ -1,0 +1,31 @@
+<div class='panel panel-default'>
+    <div class='panel-header'>
+        <h4> Projects in Progress </h4>
+    </div>
+    <div class='panel-body'>
+        {%for project in in_work_projects %}
+            <div class='col-md-4'>
+                <a href="{% url 'pub_detail' project.project_link.project_id %}">{{project.project_link.project_name}}
+                    <div class='thumbnail'>
+                        <img src='{{in_work_project_images_dict|get_item:project}}' alt=''>
+                        <div class='caption'>
+
+                            <div class="progress">
+                                <div 
+                                    class="progress-bar" 
+                                    role="progressbar" 
+                                    aria-valuenow="50" 
+                                    aria-valuemin="0" 
+                                    aria-valuemax="100" 
+                                    style="width: {{ project_percent_complete|get_item:project }}%;"
+                                    >
+                                    {{ project_percent_complete|get_item:project }}%
+                                </div>
+                            </div>                            
+                        </div>
+                    </div>
+                </a>
+            </div>   
+        {% endfor %}   
+    </div>       
+</div>

@@ -7,10 +7,10 @@ from django.core.urlresolvers import reverse
 from project.models import Project, ProjectImage, Catagory
 from projectsteps.models import PurchasedComponent, FabricatedComponent, ProjectFile, ProjectStep, StepOrder
 from django.views.generic import CreateView, UpdateView, TemplateView
-from project.forms import ProjectForm, ProjectImageForm, ReOrderStepForm, TagForm, CatagoryForm, ProjectEditForm
+from project.forms import ProjectForm, ProjectImageForm, ReOrderStepForm, TagForm, ProjectEditForm
 from project.forms import ProjectStepDescriptionForm, ProjectStepVideoForm, ProjectStepImageForm
-from project.forms import   PurchasedComponentFormSet, FabricatedComponentFormSet, ProjectFileFormSet, CatagoryFormSet
-from project.forms import FormSetHelper, CatagoryFormSetHelper, PurchasedComponentFormsetHelper, FabricatedComponentFormsetHelper
+from project.forms import   PurchasedComponentFormSet, FabricatedComponentFormSet, ProjectFileFormSet
+from project.forms import FormSetHelper, PurchasedComponentFormsetHelper, FabricatedComponentFormsetHelper
 from .mixins import LoginRequiredMixin
 from publishedprojects.models import PublishedProject
 from publishedprojects.views import publish_project
@@ -23,6 +23,7 @@ from projecttags.views import tag_assign, tag_remove
 from .utils import get_project_id, is_project_published, move_step_up, move_step_down, is_user_project_creator, adjust_order_for_deleted_step, delete_project
 from django import forms
 import autocomplete_light
+from designprofiles.models import WorkingStepOrder
 
 
 #Assigns Project id to a project.  This will be uniquie and show in URL.
@@ -120,7 +121,7 @@ class ProjectDetailView(TemplateView):
                 )
             )
 
-            #Tag Handling
+        #Tag Handling
         tags = ProjectTag.objects.filter(tag_for_project = project_index)
         total_component_cost = 0
         for component in purchasedcomponent:
@@ -152,17 +153,30 @@ class StepView(TemplateView):
         user_id = self.request.user.id
         context = super(StepView, self).get_context_data(**kwargs)   
         project=get_object_or_404(Project, project_id=kwargs['project_id'])
-        step_order = get_object_or_404(StepOrder, step = kwargs['step_id'], step_order_for_project=project)
+        step_order = get_object_or_404(StepOrder, id = kwargs['step_id'], step_order_for_project=project)
         context['step'] = step_order
-
         context['purchasedcomponent'] =PurchasedComponent.objects.filter(purchased_component_for_step = step_order.step)
-
         context['fabricatedcomponent'] =FabricatedComponent.objects.filter(fabricated_component_for_step = step_order.step)
-
-        context['projectfile']  = ProjectFile.objects.filter(project_file_for_step = step_order.step)
+        context['projectfile']  = ProjectFile.objects.filter(project_file_for_step = step_order.step)     
 
         return context
 
+
+class InWorkStepView(StepView):
+    template_name = 'project/project_templates/step_in_work_step_wrapper.html'
+    def get_context_data(self, *args,**kwargs):
+        context = super(InWorkStepView, self).get_context_data(*args, **kwargs)
+        project = get_object_or_404(PublishedProject, project_slug_id=kwargs['project_id'])
+        working_step = WorkingStepOrder.objects.get(user = self.request.user, steporder=context['step'], project=project)
+        context['single_step_load'] = True
+        context['single_step_load_is_complete'] = working_step.complete
+        context['published_project'] = project
+        return context
+
+
+
+class EditorStepView(StepView):
+    template_name = 'project/editor_templates/editor_step_wrapper.html'
 
 
 class PublishProjectDetailView(ProjectDetailView):
@@ -173,8 +187,25 @@ class PublishProjectDetailView(ProjectDetailView):
         unpub_project_index = context['project']
         project = PublishedProject.objects.get(project_link = unpub_project_index)
         saved_project_count = len(Follow.objects.get_follows(project))
+        working_step_order = False
+        try:
+            working_step_order = WorkingStepOrder.objects.filter(project = project, user = self.request.user)
+        except:
+            pass
+
+
+        if working_step_order and working_step_order[0].in_work:
+            context['project_in_work_by_user'] = True
+            context['working_step_order'] = working_step_order
+            is_step_complete_dict={}
+            for wso in working_step_order:
+                is_step_complete_dict[wso.steporder] = wso.complete
+            context['is_step_complete_dict'] = is_step_complete_dict
+        else:
+            context['project_in_work_by_user'] = False
+
         context['saved_project_count'] = saved_project_count
-        context['published_project_index'] = project
+        context['published_project'] = project
         return context
 
 
@@ -458,8 +489,6 @@ class EditProjectView(UpdateView, LoginRequiredMixin, ProjectDetailView):
     template_name = 'project/edit_view.html'
     model=Project
     form_class=ProjectEditForm
-    second_form_class=TagForm
-    third_form_class=CatagoryForm
 
     def get_object(self, queryset=None):
         obj = Project.objects.get(project_id=self.kwargs['project_id'])
@@ -471,28 +500,23 @@ class EditProjectView(UpdateView, LoginRequiredMixin, ProjectDetailView):
         self.object=self.get_object()
         context['form']=ProjectEditForm(instance=self.object)
         context['tag_form']=TagForm(instance=self.object)
-        context['catagory_form']=CatagoryFormSet(instance=self.object)
         context['formset_helper'] = FormSetHelper
-        context['catagory_formset_helper'] = CatagoryFormSetHelper
-        print context['tags']
 
         return context
 
     def post(self, request, *args, **kwargs):
-        print 'PROJECT VIEW WAS POSTED'
         context = self.get_context_data()
         step_list = context['projectstep']
         self.object = self.get_object()
         project = self.object 
         if '_save' in request.POST:
-            form = ProjectEditForm(request.POST, instance = self.object) 
+            form = ProjectEditForm(request.POST, instance = self.object)
             if form.is_valid():
                 form.save()
         elif '_addtag' in request.POST:
             tag_assign(self.object,TagForm(request.POST))
             return HttpResponseRedirect('/project/edit/%s' % project.project_id)
-        elif '_addcat' in request.POST:
-            form=CatagoryFormSet(request.POST, instance=self.object)                   
+                            
             
         elif '_publish' in request.POST:
             publish_project(project, request)
@@ -549,6 +573,7 @@ class EditProjectView(UpdateView, LoginRequiredMixin, ProjectDetailView):
 
     def form_valid(self, form):
         form.save()
+
         return self.render_to_response(
             self.get_context_data(
                 form=form,

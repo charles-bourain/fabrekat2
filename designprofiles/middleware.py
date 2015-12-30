@@ -58,6 +58,7 @@ class RequireLoginMiddleware(object):
                     print 'Ownship Check is GOOD'
                     return None
                 else:
+                    print 'NOT THE OWNER, REDIRECTING'
                     return HttpResponseRedirect('/') 
 
 
@@ -72,7 +73,7 @@ class RequireLoginMiddleware(object):
         response = False
         print 'OWNERSHIP CHECK - - - - - - - '
         if str(requesting_user.username) in path:
-            print str(requesting_user).upper()
+            print str(requesting_user)
 
         if 'myprofile' in path and str(requesting_user.username) in path:
             print 'This is a Profile View'
@@ -80,6 +81,7 @@ class RequireLoginMiddleware(object):
                 DesignProfile.objects.get(user = requesting_user)
                 response = True
             except:
+                print 'Could not find Design Profile....'
                 pass
         elif '/project/edit/'in path:
             print 'This is a Project Edit View'

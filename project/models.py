@@ -31,6 +31,13 @@ def get_project_image_path(instance, filename):
 
         return image_upload_path   
 
+
+class Catagory(models.Model):
+    catagory = models.CharField(max_length = 100, null = True, blank = True)
+    def __unicode__(self):
+        return unicode(self.catagory)
+
+
 class Project(models.Model):
 
     project_id = models.SlugField(editable = False, max_length=255)
@@ -42,6 +49,7 @@ class Project(models.Model):
     project_last_modified = models.DateTimeField(auto_now=True, editable=False)
     revised_project = models.OneToOneField('self', null = True, blank = True, editable = False)
     project_id_from_revised_project = models.SlugField(editable = False)
+    project_catagory = models.ManyToManyField(Catagory, blank=True, null=True)
 
     def __unicode__(self):
         return unicode("%s Created By %s" % (self.project_name, self.project_creator))
@@ -62,11 +70,6 @@ class ProjectImage(BaseAlbum):
 
     def __unicode__(self):
         return unicode(self.project_image_for_project)
-
-
-class Catagory(models.Model):
-    catagory = models.CharField(max_length = 100, null = True, blank = True)
-    project = models.OneToOneField(Project)
 
 #Inspired From: Should be able to pull ALL information from the Inspired from project.
 #Auto-populate a lot of the fields prior to editting.  All creating user to edit things that need to be changed etc.

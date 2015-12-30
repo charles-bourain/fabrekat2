@@ -1,0 +1,25 @@
+<div class='panel panel-default'>
+    <div class='panel-header'>
+        <h4> Designer Information </h4>
+    </div>
+    <div class='panel-body'>
+        <div class='row'>
+            <div class='thumbnail col-md-3'>
+                <img src='{{user_profile.profile_picture.url}}'>
+                <div class='caption'>
+                    <ul>
+                        <li>Location: {{user_profile.location}}</li>
+                        <li>Interests:{%for interest in user_profile.interest.all %} {{ interest }}, {% endfor %}</li>
+                </div>
+            </div>
+            <div class='well col-md-9'>
+                {{user_profile.bio}}
+            </div>
+        </div>
+
+
+
+
+ 
+    </div>       
+</div>

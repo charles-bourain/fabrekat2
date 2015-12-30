@@ -42,13 +42,7 @@
 {% endblock %}
 
 
-<div class='panel panel-default stepPanel' id='stepPanel_{{step.step.id}}'>
-    <div class='panel-heading stepPanelHeading' data-step-id='{{step.step.id}}'> 
-        <span class='editSpan hidden glyphicon glyphicon-wrench pull-right' aria-hidden='true'></span>
-        <h4 style='font-size:25px'>
-            Step {{step.order}}
-        </h4>                        
-    </div>
+
     <div class='panel-body' id='stepPanelBody'>
             <div class='row'>
                 <div class='col-md-6'>
@@ -125,8 +119,7 @@
                         {% endif %}             
                     {% endfor %}
             </div>
-        </div>
-    </div>       
+        </div>     
 
 {% block extra_body %}
 
@@ -157,18 +150,17 @@ $('.mediaButton{{step.id}}').on('click', function(){
         } else {
             var desiredMedia = $('#pictureMedia{{step.id}}');
         }
-        toggleMedia(currentMedia, desiredMedia);
-})
 
-function toggleMedia(currentMedia, desiredMedia) {
-    if (currentMedia == desiredMedia) {
-    } else {
-        currentMedia.removeClass('activeMedia{{step.id}}');
-        desiredMedia.addClass('activeMedia{{step.id}}');
-        currentMedia.addClass('hiddenMedia{{step.id}}');
-        desiredMedia.removeClass('hiddenMedia{{step.id}}');
-    }
-    }
+        if (currentMedia == desiredMedia) {
+        } else {
+            currentMedia.removeClass('activeMedia{{step.id}}');
+            desiredMedia.addClass('activeMedia{{step.id}}');
+            currentMedia.addClass('hiddenMedia{{step.id}}');
+            desiredMedia.removeClass('hiddenMedia{{step.id}}');
+        }
+        })
+
+
 
 </script>
 

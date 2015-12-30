@@ -78,7 +78,7 @@
                 {% endif %}   
 
                     <button id='unlockSortButton' class='button btn-default list-group-item'>Sort Steps</button>
-                    <a id = 'addStepButton' href={% url 'add_step' project.project_id %} class = 'list-group-item'> Add Step</a>            
+                    <a id = 'addStepButton' href="{% url 'add_step' project.project_id %}" class = 'list-group-item'> Add Step</a>            
             </ul>
         </div>
         <div id='addStepButtonContainer'>                                    
@@ -102,7 +102,7 @@ $(document).ready(function() {
         });
         $.post("{% url 'update_step_order' project_id=project.project_id %}", {stepdata: stepArray, csrfmiddlewaretoken: '{{csrf_token}}' }, function(response){
             if(response){
-            window.location.href = "{% url 'prj_edit' project_id %}";
+            window.location.href = "{% url 'prj_edit' project.project_id %}";
             }
             else{alert('Error');}
         });

@@ -5,98 +5,15 @@
 {% load mathfilters %}
 
 {%block body %}
-<div class='container'>
+<div class='container-fluid'>
     <div class='page-header'>
         <h1>{{user_profile.user}}</h1>
     </div>
-    <div class='panel panel-default'>
-        <div class='panel-header'>
-            <h4>My Published Projects</h4>
-        </div>
+    {% include "designprofiles/public profile components/profile_info.html"%}
+    {% include "designprofiles/public profile components/published_projects.html"%}
+    {% include "designprofiles/private profile components/drafting_board.html"%}
+    {% include "designprofiles/public profile components/projects_in_work.html"%}
 
-        <div class='row'>
-            {% for project in projects %}
-                <div class='col-md-3'>
-                    <div class='thumbnail'>
-                        {% for image in published_project_images %}
-                            {% if image.project_image_for_project == project.project_link %}
-                                    <a href="{% url 'pub_detail' project.project_link.project_id %}"> 
-                                        <img src='{{image.image.url}}' alt=''></a>                                 
-                            {% endif %}
-                        {% endfor %}
-                    </div>
-                </div>
-            {% endfor %}    
-        </div>
-    </div>
-
-    <div class='panel panel-default'>
-        <div class='panel-header'>
-            <h4>Projects on the Drafting Board</h4>
-        </div>
-        <ul>
-        {% for project in project_drafts %}
-            <li><a href = "{% url 'prj_edit' project.project_id %}"> {{project.project_name}}</a></li>
-        {% endfor %}  
-        </ul>
-    </div>  
-
-    <div class='panel panel-default'>
-        <div class='panel-header'>
-            <h4> Projects in Progress </h4>
-        </div>
-        <div class='panel-body'>
-            {%for project in in_work_projects %}
-                <h4> 
-                    <a href="{% url 'pub_detail' project.project.project_link.project_id %}">{{project.project.project_link.project_name}}</a>
-                </h4>  
-                <div class="progress">
-
-                    <div 
-                        class="progress-bar" 
-                        role="progressbar" 
-                        aria-valuenow="50" 
-                        aria-valuemin="0" 
-                        aria-valuemax="100" 
-                        style="width: {{ project_percent_complete|get_item:project.project }}%;"
-                        >
-                        {{ project_percent_complete|get_item:project.project }}%
-                    </div>
-                </div>            
-                <div class='accordion-project-steps'>
-                    <h3> Steps </h3>
-                    <div>
-                        {% for steporder in in_work_step_order %}
-                            {% if steporder.project = project.project %}                            
-                                    <p>
-                                        Step# {{steporder.steporder.order }}: -- {{steporder.complete}} 
-                                        <form method="POST" action="" >
-                                            {% csrf_token %}
-                                            <button class='btn btn-default' type="submit" name="complete_toggle_{{steporder.id}}">
-                                            {% if steporder.complete %}
-                                            <span class='glyphicon glyphicon-ok'></span>
-                                            {% else %}
-                                            <span class='glyphicon glyphicon-remove'></span>
-                                            {% endif %}  
-                                            </button>
-                                        </form>
-                                    </p>
-                            {% endif %}
-                        {% endfor %}
-                    </div>
-                </div>    
-            {% endfor %}   
-        </div>       
-    </div>
 </div>
-
-<script>
-  $(function() {
-    $( ".accordion-project-steps" ).accordion();
-    collapsible: true;
-  });
-  </script>
-<!-- JavaScript Needed for % Complete Bar for an in-work Project.  Step numbers will not be shown here, only a 'complete' bar -->
-
 
 {% endblock %}

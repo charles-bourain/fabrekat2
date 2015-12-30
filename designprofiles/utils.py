@@ -14,11 +14,13 @@ def add_project_to_working_projects(user, project):
 
 
 def remove_project_from_working_projects(user, project):
+    print 'Ping Remove'
     designprofile = DesignProfile.objects.get(user = user, slug = user)
     working_step_order = WorkingStepOrder.objects.filter(user = designprofile, project = project)
 
     for step in working_step_order:
         step.delete()
+    working_step_order.delete()
     pass
 
 

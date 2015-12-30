@@ -41,11 +41,8 @@ $(document).ready(function(){
             
             <div class='panel-body'>
                 <div class='row'>
-                    {% crispy form %}
-                    <form enctype="multipart/form-data" method='POST' action="" name = '_addcat'>
-                        {% crispy catagory_form catagory_formset_helper %}
-                        <input type="submit" value="Add Catagory" class = 'btn btn-primary' name='_addcat'>
-                    </form>  
+                    {% crispy form %}  
+                    
                     {%crispy tag_form %}
                     <ul>
                         {% if tags %}

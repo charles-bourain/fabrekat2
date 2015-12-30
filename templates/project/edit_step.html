@@ -87,7 +87,7 @@
                 processData:false,
                 contentType:false,
                 success: function(){
-                    $('#activeEdit').parent().load('{% url "load_step" project_id=project_id step_id=step %}')
+                    $('#activeEdit').parent().load('{% url "editor_load_step" project_id=project_id step_id=step %}')
                 }
             })
         });
@@ -107,7 +107,7 @@
 
 
         $('#exitEditStep').on('click', function(event){
-            $('#activeEdit').parent().load('{% url "load_step" project_id=project_id step_id=step %}');
+            $('#activeEdit').parent().load('{% url "editor_load_step" project_id=project_id step_id=step %}');
         })
 
         $('#addComponent').click(function() {

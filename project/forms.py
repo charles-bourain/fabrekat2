@@ -47,6 +47,7 @@ class ProjectForm(forms.ModelForm):
 		]
 
 class ProjectEditForm(forms.ModelForm):
+	project_catagory = forms.ModelMultipleChoiceField(queryset = Catagory.objects.all())
 
 	def __init__(self, *args, **kwargs):
 		super(ProjectEditForm, self).__init__(*args,**kwargs)
@@ -62,6 +63,7 @@ class ProjectEditForm(forms.ModelForm):
 		fields = [
 			'project_name',
 			'project_description',
+			'project_catagory',
 		]		
 
 class ProjectDeleteForm(forms.ModelForm):
@@ -218,44 +220,25 @@ class ProjectImageForm(forms.ModelForm):
 		fields = ('image',)
 		required = True
 
-class CatagoryForm(forms.ModelForm):
+
+
+	def __init__(self, *args, **kwargs):
+		super(CatagoryForm, self).__init__(*args,**kwargs)
+		self.helper = FormHelper()
+		# form_id value is the 'id = blah blah' in the HTML.  Good for CSS/java id
+		self.helper.form_method = 'post'
+		self.helper.layout = Layout(
+
+			)
 
 	class Meta:
-		model = Catagory
-		fields = ('catagory',)
-
-	
-	CATAGORY_CHOICE_LIST = [
-	    ('LifeStyle','LifeStyle'),
-	    ('Outdoors','Outdoors'),
-	    ('Transporation','Transportation'),
-	    ('Technology','Technology'),
-	]
-
-	catagory = forms.MultipleChoiceField(
-		choices = CATAGORY_CHOICE_LIST,
-		widget = forms.CheckboxSelectMultiple)
+		model = ProjectTag
+		fields = ['tag']
 
 
-CatagoryFormSet = inlineformset_factory(
-	Project, 
-	Catagory, 
-	form = CatagoryForm,
-	can_delete = False,
-	extra = 1,
 
-	)
 
 class FormSetHelper(FormHelper):
 	def __init__(self, *args, **kwargs):
 		super(FormSetHelper, self).__init__(*args,**kwargs)
-		self.form_tag = False
-
-class CatagoryFormSetHelper(FormHelper):
-	def __init__(self, *args, **kwargs):
-		super(CatagoryFormSetHelper, self).__init__(*args, **kwargs)
-
-		self.layout = Layout(
-				InlineCheckboxes('catagory'),
-			)
 		self.form_tag = False

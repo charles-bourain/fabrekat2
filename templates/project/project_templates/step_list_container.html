@@ -4,7 +4,19 @@
         {% for step in projectstep %}
             <span class='landing' id='step{{step.order}}'></span>
             <div id='stepPanel_{{step.step.id}}'>
-                {% include 'project/project_templates/step.html' %}
+                {% if project_in_work_by_user == False %}
+                    <div class='panel panel-default stepPanel' id='stepPanel_{{step.id}}'>
+                        <div class='panel-heading stepPanelHeading' data-step-id='{{step.step.id}}'> 
+                            <span class='editSpan hidden glyphicon glyphicon-wrench pull-right' aria-hidden='true'></span>
+                            <h4 style='font-size:25px'>
+                                Step {{step.order}}
+                            </h4>                        
+                        </div> 
+                        {% include 'project/project_templates/step_body.html' %}
+                    </div>
+                {% else %}
+                    {% include 'project/project_templates/step_in_work_step_wrapper.html' %}
+                {% endif %}
             </div>
         {% endfor %}
     {% endif %}  

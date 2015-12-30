@@ -1,0 +1,105 @@
+{% load thumbnail %}
+{% load filename %}
+<!-- Need to load mathfilters(django-mathfilters) to do do division/multiplication/addition/subtraction in templates -->
+{% load mathfilters %}
+{% load crispy_forms_tags%}
+{% load staticfiles %}
+
+
+{% block extra_head %}
+
+<style>
+
+    .grayCheckSpan {
+        font-size:40px;
+        color:gray;
+    }
+    .completeSpan {
+        font-size:40px;
+        color:green !important;
+    }
+
+</style>
+
+<script>
+$(document).ready(function(){
+                          
+
+    $('#stepPanelHeading_{{step.id}}').hover(function() {
+        $(this).css('cursor','pointer');
+        $(this).find('.grayCheckSpan').removeClass('hidden');
+    },
+    function() {
+        $(this).find('.grayCheckSpan').addClass('hidden');
+    });
+
+    $('#stepPanelHeading_{{step.id}}').on('click', function(event) {
+        var data = {csrfmiddlewaretoken: document.getElementsByName('csrfmiddlewaretoken')[0].value,
+                        step_id: $(this).data('step-id')};
+        event.preventDefault();
+        $.ajax({
+            url: $(this).attr('action'),
+            type: $(this).attr('method'),
+            data: data,
+            success: function(response){
+            $('#stepPanel_{{step.id}}').parent().load('{% url "load_single_step_in_work_view" project_id=project_id step_id=step.id %}');
+            },
+        })
+
+    });
+    
+
+})
+</script>
+
+{% endblock %}
+
+<div class='panel panel-default stepPanel' id='stepPanel_{{step.id}}'>   
+
+    {% if single_step_load_is_complete and single_step_load %}
+
+        <form class='panel-heading stepPanelHeading' id='stepPanelHeading_{{step.id}}'action='{% url "toggle_step_complete" slug=user project_id=published_project.project_slug_id step_id=step.id %}' data-step-id='{{step.id}}' method='POST'>
+            <span class='completeSpan glyphicon glyphicon-check pull-right' aria-hidden='true'></span>
+            <h4 style='font-size:25px'>
+                Step {{step.order}}
+            </h4>  
+            {% csrf_token %}                      
+        </form>
+
+    {% elif single_step_load %}
+
+         <form class='panel-heading stepPanelHeading' id='stepPanelHeading_{{step.id}}'action='{% url "toggle_step_complete" slug=user project_id=published_project.project_slug_id step_id=step.id %}' data-step-id='{{step.id}}' method='POST'>
+            <span class='grayCheckSpan hidden glyphicon glyphicon-check pull-right' aria-hidden='true'></span>
+            <h4 style='font-size:25px'>
+                Step {{step.order}}
+            </h4>  
+            {% csrf_token %}                      
+        </form>
+
+    {% elif is_step_complete_dict|get_item:step %}
+
+        <form class='panel-heading stepPanelHeading' id='stepPanelHeading_{{step.id}}'action='{% url "toggle_step_complete" slug=user project_id=published_project.project_slug_id step_id=step.id %}' data-step-id='{{step.id}}' method='POST'>
+            <span class='completeSpan glyphicon glyphicon-check pull-right' aria-hidden='true'></span>
+            <h4 style='font-size:25px'>
+                Step {{step.order}}
+            </h4>  
+            {% csrf_token %}                   
+        </form>
+
+    {% else %}
+
+        <form class='panel-heading stepPanelHeading' id='stepPanelHeading_{{step.id}}'action='{% url "toggle_step_complete" slug=user project_id=published_project.project_slug_id step_id=step.id %}' data-step-id='{{step.id}}' method='POST'>
+            <span class='grayCheckSpan hidden glyphicon glyphicon-check pull-right' aria-hidden='true'></span>
+            <h4 style='font-size:25px'>
+                Step {{step.order}}
+            </h4>  
+            {% csrf_token %}                      
+        </form>
+
+    {% endif %}   
+
+
+
+
+{% include "project/project_templates/step_body.html"%}
+</div>

@@ -38,7 +38,7 @@ class FollowLinkNode(template.Node):
         
         return utils.follow_url(user, obj)
 
-
+#CONTAINS PROJECT SPECIFIC FUNCTION#######################
 @register.tag
 def project_follow_url(parser, token):
     """
@@ -53,7 +53,7 @@ def project_follow_url(parser, token):
     bits = token.split_contents()
     return ProjectFollowLinkNode(*bits[1:])     
 
-#CONTAINS PROJECT SPECIFIC FUNCTION#######################
+
 class ProjectFollowLinkNode(template.Node):
     def __init__(self, obj, user=None):
         self.obj = template.Variable(obj)
