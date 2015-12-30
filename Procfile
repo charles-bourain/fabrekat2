@@ -1,1 +1,1 @@
-web: waitress-serve --port=$PORT {fabrekat2}.wsgi:application
+web: waitress-serve --port=$PORT {ProjectSite}.wsgi:application
