@@ -26,6 +26,7 @@ django-toolbelt==0.0.1
 django-widget-tweaks==1.4.1
 djrill==1.4.0
 easy-thumbnails==2.2
+gunicorn==19.4.3
 imagestore==2.9.1
 lxml==3.4.4
 markdown2==2.3.0
@@ -41,5 +42,4 @@ sorl-thumbnail==12.2
 sqlparse==0.1.15
 static3==0.6.1
 swapper==0.2.1
-waitress==0.8.10
 whitenoise==2.0.6
