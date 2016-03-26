@@ -7,8 +7,6 @@ import os
 # BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 
-
-
 DEBUG = False
 TEMPLATE_DEBUG = False
 
@@ -29,7 +27,7 @@ STATICFILE_STORAGE = 'whitenoise.django.GzipManifestSTaticFilesStorage'
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Allow all host headers
-ALLOWED_HOSTS = ['http://protected-ocean-6890.herokuapp.com/']
+ALLOWED_HOSTS = ['*']
 
 # Static asset configuration
 STATIC_ROOT = 'staticfiles'
