@@ -49,6 +49,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'designprofiles.middleware.RequireLoginMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 )
 
 
