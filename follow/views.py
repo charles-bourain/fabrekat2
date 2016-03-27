@@ -1,5 +1,5 @@
 from django.contrib.auth.decorators import login_required
-from django.db.models.loading import cache
+from django.apps import apps as cache
 from django.http import HttpResponse, HttpResponseRedirect, \
     HttpResponseServerError, HttpResponseBadRequest
 from follow.utils import follow as _follow, unfollow as _unfollow, toggle as _toggle, project_toggle as _project_toggle

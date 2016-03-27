@@ -15,7 +15,7 @@ urlpatterns = patterns('',
 	url(r'^', include('haystack.urls')),
 	url(r'^', include('follow.urls')),
 	# url(r'^', include('fabricator.urls')),
-	url(r'^autocomplete/', include('autocomplete_light.urls')),
+	#url(r'^autocomplete/', include('autocomplete_light.urls')),
 	url(r'^', include('publishedprojects.urls')),
     url(r'^profile/', include('designprofiles.urls')),
 

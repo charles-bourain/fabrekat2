@@ -22,7 +22,6 @@ from projecttags.models import ProjectTag
 from projecttags.views import tag_assign, tag_remove
 from .utils import get_project_id, is_project_published, move_step_up, move_step_down, is_user_project_creator, adjust_order_for_deleted_step, delete_project
 from django import forms
-import autocomplete_light
 from designprofiles.models import WorkingStepOrder
 
 
@@ -356,6 +355,7 @@ class StepEditView(LoginRequiredMixin, UpdateView):
 class StepMediaView(LoginRequiredMixin, UpdateView):
     template_name = 'project/media_upload_view.html'
     model=ProjectStep
+    fields = ['project_step_video', 'project_step_image']
 
     def get_object(self, queryset=None):
         obj = get_object_or_404(ProjectStep, id = self.kwargs['step_id'])
@@ -443,6 +443,8 @@ class ImageCreateView(LoginRequiredMixin, CreateView):
         else:
             self.object = None
             form_class = self.get_form_class()
+            print "FORM CLASS ==",form_class
+            print self.get_form(form_class)
             form = self.get_form(form_class)
             return self.render_to_response(
                 self.get_context_data(
@@ -510,9 +512,14 @@ class EditProjectView(UpdateView, LoginRequiredMixin, ProjectDetailView):
         self.object = self.get_object()
         project = self.object 
         if '_save' in request.POST:
+            print "_save....."
+            print request.POST
             form = ProjectEditForm(request.POST, instance = self.object)
             if form.is_valid():
-                form.save()
+                self.form_valid(form)
+                return HttpResponseRedirect('/project/edit/%s' % project.project_id)
+            else:
+                self.form_invalid(form)
         elif '_addtag' in request.POST:
             tag_assign(self.object,TagForm(request.POST))
             return HttpResponseRedirect('/project/edit/%s' % project.project_id)
@@ -566,6 +573,7 @@ class EditProjectView(UpdateView, LoginRequiredMixin, ProjectDetailView):
                 return self.form_valid(form)
             else:
                 print 'FORMS WERE INVALID'
+                print "ERRORS:", form.errors
                 return self.form_invalid(form)
         except:
             return HttpResponseRedirect('/project/edit/%s' % project.project_id)
@@ -710,7 +718,7 @@ def create_blank_step(request, project_id):
     print 'Saving the New Blank Step'
     blank_step_order.save()
     if project_creator==requesting_user:
-        redirect('home')
+        redirect('haystack_search')
     return HttpResponseRedirect('/project/edit/%s' % project_id)  
 
 

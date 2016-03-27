@@ -18,10 +18,10 @@ def register(model, field_name=None, related_name=None, lookup_method_name='get_
     registry.append(model)
     
     if not field_name:
-        field_name = 'target_%s' % model._meta.module_name
+        field_name = 'target_%s' % model._meta.model_name
     
     if not related_name:
-        related_name = 'follow_%s' % model._meta.module_name
+        related_name = 'follow_%s' % model._meta.model_name
     
     field = ForeignKey(model, related_name=related_name, null=True,
         blank=True, db_index=True)

@@ -9,7 +9,7 @@ class Product(models.Model):
     asin = models.CharField(max_length = 1000,blank = True, null = True, editable = False)
     upc = models.CharField(max_length = 1000,blank = True, null = True, editable = False)
     currency = models.CharField(max_length = 20,blank = True, null = True)
-    url = models.URLField(null = True, blank = True)
+    url = models.URLField(max_length = 2000, null = True, blank = True)
 
     def __unicode__(self):
         return unicode(self.name)

@@ -20,7 +20,7 @@ class DesignProfile(models.Model):
     slug = models.SlugField()
     location = models.CharField(max_length = 30)
     bio = models.CharField(max_length = 5000)
-    interest = models.ManyToManyField(Catagory, null=True, blank=True)
+    interest = models.ManyToManyField(Catagory, blank=True)
     profile_picture = models.ImageField(
         upload_to=get_profile_picture_image_path, 
         default='default_images/profile_image/no-photo-available-icon.jpg')

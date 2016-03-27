@@ -4,10 +4,9 @@ from django.contrib.auth.models import User
 from datetime import datetime
 from filebrowser.base import FileObject
 from filebrowser.sites import site
-from imagestore.models.bases.album import BaseAlbum
-from imagestore.models.bases.image import BaseImage
 from django.core.exceptions import ValidationError
 from projectpricer.models import Product
+from imagestore.models.bases.album import BaseAlbum
 
 
 #Currently does - /project_image_albums/user_id/project_name/filename.
@@ -49,17 +48,13 @@ class Project(models.Model):
     project_last_modified = models.DateTimeField(auto_now=True, editable=False)
     revised_project = models.OneToOneField('self', null = True, blank = True, editable = False)
     project_id_from_revised_project = models.SlugField(editable = False)
-    project_catagory = models.ManyToManyField(Catagory, blank=True, null=True)
+    project_catagory = models.ManyToManyField(Catagory, blank=True)
 
     def __unicode__(self):
         return unicode("%s Created By %s" % (self.project_name, self.project_creator))
     
 
-class ProjectImage(BaseAlbum):
-    
-    class Meta(BaseAlbum.Meta): 
-        app_label = "imagestore" 
-        abstract = False        
+class ProjectImage(models.Model):
 
     project_image_for_project = models.ForeignKey(Project, related_name = 'imageforproject')
     image=models.ImageField(

@@ -3,7 +3,6 @@ from project.models import Project, ProjectImage, Catagory
 from projectsteps.models import PurchasedComponent, FabricatedComponent, ProjectFile, ProjectStep, StepOrder
 from django.forms.models import inlineformset_factory
 from django.forms import ImageField, CharField
-import autocomplete_light
 from projecttags.models import ProjectTag
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Layout, Div, HTML, Fieldset
@@ -156,6 +155,9 @@ class FabricatedComponentForm(forms.ModelForm):
 
 	class Meta:
 		model = FabricatedComponent
+		fields = ['fabricated_component_from_project', 'fabricated_component_quantity']
+
+
 
 
 FabricatedComponentFormSet = inlineformset_factory(
@@ -221,6 +223,7 @@ class ProjectImageForm(forms.ModelForm):
 		required = True
 
 
+class CatagoryForm(forms.ModelForm):
 
 	def __init__(self, *args, **kwargs):
 		super(CatagoryForm, self).__init__(*args,**kwargs)
@@ -232,8 +235,8 @@ class ProjectImageForm(forms.ModelForm):
 			)
 
 	class Meta:
-		model = ProjectTag
-		fields = ['tag']
+		model = Catagory
+		fields = ['catagory']
 
 
 
