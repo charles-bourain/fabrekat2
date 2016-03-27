@@ -71,17 +71,17 @@
                         </div>                            
                     
                         <div class="collapse navbar-collapse" aria-expanded="false" style="height: 1px;">
-                            {% if user.username == "" %}
+<!--                             {% if user.username == "" %} -->
                                 <ul class="nav navbar-nav">
                                     <li><a href="{% url 'auth_login' %}"> Log In</a></li>
                                 </ul>
-                            {% else %}
+<!--                             {% else %}
                                 <ul class="nav navbar-nav">
                                     <li><a id="create-project-ajax-popup" href="{% url 'prj_create' %}">Create Project</a></li>
                                     <li><a href="{% url 'my_profile' user.username  %}"> My Profile </a></li>
                                     <li><a href="{% url 'auth_logout' %}"> Logout</a></li>
                                 </ul>                             
-                            {% endif %}
+                            {% endif %} -->
                         </div>
                         <form method="get" action="." type="search" class='navbar-form-fluid' role='search'>
                             <div class='input-group'>
