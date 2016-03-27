@@ -70,11 +70,10 @@ LOGIN_URL = '/account/login/'
 
 
 INSTALLED_APPS = (
-    'admin_tools.theming',
-    'admin_tools.menu',
-    'autocomplete_light',
-    'django.contrib.admin',
     'django.contrib.auth',
+    'dal',
+    'dal_select2',
+    'django.contrib.admin',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
@@ -84,12 +83,8 @@ INSTALLED_APPS = (
     'project',
     'pinax_theme_bootstrap',
     'bootstrapform',
-    'haystack',
-    'imagestore',
-    'sorl.thumbnail',
     'tagging',
     'follow',
-    'easy_thumbnails',
     'publishedprojects',
     'projectpricer',
     'projecttags',
@@ -101,5 +96,5 @@ INSTALLED_APPS = (
     'projectsteps',
     'widget_tweaks',
     'crispy_forms',
-    'djrill',
+    'imagestore',
 )
