@@ -1,1 +1,1 @@
-web: gunicorn ProjectSite.wsgi --log-file -
+web: gunicorn --chdir fabrekat2  --log-file -ProjectSite.wsgi:application
