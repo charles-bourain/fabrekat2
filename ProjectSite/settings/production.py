@@ -18,6 +18,8 @@ base.INSTALLED_APPS += [
     'storages',
 ]
 
+print INSTALLED_APPS
+
 # Parse database configuration from $DATABASE_URL
 import dj_database_url
 DATABASES = {
