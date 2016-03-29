@@ -11,6 +11,13 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 DEBUG = False
 TEMPLATE_DEBUG = False
 
+#PRODUCTION SPECIFIC APPS
+base.INSTALLED_APPS += [
+    'whitenoise',
+    'djrill',
+    'storages',
+]
+
 # Parse database configuration from $DATABASE_URL
 import dj_database_url
 DATABASES = {
@@ -71,11 +78,4 @@ MEDIA_URL = 'http://%s.s3.amazonaws.com/chazly321/' % AWS_STORAGE_BUCKET_NAME
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoSTorage'
 
 LOGIN_URL = '/account/login/'
-
-
-base.INSTALLED_APPS += [
-    'whitenoise',
-    'djrill',
-    'storages',
-]
 
