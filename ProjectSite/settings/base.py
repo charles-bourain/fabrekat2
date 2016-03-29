@@ -18,6 +18,9 @@ import dj_database_url
 # SECURITY WARNING: keep the secret key used in production secret!
 
 SECRET_KEY = 'ax#kf7xmh^=d!$r01)$wk0$$9_5(!cb)=_+uiv5ym!g_r_ybml'
+AWS_ACCESS_KEY_ID = 'AKIAJMKFZSDNJMF7WPKQ'
+AWS_SECRET_ACCESS_KEY = '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'
+AWS_ASSOCIATE_TAG = 'Fabrekat-20'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
@@ -28,6 +31,8 @@ DEBUG = True
 TEMPLATE_DEBUG = True
 
 SITE_ID = 1
+
+
 
 # Application definition
 
@@ -67,6 +72,37 @@ OWNERSHIP_REQUIRED_URLS = (
 
 
     )
+
+INSTALLED_APPS = [
+
+    'django.contrib.auth',
+    'dal',
+    'dal_select2',
+    'django.contrib.admin',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'django.contrib.sites',
+    'jquery',
+    'project',
+    'pinax_theme_bootstrap',
+    'bootstrapform',
+    'tagging',
+    'follow',
+    'publishedprojects',
+    'projectpricer',
+    'projecttags',
+    'bottlenose',
+    'mathfilters',
+    'registration',
+    'designprofiles',
+    'projectsteps',
+    'widget_tweaks',
+    'crispy_forms',
+    'imagestore',
+]
+
 
 
 #Using the SIMPLE backend.  Very basic database searching.  Will want to switch to elasticsearch or solr
