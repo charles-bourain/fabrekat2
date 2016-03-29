@@ -20,7 +20,7 @@ DATABASES = {
 DATABASES['default']['CONN_MAX_AGE'] = 500
 
 
-
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
 # STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Honor the 'X-Forwarded-Proto' header for request.is_secure()
