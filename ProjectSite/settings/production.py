@@ -89,7 +89,6 @@ INSTALLED_APPS = (
     'publishedprojects',
     'projectpricer',
     'projecttags',
-    'debug_toolbar',
     'bottlenose',
     'mathfilters',
     'registration',
