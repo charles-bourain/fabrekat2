@@ -11,6 +11,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 DEBUG = False
 TEMPLATE_DEBUG = False
 
+SECRET_KEY = os.environ('SECRET_KEY')
+AWS_ACCESS_KEY_ID = os.environ('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.environ('AWS_SECRET_ACCESS_KEY')
+
 #PRODUCTION SPECIFIC APPS
 base.INSTALLED_APPS += [
     'whitenoise',
@@ -35,6 +39,7 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
 )
+
 
 
 # Honor the 'X-Forwarded-Proto' header for request.is_secure()
@@ -74,10 +79,9 @@ TEMPLATE_DIRS=(
     )
 
 #MEDIA AND MEDIA STORAGE MANAGEMENT
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-AWS_STORAGE_BUCKET_NAME = 'fabrekat-storage-image-bucket'
-MEDIA_URL = 'http://%s.s3.amazonaws.com/chazly321/' % AWS_STORAGE_BUCKET_NAME
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoSTorage'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = 'http://%s.s3-website-us-west-2.amazonaws.com' % AWS_STORAGE_BUCKET_NAME
 
 LOGIN_URL = '/account/login/'
 

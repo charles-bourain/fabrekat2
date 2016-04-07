@@ -16,10 +16,15 @@ import dj_database_url
 # See https://docs.djangoproject.com/en/1.7/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
+key_directory = 'C:\\Users\\Chaz\\Envs\\fabenv18\\'
 
-SECRET_KEY = 'ax#kf7xmh^=d!$r01)$wk0$$9_5(!cb)=_+uiv5ym!g_r_ybml'
-AWS_ACCESS_KEY_ID = 'AKIAJMKFZSDNJMF7WPKQ'
-AWS_SECRET_ACCESS_KEY = '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'
+with open(key_directory+'SECRET_KEY.txt') as key:
+    SECRET_KEY = key.read().strip()
+with open(key_directory+'AWS_ACCESS_KEY_ID.txt') as key:
+    AWS_ACCESS_KEY_ID = key.read().strip()
+with open(key_directory+'AWS_SECRET_ACCESS_KEY.txt') as key:
+    AWS_SECRET_ACCESS_KEY = key.read().strip()
+AWS_STORAGE_BUCKET_NAME = 'fabrekat-storage-image-bucket'
 AWS_ASSOCIATE_TAG = 'Fabrekat-20'
 
 # SECURITY WARNING: don't run with debug turned on in production!
