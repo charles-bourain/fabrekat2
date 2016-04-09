@@ -109,6 +109,8 @@ INSTALLED_APPS = [
 # es = urlparse(os.environ.get('SEARCHBOX_URL') or 'http://127.0.0.1:9200/')
 # port = es.port or 80
 
+#Django Crispy Forms using BootStrap Templates
+CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
 HAYSTACK_CONNECTIONS = {
     'default': {
