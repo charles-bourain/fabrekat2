@@ -66,7 +66,7 @@ TEMPLATE_DIRS=(
 #MEDIA AND MEDIA STORAGE MANAGEMENT
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoSTorage'
 MEDIA_ROOT = os.path.join(base.BASE_DIR, 'media')
-MEDIA_URL = 'http://%s.s3-website-us-west-2.amazonaws.com' % base.AWS_STORAGE_BUCKET_NAME
+MEDIA_URL = 'http://%s.s3-website-us-west-2.amazonaws.com/' % base.AWS_STORAGE_BUCKET_NAME
 
 LOGIN_URL = '/account/login/'
 
