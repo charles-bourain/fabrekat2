@@ -2,6 +2,10 @@ import os
 from django.conf import settings
 import base
 
+SECRET_KEY = os.environ.get('SECRET_KEY')
+AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
+
 DATABASES = settings.DATABASES
 
 import os
@@ -11,9 +15,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 DEBUG = False
 TEMPLATE_DEBUG = False
 
-SECRET_KEY = os.environ.get('SECRET_KEY')
-AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
-AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
+
 
 #PRODUCTION SPECIFIC APPS
 base.INSTALLED_APPS += [
