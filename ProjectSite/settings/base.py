@@ -26,19 +26,9 @@ AWS_ASSOCIATE_TAG = 'Fabrekat-20'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
-#STATIC FILE MANAGEMENT
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-STATIC_ROOT = os.path.join(BASE_DIR,'staticfiles')
-STATIC_URL = '/static/'
-STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, 'static'),
-)
+
 
 ALLOWED_HOSTS = []
-
-DEBUG = True
-
-TEMPLATE_DEBUG = True
 
 SITE_ID = 1
 

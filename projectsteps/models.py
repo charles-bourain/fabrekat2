@@ -25,10 +25,13 @@ def validate_file_extension(value):
 
 
 def get_step_image_path(instance, filename):
+    print 'INSTANCE = ', instance.id
+    print 'FILENAME = ', filename
     image_upload_path = os.path.join('step_files',
-        'PLACEHOLDER',
+        str(instance.id),
         filename
         )
+    print 'IMG UPLOAD PATH = ',image_upload_path
     return image_upload_path
 
 
@@ -48,6 +51,7 @@ class ProjectStep(models.Model):
 
     def __unicode__(self):
         return self.project_step_description
+
 
 
 

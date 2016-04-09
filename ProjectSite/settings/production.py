@@ -10,6 +10,13 @@ DEBUG = False
 TEMPLATE_DEBUG = False
 
 
+#STATIC FILE MANAGEMENT
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATIC_ROOT = os.path.join(base.BASE_DIR,'staticfiles')
+STATIC_URL = '/static/'
+STATICFILES_DIRS = (
+    os.path.join(base.BASE_DIR, 'static'),
+)
 
 #PRODUCTION SPECIFIC APPS
 base.INSTALLED_APPS += [
